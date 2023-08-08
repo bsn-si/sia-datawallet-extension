@@ -35,8 +35,8 @@ const { updateUser } = useUserStore()
 function openOptionsPage() {
   browser.runtime.openOptionsPage()
 }
-function logout() {
+const logout = async () => {
   updateUser(null)
-  routerPush('home')
+  await routerPush('login')
 }
 </script>
