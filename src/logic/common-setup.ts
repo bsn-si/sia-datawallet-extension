@@ -2,6 +2,7 @@ import type { App } from 'vue'
 import { router } from '~/popup/router'
 import { createPinia } from 'pinia'
 
+
 export function setupApp(app: App) {
   // Inject a globally available `$app` object in template
   app.config.globalProperties.$app = {
@@ -17,6 +18,5 @@ export function setupApp(app: App) {
 
   app.use(router)
   app.use(createPinia())
-
 
 }
