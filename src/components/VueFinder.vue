@@ -164,12 +164,18 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
     const storageName = 'local';
     let currentDir = '';
     if (params.path) {
-      currentDir = params.path.replace(storageName + '://', '') + '/'
+      currentDir = params.path.replace(storageName + '://', '');
+      if (currentDir && !currentDir.endsWith('/')) {
+        currentDir += '/';
+      }
     }
     const data = await api.objects.objectsDetail(currentDir, { signal }).then(res => res.data);
     data.adapter = storageName;
     data.storages = [storageName];
     data.dirname = storageName + '://' + currentDir;
+    if (!data.entries) {
+      data.entries = [];
+    }
     data.files = data.entries.map((entry) => {
       const path = entry.name.replace(/\/$/, '').replace(/^\//g, '');
       const filename = path.split('/').pop();
