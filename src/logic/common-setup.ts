@@ -1,7 +1,7 @@
 import type { App } from 'vue'
 import { router } from '~/popup/router'
 import { createPinia } from 'pinia'
-
+import registerGlobalComponents from '~/plugins/global-components'
 
 export function setupApp(app: App) {
   // Inject a globally available `$app` object in template
@@ -19,4 +19,5 @@ export function setupApp(app: App) {
   app.use(router)
   app.use(createPinia())
 
+  registerGlobalComponents(app)
 }

@@ -38,6 +38,8 @@ import VFBreadcrumb from '../components/Breadcrumb.vue';
 import VFContextMenu from '../components/ContextMenu.vue';
 import {useI18n} from '../composables/useI18n.js';
 
+
+
 const props = defineProps({
   url: {
     type: [String],
@@ -152,6 +154,8 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
     }
     loadingState.value = true;
   }
+
+
 
   controller = new AbortController();
   const signal = controller.signal;
