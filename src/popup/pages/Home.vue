@@ -1,6 +1,6 @@
 <template>
   <main class="px-4 py-5" style="min-width: 800px;">
-    <vue-finder id='my_vuefinder' url="http://localhost:3000/data"></vue-finder>
+    <vue-finder id='my_vuefinder'></vue-finder>
 
     <div class="mt-2">
       <button class="btn mt-2" @click="openOptionsPage">

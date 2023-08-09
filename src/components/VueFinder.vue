@@ -38,6 +38,7 @@ import VFBreadcrumb from '../components/Breadcrumb.vue';
 import VFContextMenu from '../components/ContextMenu.vue';
 import {useI18n} from '../composables/useI18n.js';
 import {api, isFetchError} from "~/services";
+import {CONFIG} from "~/env";
 
 
 const props = defineProps({
@@ -160,15 +161,22 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
   controller = new AbortController();
   const signal = controller.signal;
 
-  const getObjects = async () => {
-    const storageName = 'local';
+  const storageName = 'local';
+
+  const getCurrentDir = (path) => {
     let currentDir = '';
-    if (params.path) {
-      currentDir = params.path.replace(storageName + '://', '');
+    if (path) {
+      currentDir = path.replace(storageName + '://', '');
       if (currentDir && !currentDir.endsWith('/')) {
         currentDir += '/';
       }
     }
+    return currentDir;
+  };
+
+  const getObjects = async (path) => {
+    let currentDir = getCurrentDir(path);
+
     const data = await api.objects.objectsDetail(currentDir, { signal }).then(res => res.data);
     data.adapter = storageName;
     data.storages = [storageName];
@@ -205,8 +213,61 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
     return data;
   };
 
-  try {
-    getObjects().then(data => {
+  const createFolder = async (path, name) => {
+    let currentDir = getCurrentDir(path);
+
+    const data = await api.objects.objectsUpdate(currentDir + name + '/', null, {baseUrl: `${CONFIG.API_HOST}/api/worker`}).then(res => res.data);
+    return data;
+  };
+
+  const deleteObjects = async (path, items) => {
+    let currentDir = getCurrentDir(path);
+
+    const deletionPromises = items.map(async item => {
+      const itemPath = item.path.replace(storageName + '://', '') + (item.type === 'dir' ? '/' : '');
+      const result = await api.objects.objectsDelete2(currentDir + itemPath);
+      return result.data;
+    });
+
+    try {
+      const deletedData = await Promise.all(deletionPromises);
+      return deletedData;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+
+  if (params.q === 'newfolder') {
+    const data = createFolder(params.path, params.name).then(data => {
+      if (onSuccess) {
+        onSuccess(data);
+        emitter.emit('vf-modal-close');
+        emitter.emit('vf-fetch', {params:{q: 'index', adapter: adapter, path: params.path}});
+      }
+    })
+    .catch((e) => {
+      if (onError) {
+        onError(e.error);
+      }
+    })
+  } else if (params.q === 'delete') {
+    const data = deleteObjects(params.path, params.items).then(data => {
+      if (onSuccess) {
+        onSuccess(data);
+        emitter.emit('vf-modal-close');
+        emitter.emit('vf-fetch', {params:{q: 'index', adapter: adapter, path: params.path}});
+      }
+    })
+    .catch((e) => {
+      if (onError) {
+        onError(e.error);
+      }
+    })
+  }
+
+  else if (params.q === 'index') {
+    getObjects(params.path).then(data => {
       adapter.value = data.adapter;
       if (['index', 'search'].includes(params.q)) {
         loadingState.value = false;
@@ -216,15 +277,16 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
       if (onSuccess) {
         onSuccess(data);
       }
-    });
-
-  } catch (e) {
-    if (isFetchError(e)) {
+    })
+    .catch((e) => {
       if (onError) {
-        onError(e);
+        onError(e.error);
       }
-    }
+    })
+    .finally(() => {
+    });
   }
+
 
   // ajax(apiUrl.value, {params, signal})
   //     .then(data => {

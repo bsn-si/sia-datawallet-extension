@@ -69,7 +69,7 @@ const remove = () => {
         q: 'delete',
         adapter: adapter.value,
         path: props.current.dirname,
-        items: JSON.stringify(items.value.map(({path, type}) => ({path, type})))
+        items: /*JSON.stringify(*/items.value.map(({path, type}) => ({path, type}))/*)*/
       },
       onSuccess: () => {
         emitter.emit('vf-toast-push', {label: t('Files deleted.')});
