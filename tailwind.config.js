@@ -4,7 +4,7 @@ module.exports = {
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
-  important: '.vuefinder',
+
   darkMode: 'class',
   theme: {
     extend: {

@@ -1,5 +1,5 @@
 <template>
-  <main class="w-[300px] px-4 py-5 text-center text-gray-700">
+  <main class="px-4 py-5" style="min-width: 800px;">
     <vue-finder id='my_vuefinder' url="http://localhost:3000/data"></vue-finder>
 
     <div class="mt-2">

@@ -69,9 +69,9 @@ const login = async () => {
   if (!formRef.value?.checkValidity()) return
 
   try {
-    setAuthorizationToken(form.password)
+    const token = setAuthorizationToken(form.password)
     const result = await api.consensus.stateList()
-    updateUser({consensusState: result.data as ConsensusState})
+    updateUser({consensusState: result.data as ConsensusState, token: token as string})
     await routerPush('home')
   } catch (e) {
     setAuthorizationToken(null)

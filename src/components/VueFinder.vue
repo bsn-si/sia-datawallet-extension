@@ -37,7 +37,7 @@ import VFStatusbar from '../components/Statusbar.vue';
 import VFBreadcrumb from '../components/Breadcrumb.vue';
 import VFContextMenu from '../components/ContextMenu.vue';
 import {useI18n} from '../composables/useI18n.js';
-
+import {api, isFetchError} from "~/services";
 
 
 const props = defineProps({
@@ -147,6 +147,8 @@ emitter.on('vf-fetch-abort', () => {
   loadingState.value = false;
 });
 
+
+
 emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
   if (['index', 'search'].includes(params.q)) {
     if (controller) {
@@ -155,27 +157,86 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
     loadingState.value = true;
   }
 
-
-
   controller = new AbortController();
   const signal = controller.signal;
-  ajax(apiUrl.value, {params, signal})
-      .then(data => {
-        adapter.value = data.adapter;
-        if (['index', 'search'].includes(params.q)) {
-          loadingState.value = false;
-        }
-        emitter.emit('vf-modal-close');
-        updateItems(data);
+
+  const getObjects = async () => {
+    const storageName = 'local';
+    let currentDir = '';
+    if (params.path) {
+      currentDir = params.path.replace(storageName + '://', '') + '/'
+    }
+    const data = await api.objects.objectsDetail(currentDir, { signal }).then(res => res.data);
+    data.adapter = storageName;
+    data.storages = [storageName];
+    data.dirname = storageName + '://' + currentDir;
+    data.files = data.entries.map((entry) => {
+      const path = entry.name.replace(/\/$/, '').replace(/^\//g, '');
+      const filename = path.split('/').pop();
+      let extension = '';
+      if (entry.name.endsWith('/')) {
+        entry.type = 'dir';
+      } else {
+        entry.type = 'file';
+        extension = name.split('.').pop();
+        entry.mime_type = '';
+      }
+      entry.basename = filename;
+      entry.path = storageName + '://' + path;
+      entry.extension = extension;
+      entry.file_size = entry.size;
+      entry.visibility = 'public'
+      entry.last_modified = '';
+      entry.extra_metadata = [];
+      entry.storage = storageName;
+
+      delete entry.name;
+      delete entry.size;
+
+      return entry;
+    });
+    delete data.entries;
+    return data;
+  };
+
+  try {
+    getObjects().then(data => {
+      adapter.value = data.adapter;
+      if (['index', 'search'].includes(params.q)) {
+        loadingState.value = false;
+      }
+      emitter.emit('vf-modal-close');
+      updateItems(data);
+      if (onSuccess) {
         onSuccess(data);
-      })
-      .catch((e) => {
-        if (onError) {
-          onError(e);
-        }
-      })
-      .finally(() => {
-      });
+      }
+    });
+
+  } catch (e) {
+    if (isFetchError(e)) {
+      if (onError) {
+        onError(e);
+      }
+    }
+  }
+
+  // ajax(apiUrl.value, {params, signal})
+  //     .then(data => {
+  //       adapter.value = data.adapter;
+  //       if (['index', 'search'].includes(params.q)) {
+  //         loadingState.value = false;
+  //       }
+  //       emitter.emit('vf-modal-close');
+  //       updateItems(data);
+  //       onSuccess(data);
+  //     })
+  //     .catch((e) => {
+  //       if (onError) {
+  //         onError(e);
+  //       }
+  //     })
+  //     .finally(() => {
+  //     });
 });
 
 emitter.on('vf-download', (url) => {

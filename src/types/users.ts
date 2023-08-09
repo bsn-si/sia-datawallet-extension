@@ -4,4 +4,5 @@ export interface ConsensusState {
 
 export interface User {
   consensusState?: ConsensusState
+  token: string
 }
