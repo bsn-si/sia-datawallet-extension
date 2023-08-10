@@ -39,6 +39,7 @@ import VFContextMenu from '../components/ContextMenu.vue';
 import {useI18n} from '../composables/useI18n.js';
 import {api, isFetchError} from "~/services";
 import {CONFIG} from "~/env";
+import getCurrentDir, {storageName} from "~/utils/getCurrentDir";
 
 
 const props = defineProps({
@@ -161,21 +162,10 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
   controller = new AbortController();
   const signal = controller.signal;
 
-  const storageName = 'local';
 
-  const getCurrentDir = (path) => {
-    let currentDir = '';
-    if (path) {
-      currentDir = path.replace(storageName + '://', '');
-      if (currentDir && !currentDir.endsWith('/')) {
-        currentDir += '/';
-      }
-    }
-    return currentDir;
-  };
 
   const getObjects = async (path) => {
-    let currentDir = getCurrentDir(path);
+    const currentDir = getCurrentDir(path);
 
     const data = await api.objects.objectsDetail(currentDir, { signal }).then(res => res.data);
     data.adapter = storageName;
@@ -214,14 +204,14 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
   };
 
   const createFolder = async (path, name) => {
-    let currentDir = getCurrentDir(path);
+    const currentDir = getCurrentDir(path);
 
     const data = await api.objects.objectsUpdate(currentDir + name + '/', null, {baseUrl: `${CONFIG.API_HOST}/api/worker`}).then(res => res.data);
     return data;
   };
 
   const deleteObjects = async (path, items) => {
-    let currentDir = getCurrentDir(path);
+    const currentDir  = getCurrentDir(path);
 
     const deletionPromises = items.map(async item => {
       const itemPath = item.path.replace(storageName + '://', '') + (item.type === 'dir' ? '/' : '');
@@ -264,9 +254,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         onError(e.error);
       }
     })
-  }
-
-  else if (params.q === 'index') {
+  } else if (params.q === 'index') {
     getObjects(params.path).then(data => {
       adapter.value = data.adapter;
       if (['index', 'search'].includes(params.q)) {

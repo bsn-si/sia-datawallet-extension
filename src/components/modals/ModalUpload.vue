@@ -47,9 +47,12 @@ import plupload from 'plupload'
 import VFModalLayout from './ModalLayout.vue';
 import {inject, onMounted, ref} from 'vue';
 import {useApiUrl} from '../../composables/useApiUrl.js';
-import buildURLQuery from '../../utils/buildURLQuery.js';
+// import buildURLQuery from '../../utils/buildURLQuery.js';
 import Message from '../Message.vue';
-import {csrf} from '../../utils/ajax.js';
+// import {csrf} from '../../utils/ajax.js';
+import {CONFIG} from "~/env";
+import {userStorage} from "~/store/user";
+import getCurrentDir from "~/utils/getCurrentDir";
 
 const emitter = inject('emitter');
 const {apiUrl} = useApiUrl();
@@ -83,13 +86,15 @@ onMounted(() => {
     max_file_size: maxFileSize,
     multiple_queues: true,
     file_data_name: 'file',
-    url: apiUrl.value + '?' + buildURLQuery(Object.assign(postData, {q: 'upload', adapter: props.current.adapter, path: props.current.dirname})),
+    http_method: 'PUT',
+    url: `${CONFIG.API_HOST}/api/worker/objects/`,//apiUrl.value + '?' + buildURLQuery(Object.assign(postData, {q: 'upload', adapter: props.current.adapter, path: props.current.dirname})),
     // filters : [
     // 	{title : "Image files", extensions : "jpg,gif,png,jpeg"},
     // 	{title : "Zip files", extensions : "zip"}
     // ],
     headers: {
-      ...(csrf && {'X-CSRF-Token' : csrf})
+      // ...(csrf && {'X-CSRF-Token' : csrf})
+      ...{'Authorization': `Basic ${userStorage.get()?.token}`}
     },
 
     init: {
@@ -106,6 +111,11 @@ onMounted(() => {
             percent: ''
           });
         });
+      },
+
+      BeforeUpload: function (up, file) {
+        const currentDir = getCurrentDir(props.current.dirname);
+        up.setOption('url', `${CONFIG.API_HOST}/api/worker/objects/` + currentDir + encodeURIComponent(file.name));
       },
 
       UploadProgress: function (up, file) {

@@ -139,7 +139,7 @@ emitter.on('vf-contextmenu-show', ({event, area, items,  target = null}) => {
     // console.log('no files selected');
   } else if (items.length > 1 && items.some(el => el.path === target.path)) {
     context.items.push(menuItems.refresh);
-    context.items.push(menuItems.archive);
+    // context.items.push(menuItems.archive);
     context.items.push(menuItems.delete);
     emitter.emit('vf-context-selected', items);
     // console.log(items.length + ' selected (more than 1 item.)');
@@ -152,11 +152,11 @@ emitter.on('vf-contextmenu-show', ({event, area, items,  target = null}) => {
     }
     context.items.push(menuItems.rename);
 
-    if (target.mime_type == 'application/zip') {
-      context.items.push(menuItems.unarchive);
-    } else {
-      context.items.push(menuItems.archive);
-    }
+    // if (target.mime_type == 'application/zip') {
+    //   context.items.push(menuItems.unarchive);
+    // } else {
+    //   context.items.push(menuItems.archive);
+    // }
     context.items.push(menuItems.delete);
     emitter.emit('vf-context-selected', [target]);
     // console.log(target.type + ' is selected');
