@@ -40,6 +40,7 @@ import {useI18n} from '../composables/useI18n.js';
 import {api, isFetchError} from "~/services";
 import {CONFIG} from "~/env";
 import getCurrentDir, {storageName} from "~/utils/getCurrentDir";
+import {saveBlobToMachine} from "~/utils/saveBlobToMachine";
 
 
 const props = defineProps({
@@ -295,8 +296,22 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
   //     });
 });
 
-emitter.on('vf-download', (url) => {
-  document.getElementById('download_frame').src = url;
+emitter.on('vf-download', async (params) => {
+  // document.getElementById('download_frame').src = url;
+
+  const downloadObject = async (path) => {
+    const response = await api.objects.objectsDetail(
+        path.replace(storageName + '://', ''),
+        { baseUrl: `${CONFIG.API_HOST}/api/worker`, format: 'blob' }
+    );
+    return response.data;
+  };
+
+  const data = await downloadObject(params.path);
+  if (data) {
+    saveBlobToMachine(params.path.split('/').pop(), data);
+  }
+
   emitter.emit('vf-modal-close');
 });
 

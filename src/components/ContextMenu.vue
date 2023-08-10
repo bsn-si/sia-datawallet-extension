@@ -86,8 +86,9 @@ const menuItems = {
   download: {
     title: () =>  t('Download'),
     action: () => {
-      const url = apiUrl.value + '?' + buildURLQuery({q:'download', adapter: props.current.adapter, path: selectedItems.value[0].path});
-      emitter.emit('vf-download', url);
+      // const url = apiUrl.value + '?' + buildURLQuery({q:'download', adapter: props.current.adapter, path: selectedItems.value[0].path});
+      // emitter.emit('vf-download', url);
+      emitter.emit('vf-download', {q:'download', adapter: props.current.adapter, path: selectedItems.value[0].path});
     },
   },
   archive: {
