@@ -4,5 +4,8 @@ export interface ConsensusState {
 
 export interface User {
   consensusState?: ConsensusState
-  token: string
+  token?: string
+
+  unlockPassword?: Uint8Array
+  seed?: string
 }
