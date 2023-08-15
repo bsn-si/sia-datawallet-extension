@@ -49,6 +49,8 @@ import { onMessage, sendMessage } from "webext-bridge/popup";
 // 	return work;
 // }
 
+
+// See https://github.com/zikaari/webext-bridge
 onMessage('spawn-worker-response', async (message) => {
 	const {data, sender} = message;
 

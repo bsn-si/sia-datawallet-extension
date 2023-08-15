@@ -97,6 +97,7 @@ async function load() {
 
 const loaded = load();
 
+// See https://github.com/zikaari/webext-bridge
 onMessage('spawn-worker', async (message) => {
   const { data, sender } = message;
 
