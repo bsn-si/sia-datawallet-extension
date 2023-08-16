@@ -3,8 +3,8 @@ import { router } from '~/popup/router'
 import { createPinia } from 'pinia'
 import registerGlobalComponents from '~/plugins/global-components'
 import setAuthorizationToken from "~/plugins/set-authorization-token";
-
-export function setupApp(app: App) {
+import { connect, walletCount } from '~/store/db';
+export async function setupApp(app: App) {
   // Inject a globally available `$app` object in template
   app.config.globalProperties.$app = {
     context: '',
@@ -22,4 +22,7 @@ export function setupApp(app: App) {
 
   setAuthorizationToken()
   registerGlobalComponents(app)
+
+  const dbType = await connect();
+  console.log('dbType', dbType);
 }

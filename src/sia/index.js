@@ -83,15 +83,15 @@ onMessage('spawn-worker-response', async (message) => {
 			return;
 		case null:
 			//TODO:
-
 			// resolve(data[1]);
-			console.warn('resolve callback is not implemented', data[1])
+			// console.warn('resolve callback is not implemented', data[1])
 			return;
 		default:
 			//TODO:
-
 			// reject(new Error(data[0]));
-			console.warn('reject callback is not implemented', data[0])
+			// console.warn('reject callback is not implemented', data[0])
+			console.error(data[0]);
+			return;
 	}
 });
 

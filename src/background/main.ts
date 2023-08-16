@@ -123,19 +123,27 @@ onMessage('spawn-worker', async (message) => {
           [`${action} not found`],
           "popup"
       );
-      console.error(`${action} not found`);
       return;
     }
 
-    params.push(async (err, value) => {
-      // postMessage([err, value]);
-      await sendMessage(
-          "spawn-worker-response",
-          [err, value],
-          "popup"
-      );
-      console.log(err, value)
+    const p = new Promise((resolve, reject) => {
+      const f = async (err, value) => {
+        // postMessage([err, value]);
+        console.log(err, value)
+        await sendMessage(
+            "spawn-worker-response",
+            [err, value],
+            "popup"
+        )
+        if (err)
+            reject(new Error(err));
+        else
+            resolve(value);
+      }
+
+      params.push(f);
     });
+
 
     const error = global.sia[action].apply(this, params);
 
@@ -146,8 +154,8 @@ onMessage('spawn-worker', async (message) => {
           [`${action}: ${error}`],
           "popup"
       );
-      console.error(`${action}: ${error}`);
     }
+    return p;
   } catch (ex) {
     // postMessage([ex.message]);
     await sendMessage(

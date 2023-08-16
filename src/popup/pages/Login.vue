@@ -91,12 +91,14 @@
 import { routerPush } from '~/popup/router'
 import { api, isFetchError } from '~/services'
 import { useUserStore } from '~/store/user'
+import { useWalletsStore } from '~/store/wallet'
 import { reactive, ref } from 'vue'
 import setAuthorizationToken from '~/plugins/set-authorization-token'
 import {ConsensusState} from "~/types/users";
 import { generateSeed, generateAddresses } from '~/sia/index.js';
 import { hash } from 'tweetnacl';
 import { encode as encodeUTF8 } from '@stablelib/utf8';
+import { saveAddresses } from '~/store/db.js';
 
 interface LoginUser {
   /** @format password */
@@ -122,7 +124,19 @@ const step = ref('password'), createType = ref('create'),
     recoverySeed = ref(''),
     currencyType = ref('sc'),
     seedType = ref('sia'),
-    serverType=  ref('siacentral'), creating = ref(false);
+    serverType = ref('siacentral'), creating = ref(false), saving = ref(false);
+
+let wallet = reactive ({
+  id: '',
+  seed: '',
+  title: '',
+  currency: '',
+  type: '',
+  server_type: '',
+  server_url: null
+})
+
+let addresses = []
 
 
 const enableNext = computed(() => {
@@ -130,6 +144,7 @@ const enableNext = computed(() => {
 })
 
 const { updateUser } = useUserStore()
+const { createWallet, queueWallet } = useWalletsStore()
 
 const errors = ref()
 
@@ -225,7 +240,7 @@ const generateWalletSeed = async () => {
       break;
     default:
       seed = await generateSeed(unref(seedType));
-      await generateAddresses(seed, unref(currencyType), 0, 1);
+      await generateAddresses(unref(seed), unref(currencyType), 0, 1);
       break;
   }
 
@@ -239,9 +254,9 @@ const onCreateWallet = async () => {
   creating.value = true;
 
   try {
-    const seed = await generateWalletSeed(),
-        wallet = {
-          seed,
+    const seed = await generateWalletSeed();
+    wallet = {
+          seed: unref(seed),
           title: unref(walletName),
           currency: unref(currencyType),
           type: 'default',
@@ -250,6 +265,7 @@ const onCreateWallet = async () => {
         };
     console.log(wallet);
     // this.$emit('created', wallet);
+    saveWallet()
   } catch (ex) {
     console.error('onCreateWallet', ex);
     // this.pushNotification({
@@ -261,41 +277,36 @@ const onCreateWallet = async () => {
   }
 }
 
-// const saveWallet = async() => {
-//   if (this.saving)
-//     return;
-//
-//   this.saving = true;
-//
-//   try {
-//     const walletID = await this.createWallet(this.wallet);
-//
-//     this.wallet.id = walletID;
-//
-//     switch (this.wallet.type) {
-//       case 'ledger':
-//       case 'watch':
-//         break;
-//       default:
-//         this.addresses = await generateAddresses(this.wallet.seed, this.wallet.currency, 0, 10);
-//         break;
-//     }
-//
-//     await saveAddresses(this.addresses.map(a => ({
-//       ...a,
-//       wallet_id: walletID
-//     })));
-//
-//     this.queueWallet(this.wallet.id, true);
-//   } catch (ex) {
-//     console.error('saveWallet', ex);
-//     this.pushNotification({
-//       message: ex.message,
-//       severity: 'danger'
-//     });
-//   } finally {
-//     this.saving = false;
-//   }
-// }
+const saveWallet = async() => {
+  const { user } = useUserStore()
+  if (saving.value)
+    return;
+
+  saving.value = true;
+
+  try {
+    const walletID = await createWallet(wallet, user?.unlockPassword);
+
+    wallet.id = walletID;
+
+    addresses = await generateAddresses(wallet.seed, wallet.currency, 0, 10);
+
+
+    await saveAddresses(addresses.map(a => ({
+      ...a,
+      wallet_id: walletID
+    })));
+
+    queueWallet(wallet.id, true);
+  } catch (ex) {
+    console.error('saveWallet', ex);
+    // this.pushNotification({
+    //   message: ex.message,
+    //   severity: 'danger'
+    // });
+  } finally {
+    saving.value = false;
+  }
+}
 
 </script>
