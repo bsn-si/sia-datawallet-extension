@@ -15,6 +15,8 @@ export GOPATH=$HOME/go
 export GOROOT="/opt/homebrew/opt/go@1.16/libexec"
 export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
 
+go mod download golang.org/x/net
+
 make build
 ```
 - https://github.com/acacode/swagger-typescript-api

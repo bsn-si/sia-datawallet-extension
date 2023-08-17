@@ -79,17 +79,17 @@ async function load() {
     await loadWASM();
     // postMessage('ready');
     await sendMessage(
-        "spawn-worker-response",
-        "ready",
-        "popup"
+        'spawn-worker-response',
+        'ready',
+        'popup'
     );
 
   } catch (ex) {
     // postMessage([ex.message]);
     await sendMessage(
-        "spawn-worker-response",
+        'spawn-worker-response',
         [ex.message],
-        "popup"
+        'popup'
     );
     console.error('load', ex);
   }
@@ -119,9 +119,9 @@ onMessage('spawn-worker', async (message) => {
     if (typeof sia[action] !== 'function') {
       // postMessage([`${action} not found`]);
       await sendMessage(
-          "spawn-worker-response",
+          'spawn-worker-response',
           [`${action} not found`],
-          "popup"
+          'popup'
       );
       return;
     }
@@ -130,15 +130,18 @@ onMessage('spawn-worker', async (message) => {
       const f = async (err, value) => {
         // postMessage([err, value]);
         console.log(err, value)
-        await sendMessage(
-            "spawn-worker-response",
+        // See sia/index.js, onMessage('spawn-worker-response')
+        const r: {err: string, value: any} = await sendMessage(
+            'spawn-worker-response',
             [err, value],
-            "popup"
+            'popup'
         )
-        if (err)
-            reject(new Error(err));
+        if (r && r.err)
+            reject(new Error(r.err));
+        else if (r && r.value)
+            resolve(r.value);
         else
-            resolve(value);
+            resolve('');
       }
 
       params.push(f);
@@ -150,18 +153,20 @@ onMessage('spawn-worker', async (message) => {
     if (typeof error === 'string') {
       //   postMessage([`${action}: ${error}`]);
       await sendMessage(
-          "spawn-worker-response",
+          'spawn-worker-response',
           [`${action}: ${error}`],
-          "popup"
+          'popup'
       );
     }
+
     return p;
+
   } catch (ex) {
     // postMessage([ex.message]);
     await sendMessage(
-        "spawn-worker-response",
+        'spawn-worker-response',
         [ex.message],
-        "popup"
+        'popup'
     );
     console.error('onHandleAction', ex);
   }

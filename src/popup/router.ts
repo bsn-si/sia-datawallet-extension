@@ -10,6 +10,11 @@ export const routes: RouteRecordRaw[] = [
         component: Home,
     },
     {
+        name: 'wallets',
+        path: '/wallets',
+        component: () => import('./pages/Wallets.vue'),
+    },
+    {
         name: 'login',
         path: '/login',
         component: () => import('./pages/Login.vue'),

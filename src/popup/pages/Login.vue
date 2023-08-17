@@ -49,7 +49,26 @@
               </div>
             </template>
             <div class="buttons">
-              <button class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800" @click="onCreateWallet" :disabled="creating">{{ createType === 'recover' ? 'Recover' : 'Generate' }}</button>
+              <button class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                      @click="onCreateWallet" :disabled="creating">{{ createType === 'recover' ? 'Recover' : 'Generate' }}</button>
+            </div>
+          </div>
+          <div v-if="step ==='review'">
+            <p v-if="createType === 'recover'">Your wallet has been successfully recovered. The blockchain is now being scanned for balance and transactions. Backup your recovery seed to a safe location, without your seed your funds cannot be recovered.</p>
+            <p v-else>A new wallet has been created. Backup your recovery seed to a safe location, without your seed your funds cannot be recovered.</p>
+            <template v-if="walletType === 'default'">
+              <div class="control">
+                <label>{{ "Recovery Seed" }}</label>
+                <textarea v-model="wallet.seed" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" readonly/>
+              </div>
+              <div class="control">
+                <input type="checkbox" id="chkSeedExported" v-model="exported" />
+                <label for="chkSeedExported">{{ "My recovery seed is saved in a secure location" }}</label>
+              </div>
+            </template>
+            <div class="controls">
+              <button class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                      @click="onWalletCreated" :disabled="doneDisabled">{{ "Done" }}</button>
             </div>
           </div>
 
@@ -124,7 +143,7 @@ const step = ref('password'), createType = ref('create'),
     recoverySeed = ref(''),
     currencyType = ref('sc'),
     seedType = ref('sia'),
-    serverType = ref('siacentral'), creating = ref(false), saving = ref(false);
+    serverType = ref('siacentral'), creating = ref(false), saving = ref(false), exported = ref(false);
 
 let wallet = reactive ({
   id: '',
@@ -143,8 +162,17 @@ const enableNext = computed(() => {
   return form.unlockPassword.length > 0 && form.unlockPassword === form.confirmPassword;
 })
 
+const walletType = computed(() => {
+  return wallet && typeof wallet.type === 'string' ? wallet.type : 'watch';
+})
+
+const doneDisabled = computed(() => {
+  // disable the done button if the wallet is being saved, or has not been exported
+  return saving || (!exported.value && walletType.value === 'default');
+})
+
 const { updateUser } = useUserStore()
-const { createWallet, queueWallet } = useWalletsStore()
+const { createWallet, queueWallet, setSetup } = useWalletsStore()
 
 const errors = ref()
 
@@ -264,8 +292,10 @@ const onCreateWallet = async () => {
           server_url: null
         };
     console.log(wallet);
-    // this.$emit('created', wallet);
-    saveWallet()
+
+    await saveWallet()
+
+    step.value = 'review';
   } catch (ex) {
     console.error('onCreateWallet', ex);
     // this.pushNotification({
@@ -306,6 +336,21 @@ const saveWallet = async() => {
     // });
   } finally {
     saving.value = false;
+  }
+}
+
+const onWalletCreated = async() => {
+  try {
+    setSetup(true);
+
+    await routerPush('wallets')
+  } catch (ex) {
+    console.error('onWalletCreated', ex);
+    // this.pushNotification({
+    //   severity: 'danger',
+    //   icon: 'wallet',
+    //   message: ex.message
+    // });
   }
 }
 

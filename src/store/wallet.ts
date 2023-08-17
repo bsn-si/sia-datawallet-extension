@@ -34,6 +34,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     const scanQueue = ref<{ walletID: string, full: boolean }[]>([]);
     const settings = ref(walletSettingsStorage.get())
     const offline = ref(false);
+    const setup = ref(false);
 
     return {
         settings,
@@ -42,7 +43,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         createWallet,
         queueWallet,
         setOffline,
-        shiftWallet
+        shiftWallet,
+        setSetup,
     };
 
     async function saveWallet(wallet: Wallet, password: string) {
@@ -91,6 +93,10 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
     async function setOffline(value) {
         offline.value = value;
+    }
+
+    async function setSetup(value) {
+        setup.value = value;
     }
 
     async function saveWalletMutation(wallet: Wallet) {

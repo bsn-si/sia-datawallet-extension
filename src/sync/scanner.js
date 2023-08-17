@@ -3,8 +3,7 @@ import defaultScanner from './default';
 import {useWalletsStore} from "~/store/wallet";
 import {useUserStore} from "~/store/user";
 
-// const { wallets, saveWallet, queueWallet, setOffline, shiftWallet } = useWalletsStore()
-const { user } = useUserStore()
+
 
 const rescanTimeouts = {};
 
@@ -12,6 +11,7 @@ let scanning = false;
 
 export async function scanner() {
 	const { wallets, saveWallet, queueWallet, setOffline, shiftWallet } = useWalletsStore()
+	const { user } = useUserStore()
 
 	if (scanning)
 		return;
