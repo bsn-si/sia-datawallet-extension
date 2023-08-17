@@ -78,7 +78,7 @@ onMessage('spawn-worker-response', async (message) => {
 			// if (typeof progress !== 'function')
 			// 	return;
 			// progress(data[1]);
-			console.warn('progress callback is not implemented', data[1])
+			// console.warn('progress callback is not implemented', data[1])
 			return;
 		case null:
 			//TODO:

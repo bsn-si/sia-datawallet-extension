@@ -9,6 +9,12 @@
     </div>
 
     <div class="mt-2">
+      <button class="btn mt-2" @click="openWalletsPage">
+        Wallets
+      </button>
+    </div>
+
+    <div class="mt-2">
       <button class="btn mt-2" @click="logout">
         Logout
       </button>
@@ -29,5 +35,8 @@ function openOptionsPage() {
 const logout = async () => {
   updateUser(null)
   await routerPush('login')
+}
+const openWalletsPage = async () => {
+  await routerPush('wallets')
 }
 </script>

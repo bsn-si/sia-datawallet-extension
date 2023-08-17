@@ -7,6 +7,9 @@ import { saveWallet as dbSaveWallet, loadWallets as dbLoadWallets, deleteWallet 
 import Storage from "~/utils/storage";
 import {ref} from "vue";
 import { scanner } from '~/sync/scanner';
+import { siaAPI } from '~/services/wallet/siacentral';
+import {useUserStore} from "~/store/user";
+
 
 interface WalletSettings {
     autoLock: number,
@@ -35,17 +38,61 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     const settings = ref(walletSettingsStorage.get())
     const offline = ref(false);
     const setup = ref(false);
+    const siaNetworkFees = ref({});
+    const exchangeRateSC = ref({});
+    const exchangeRateSF = ref({});
+    const siaBlockHeight = ref(0);
+    const feeAddresses = ref([]);
+    const unavailable = ref(null);
+    const dbType = ref('memory');
+
+    updateMetadata();
+    setInterval(updateMetadata, 300000);
+
+    const allWallets = computed(() => unref(wallets));
 
     return {
         settings,
         wallets,
+        allWallets,
         saveWallet,
         createWallet,
         queueWallet,
         setOffline,
         shiftWallet,
+        unavailable,
+        setUnavailable,
+        setDBType,
+        setup,
         setSetup,
+        exchangeRateSC,
+        exchangeRateSF,
+        scanQueue,
+        unlockWallets,
+        lockWallets
     };
+
+    async function unlockWallets(password: string) {
+        const { updateUser } = useUserStore()
+
+        const passwordHash = hash(encodeUTF8(password));
+
+        const wallets = await dbLoadWallets(passwordHash);
+
+        setWalletsMutation(wallets);
+        updateUser({unlockPassword: passwordHash})
+
+        wallets.forEach(w => queueWallet(w.id, false));
+    }
+
+    async function lockWallets() {
+        const { updateUser } = useUserStore()
+
+        wallets.value = [];
+        scanQueue.value = [];
+        updateUser(null)
+    }
+
 
     async function saveWallet(wallet: Wallet, password: string) {
         const existing = wallets.value.find(w => w.id === wallet.id);
@@ -97,6 +144,48 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
     async function setSetup(value) {
         setup.value = value;
+        console.log('setSetup', value)
+    }
+
+    async function setDBType(value) {
+        dbType.value = value;
+    }
+
+    async function setUnavailable(value) {
+        unavailable.value = value;
+    }
+
+    async function setNetworkFees(value) {
+        siaNetworkFees.value = value;
+    }
+
+    async function setConsensusHeight(value) {
+        siaBlockHeight.value = value;
+    }
+
+    async function setFeeAddresses(value) {
+        feeAddresses.value = value;
+    }
+
+    async function setExchangeRate({ siacoin, siafund }) {
+        exchangeRateSC.value = siacoin;
+        exchangeRateSF.value = siafund;
+    }
+
+    async function updateMetadata() {
+        try {
+            const price = await siaAPI.getCoinPrice(),
+                siaFees = await siaAPI.getNetworkFees(),
+                addresses = await siaAPI.getFeeAddresses(),
+                siaBlock = await siaAPI.getBlockHeight();
+
+            setNetworkFees(siaFees);
+            setConsensusHeight(siaBlock.height)
+            setExchangeRate(price);
+            setFeeAddresses(addresses);
+        } catch (ex) {
+            console.error('updatingMeta', ex);
+        }
     }
 
     async function saveWalletMutation(wallet: Wallet) {
@@ -118,6 +207,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         }
 
         wallets.value.splice(idx, 1, new Wallet(wallet));
+
+        console.log('*** wallets', wallets.value)
     }
 
     async function queueWalletMutation( walletID, full ) {
@@ -136,5 +227,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         return scanQueue.value.shift();
     }
 
+    async function setWalletsMutation(wlts: Wallet[]) {
+        wallets.value = wlts.map(w => new Wallet(w));
+    }
 
 });

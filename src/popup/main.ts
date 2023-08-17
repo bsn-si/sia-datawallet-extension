@@ -11,6 +11,6 @@ setupApp(app)
 
 app.mount('#app')
 
-// setTimeout(() => {
-//     console.log(app._instance.appContext.components)
-// }, 3000)
+setTimeout(() => {
+    console.log(app._instance.appContext.components)
+}, 3000)

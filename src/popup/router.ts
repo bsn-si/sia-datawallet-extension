@@ -29,6 +29,7 @@ export const router = createRouter({
 export type AppRouteNames =
     | 'login'
     | 'home'
+    | 'wallets'
 
 
 export function routerPush (name: AppRouteNames, params?: RouteParams): ReturnType<typeof router.push> {
