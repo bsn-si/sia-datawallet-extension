@@ -1,4 +1,5 @@
 <template>
+  <primary-nav />
   <div class="page-wrapper">
       <unavailable-page v-if="typeof unavailable === 'string'" />
       <router-view v-if="setup && unlocked" />
@@ -16,6 +17,7 @@
   import SetupPage from "~/popup/pages/SetupPage.vue";
   import UnavailablePage from "~/popup/pages/UnavailablePage.vue";
   import {storeToRefs} from "pinia";
+  import PrimaryNav from "~/components/wallet/PrimaryNav.vue";
 
   // const userStore = useUserStore()
 
@@ -61,7 +63,11 @@
 }
 
 .page-wrapper {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 75px;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
 }

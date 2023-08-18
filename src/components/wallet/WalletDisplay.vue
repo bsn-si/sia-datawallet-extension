@@ -4,10 +4,10 @@
       <div class="wallet-title">{{ name }} <button class="btn-select" @click="modal = 'wallet'"><font-awesome-icon icon="chevron-down" /></button>
         <transition name="fade" mode="out-in">
           <div class="wallet-scanning" v-if="wallet.scanning === 'full'" key="scanning">
-            <font-awesome-icon icon="redo" /> {{ 'Scanning...' }}
+            <font-awesome-icon icon="arrow-rotate-right" /> {{ 'Scanning...' }}
           </div>
           <div class="wallet-scanning" v-else-if="walletQueued" key="queued">
-            <font-awesome-icon icon="redo" /> {{ 'Scan Queued...' }}
+            <font-awesome-icon icon="arrow-rotate-right" /> {{ 'Scan Queued...' }}
           </div>
         </transition>
       </div>
@@ -19,12 +19,12 @@
           <button class="btn wallet-btn" @click="modal='send'" v-if="wallet.type !== 'watch'">{{ 'Send' }}</button>
           <button class="btn wallet-btn" @click="modal='receive'">{{ 'Receive' }}</button>
           <div class="wallet-more-btn">
-            <button class="more-btn" @click="showMore = !showMore"><font-awesome-icon icon="ellipsis-v" /></button>
+            <button class="more-btn" @click="showMore = !showMore"><font-awesome-icon icon="ellipsis-vertical" /></button>
             <transition name="fade-top" mode="out-in">
               <div class="dropdown" v-if="showMore">
                 <button class="dropdown-item" @click="onQueueWallet"
                         :disabled="walletQueued">
-                  <font-awesome-icon icon="redo" />{{ 'Rescan Wallet' }}</button>
+                  <font-awesome-icon icon="arrow-rotate-right" />{{ 'Rescan Wallet' }}</button>
 
               </div>
             </transition>
@@ -56,11 +56,15 @@ export default {
 </script>
 
 <script setup lang="ts">
+  // TODO: above
+  // <send-siacoin-modal v-if="modal === 'send'" :wallet="wallet" @close="modal = null" />
+
   import BigNumber from 'bignumber.js';
   import { formatPriceString, formatSiafundString, formatExchangeRate } from '~/utils/format';
   import {defineProps} from "vue";
   import Wallet from "~/types/wallet";
   import {useWalletsStore} from "~/store/wallet";
+  import SiafundBalance from "~/components/wallet/SiafundBalance.vue";
 
   const props = defineProps<{
     wallets: Wallet[],

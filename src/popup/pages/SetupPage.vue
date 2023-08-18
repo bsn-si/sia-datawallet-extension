@@ -22,7 +22,7 @@
               <p>{{ "Generates a new wallet seed in the browser. Transactions can be sent and received." }}</p>
             </div>
             <div class="create-wallet-button" @click="onClickWalletType('recover')">
-              <div class="button-icon"><font-awesome-icon icon="redo" /></div>
+              <div class="button-icon"><font-awesome-icon icon="arrow-rotate-right" /></div>
               <div class="button-title">{{ "Recover Wallet" }}</div>
               <p>{{ "Recovers an existing wallet from a 29 seed. Transactions can be sent and received." }}</p>
             </div>

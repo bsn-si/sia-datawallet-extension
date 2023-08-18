@@ -26,6 +26,7 @@ export default {
 
   import {defineProps} from "vue";
   import Wallet from "~/types/wallet.js";
+  import WalletItem from "~/components/wallet/WalletItem.vue";
 
   const props = defineProps<{
     wallets: Array,
@@ -33,8 +34,9 @@ export default {
   }>();
 
   const groups = computed(() => {
-    const groups = Object.keys(walletGroups);
-
+    console.log('walletGroups', walletGroups.value)
+    const groups = Object.keys(walletGroups.value);
+    console.log('groups', groups)
     groups.sort();
 
     return groups;
@@ -66,12 +68,13 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@require "../../popup/styles/vars";
 .wallets-list {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   grid-gap: 15px;
   overflow: hidden;
-  min-width: 500px;
+  min-width: 100px;
 }
 
 .wallets {

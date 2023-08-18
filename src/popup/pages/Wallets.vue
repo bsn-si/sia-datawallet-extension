@@ -1,23 +1,28 @@
 <template>
-  <wallet-list class="wallets-list"
-               :wallets="allWallets"
-               :active="selectedWallet"
-               @selected="onWalletSelected" />
-  <div class="wallets-detail">
-    <transition name="fade-top" mode="out-in">
-      <wallet-display
-          v-if="currentWallet"
-          :wallet="currentWallet"
-          :wallets="allWallets"
-          :active="selectedWallet"
-          :key="currentWallet.id"
-          @selected="onWalletSelected" />
-    </transition>
+  <div class="page wallet-page">
+    <wallet-list class="wallets-list"
+                 :wallets="allWallets"
+                 :active="selectedWallet"
+                 @selected="onWalletSelected" />
+    <div class="wallets-detail">
+      <transition name="fade-top" mode="out-in">
+        <wallet-display
+            v-if="currentWallet"
+            :wallet="currentWallet"
+            :wallets="allWallets"
+            :active="selectedWallet"
+            :key="currentWallet.id"
+            @selected="onWalletSelected" />
+      </transition>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
   import {useWalletsStore} from "~/store/wallet";
   import {onMounted} from "vue";
+  import WalletDisplay from "~/components/wallet/WalletDisplay.vue";
+  import WalletList from "~/components/wallet/WalletList.vue";
+
   const { allWallets } = useWalletsStore()
   const selectedWallet = ref(null)
 
@@ -53,6 +58,7 @@
 </script>
 
 <style lang="stylus" scoped>
+@require "../../popup/styles/vars";
 .wallets-list {
   display: none;
   border-right: 2px solid primary;

@@ -47,13 +47,13 @@ export default {
   const displaySiacoins = computed(() => {
     const siacoins = formatPriceString(new BigNumber(walletBalance.value), 2, props.wallet.currency, 1, props.wallet.precision());
 
-    return `${siacoins.value} <span class="currency-display">${`currency.${siacoins.label}`}</span>`;
+    return `${siacoins.value} <span class="currency-display">${siacoins.label}</span>`;
   });
 
   const displaySiafunds = computed(() => {
     const { value, label } = formatSiafundString(new BigNumber(walletSiafundBalance.value), props?.wallet.currency);
 
-    return `${value} <span class="currency-display">${`currency.${label}`}</span>`;
+    return `${value} <span class="currency-display">${label}</span>`;
   });
 
   const displayCurrency = computed(() => {
@@ -64,12 +64,13 @@ export default {
 
     const currency = formatPriceString(new BigNumber(walletBalance.value), 2, currency, exchangeRate[currency], props.wallet.precision());
 
-    return `${currency.value} <span class="currency-display">${`currency.${currency.label}`}</span>`;
+    return `${currency.value} <span class="currency-display">${currency.label}</span>`;
   });
 
 </script>
 
 <style lang="stylus" scoped>
+@require "../../popup/styles/vars";
 .wallet {
   position: relative;
   font-size: 1rem;

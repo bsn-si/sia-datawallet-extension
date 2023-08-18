@@ -58,6 +58,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         saveWallet,
         createWallet,
         queueWallet,
+        offline,
         setOffline,
         shiftWallet,
         unavailable,
@@ -69,7 +70,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         exchangeRateSF,
         scanQueue,
         unlockWallets,
-        lockWallets
+        lockWallets,
+        siaNetworkFees
     };
 
     async function unlockWallets(password: string) {
