@@ -15,7 +15,7 @@ export default {
 
 
 <script setup lang="ts">
-  import Modal from "~/components/wallet/Modal.vue";
+  import Modal from "~/components/wallet/modals/Modal.vue";
   import TransactionSetup from "~/components/wallet/transactions/send/TransactionSetup.vue";
   import TransactionVerify from "~/components/wallet/transactions/send/TransactionVerify.vue";
   import Wallet from "~/types/wallet";

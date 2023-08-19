@@ -25,6 +25,38 @@ export default {
 
 <script setup lang="ts">
 import Identicon from "~/components/wallet/Identicon.vue";
+import {useWalletsStore} from "~/store/wallet";
+import Wallet from "~/types/wallet";
+import BigNumber from 'bignumber.js';
+import { formatPriceString } from '~/utils/format';
+import {storeToRefs} from "pinia";
+
+const { exchangeRateSC, settings, } = storeToRefs(useWalletsStore())
+
+const props = defineProps({
+  title: String,
+  outputs: Array,
+  wallet: Wallet
+});
+
+
+const getOutputSC = (output) => {
+  const siacoins = formatPriceString(new BigNumber(output.value), 2, props.wallet.currency, 1, props.wallet.precision());
+
+  return `${siacoins.value} <span class="currency-display">${siacoins.label}</span>`;
+}
+
+const getOutputCurrency = (output) => {
+  let exchangeRate = exchangeRateSC.value;
+
+  // if (props.wallet.currency && props.wallet.currency === 'scp')
+  //   exchangeRate = exchangeRateSCP;
+
+  const currency = formatPriceString(new BigNumber(output.value), 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
+
+  return `${currency.value} <span class="currency-display">${currency.label}</span>`;
+}
+
 </script>
 
 <style lang="stylus" scoped>

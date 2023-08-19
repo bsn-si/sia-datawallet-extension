@@ -49,17 +49,16 @@ export default {
 
   import { signTransaction } from '~/sia';
   import { scanTransactions } from '~/sync/scanner';
-  import { siaAPI, scprimeAPI } from '~/api/siacentral';
+  import { siaAPI/*, scprimeAPI */ } from '~/services/wallet/siacentral';;
 
   const props = defineProps({
     wallet: Wallet,
     transaction: Object
   });
 
-  interface Emits {
-    (e: 'done'): void
-  }
-  const emit = defineEmits<Emits>()
+
+  const emit = defineEmits(['done']);
+
 
   const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees} = useWalletsStore()
 
@@ -158,8 +157,8 @@ export default {
 
       default:
         switch (props.wallet.currency) {
-          case 'scp':
-            return scprimeAPI.broadcastTransaction(txnset);
+          // case 'scp':
+          //   return scprimeAPI.broadcastTransaction(txnset);
           default:
             return siaAPI.broadcastTransaction(txnset);
         }

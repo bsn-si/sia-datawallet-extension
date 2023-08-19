@@ -50,12 +50,13 @@ export default {
   import Wallet from "~/types/wallet";
   import {useWalletsStore} from "~/store/wallet";
   import BigNumber from "bignumber.js";
-  import { calculateFee, verifyAddress } from '~/utils';
+  import { calculateFee, verifyAddress } from '~/utils/index.js';
   import { parseCurrencyString, parseSiacoinString } from '~/utils/parse';
   import { formatPriceString } from '~/utils/format';
   import { getWalletAddresses } from '~/store/db';
   import {hash} from "tweetnacl";
   import {encode as encodeUTF8} from "@stablelib/utf8";
+  import {storeToRefs} from "pinia";
 
 
   const props = defineProps({
@@ -75,7 +76,7 @@ export default {
   }
   const emit = defineEmits<Emits>()
 
-  const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees} = useWalletsStore()
+  const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees} = storeToRefs(useWalletsStore())
 
   const recipientAddress = ref(''),
       inputs = ref([]),
@@ -143,18 +144,18 @@ export default {
   })
 
   const transactionFeeSC = computed(() => {
-    const siacoins = formatPriceString(fees, 2, props.wallet.currency, 1, props.wallet.precision());
+    const siacoins = formatPriceString(fees.value, 2, props.wallet.currency, 1, props.wallet.precision());
 
     return `${siacoins.value} <span class="currency-display">${siacoins.label}</span>`;
   })
 
   const transactionFeeCurrency = computed(() => {
-    let exchangeRate = exchangeRateSC;
+    let exchangeRate = exchangeRateSC.value;
 
     // if (props.wallet.currency && props.wallet.currency === 'scp')
-    //   exchangeRate = exchangeRateSCP;
+    //   exchangeRate = exchangeRateSCP.value;
 
-    const currency = formatPriceString(fees, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
+    const currency = formatPriceString(fees.value, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
 
     return `${currency.value} <span class="currency-display">${currency.label}</span>`;
   })
@@ -176,10 +177,10 @@ export default {
   })
 
   const remainingBalanceCurrency = computed(() => {
-    let exchangeRate = exchangeRateSC;
+    let exchangeRate = exchangeRateSC.value;
 
     // if (props.wallet.currency && props.wallet.currency === 'scp')
-    //   exchangeRate = exchangeRateSCP;
+    //   exchangeRate = exchangeRateSCP.value;
 
     const rem = walletBalance.value.minus(calculatedAmount).minus(fees.value),
         currency = formatPriceString(rem, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
@@ -211,7 +212,8 @@ export default {
 
     if (ownedAddresses.value.length === 0)
       throw new Error('no addresses');
-  },
+  }
+
   const ownsAddress = (address) => {
     return ownedAddresses.value.findIndex(a => a.address === address && a.unlock_conditions) !== -1;
   }
@@ -327,10 +329,10 @@ export default {
   }
 
   const formatCurrencyString = (value) => {
-    let exchangeRate = exchangeRateSC;
+    let exchangeRate = exchangeRateSC.value;
 
     // if (props.wallet.currency && props.wallet.currency === 'scp')
-    //   exchangeRate = exchangeRateSCP;
+    //   exchangeRate = exchangeRateSCP.value;
 
     return formatPriceString(value, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision()).value;
   }
@@ -440,10 +442,10 @@ export default {
 
   const onChangeCurrency = () => {
     try {
-      let exchangeRate = exchangeRateSC;
+      let exchangeRate = exchangeRateSC.value;
 
       // if (props.wallet.currency && props.wallet.currency === 'scp')
-      //   exchangeRate = exchangeRateSCP;
+      //   exchangeRate = exchangeRateSCP.value;
 
       const value = txtCurrency.value.value,
           parsed = parseCurrencyString(value, exchangeRate[settings?.currency], props.wallet.precision()),

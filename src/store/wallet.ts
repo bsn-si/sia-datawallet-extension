@@ -32,6 +32,15 @@ walletSettingsStorage.set({
     displayLanguage: 'detect'
 });
 
+function getLocalStorageNumeric(key, def) {
+    const v = localStorage.getItem(key);
+
+    if (!v || isNaN(v) || !isFinite(v))
+        return def;
+
+    return parseInt(v, 10);
+}
+
 export const useWalletsStore = defineStore('walletsStore', () => {
     const wallets = ref<Wallet[]>([]);
     const scanQueue = ref<{ walletID: string, full: boolean }[]>([]);
@@ -71,7 +80,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         scanQueue,
         unlockWallets,
         lockWallets,
-        siaNetworkFees
+        siaNetworkFees,
+        feeAddresses
     };
 
     async function unlockWallets(password: string) {
@@ -168,6 +178,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     async function setFeeAddresses(value) {
         feeAddresses.value = value;
     }
+
 
     async function setExchangeRate({ siacoin, siafund }) {
         exchangeRateSC.value = siacoin;

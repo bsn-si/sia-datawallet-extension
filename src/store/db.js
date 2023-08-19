@@ -6,6 +6,7 @@ import { encrypt, pbkdf2 } from '~/utils/crypto';
 import { encode as encodeB64 } from '@stablelib/base64';
 import { encode as encodeUTF8 } from '@stablelib/utf8';
 import BigNumber from 'bignumber.js';
+import * as lodash from "deepdash-es/standalone";
 
 let db;
 
@@ -63,19 +64,67 @@ export async function saveWallet(wallet, password) {
 	if (unconfirmedSiacoinDelta.isNaN() || !unconfirmedSiacoinDelta.isFinite())
 		unconfirmedSiacoinDelta = new BigNumber(0);
 
-	await db.saveWallet({
+	let value = {
 		...wallet,
 		id: walletID,
 		salt: key.salt,
 		server_type: wallet.server_type || 'siacentral',
-		server_url: wallet.server_url,
+		server_url: null,
 		seed: encrypt(wallet.seed, key.hash),
 		confirmed_siafund_balance: confirmedSiafundBalance.toString(10),
 		confirmed_siacoin_balance: confirmedSiacoinBalance.toString(10),
 		unconfirmed_siacoin_delta: unconfirmedSiafundDelta.toString(10),
 		unconfirmed_siafund_delta: unconfirmedSiacoinDelta.toString(10),
 		siafund_claim: siafundClaim.toString(10)
-	});
+	}
+
+	function applyToRawRecursively(obj) {
+		// Base case: If the object is not reactive, return the original value
+		// if (!isReactive(obj)) {
+		// 	return obj;
+		// }
+
+		// Initialize an empty object to store the processed properties
+		const processedObj = {};
+
+		// Iterate through each property of the object
+		for (const key in obj) {
+			if (Object.hasOwnProperty.call(obj, key)) {
+				const value = obj[key];
+
+				// Apply toRaw to the property value
+				const rawValue = toRaw(value);
+
+				// Recursively process nested objects or arrays
+				processedObj[key] = typeof rawValue === 'object' ? applyToRawRecursively(rawValue) : rawValue;
+			}
+		}
+
+		return processedObj;
+	}
+
+	// value = applyToRawRecursively(value);
+
+	try {
+		await db.saveWallet(value);
+	} catch (error) {
+		// find error location
+		const match = error.message.match(/^Failed to execute 'put' on 'IDBObjectStore': (.*) could not be cloned\.$/)
+		if (!match) {
+			console.error(error)
+			return
+		}
+		const valDesc = match[1]
+		if (valDesc == '[object Array]') {
+			// DOMException: Failed to execute 'put' on 'IDBObjectStore': function () { [native code] } could not be cloned.
+			const path = lodash.findPathDeep(value, (val) => typeof val == 'object')
+			console.error(`${error}\n\nvalue contains a object: value.${path}`)
+		}
+		else {
+			console.log(`TODO handle valDesc`, valDesc)
+			console.error(error)
+		}
+	}
 
 	return walletID;
 }

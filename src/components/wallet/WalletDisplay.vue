@@ -37,14 +37,23 @@
         <tbody>
         <template v-for="group in transactions" :key="group.date">
           <tr class="group-date" ><td colspan="4">{{ group.date }}</td></tr>
-
+          <transaction-list-item v-for="(transaction, i) in group.transactions"
+                                 :key="`${group.date}-${i}`"
+                                 :transaction="transaction"
+                                 :wallet="wallet"
+                                 @click="onSelectTransaction(transaction.transaction_id)" />
         </template>
         </tbody>
       </table>
     </div>
     <transition name="fade" mode="out-in" appear>
-
-
+      <send-siacoin-modal v-if="modal === 'send'" :wallet="wallet" @close="modal = null" />
+      <select-wallet-modal
+          v-else-if="modal === 'wallet'"
+          :wallets="wallets"
+          :active="active"
+          @selected="(i) => $emit('selected', i)"
+          @close="modal = null" />
     </transition>
   </div>
 </template>
@@ -56,20 +65,19 @@ export default {
 </script>
 
 <script setup lang="ts">
-  // TODO: above
-  // <send-siacoin-modal v-if="modal === 'send'" :wallet="wallet" @close="modal = null" />
 
   import BigNumber from 'bignumber.js';
   import { formatPriceString, formatSiafundString, formatExchangeRate } from '~/utils/format';
   import {defineProps} from "vue";
   import Wallet from "~/types/wallet";
   import {useWalletsStore} from "~/store/wallet";
-  import SiafundBalance from "~/components/wallet/SiafundBalance.vue";
+  import TransactionListItem from "~/components/wallet/transactions/TranscationListItem.vue";
+  import SelectWalletModal from "~/components/wallet/modals/SelectWalletModal.vue";
 
   const props = defineProps<{
     wallets: Wallet[],
     wallet: Wallet,
-    active: string | null
+    active: number | null
   }>();
 
   const modal = ref(''), selectedTransaction = ref(null), showMore = ref(false);
