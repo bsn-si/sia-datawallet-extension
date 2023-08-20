@@ -63,7 +63,7 @@ const getOutputCurrency = (recipient) => {
   // if (props.wallet.currency && props.wallet.currency === 'scp')
   //   exchangeRate = exchangeRateSCP.value;
 
-  const currency = formatPriceString(new BigNumber(recipient.value), 2, settings?.currency, exchangeRate, props.wallet.precision());
+  const currency = formatPriceString(new BigNumber(recipient.value), 2, settings?.value.currency, exchangeRate, props.wallet.precision());
 
   return `${currency.value} <span class="currency-display">${currency.label}</span>`;
 }

@@ -60,7 +60,7 @@ export default {
   })
 
   const displaySiacoins = computed(() => {
-    const format = formatPriceString(siacoinAmount.value, 2, settings?.currency, 1, props.wallet.precision());
+    const format = formatPriceString(siacoinAmount.value, 2, settings?.value.currency, 1, props.wallet.precision());
 
     if (props.transaction.siacoin_value.direction === 'sent' && !new BigNumber(props.transaction.siacoin_value.value).eq(0))
       return `-${format.value} <span class="currency-display">${format.label}</span>`;
@@ -69,7 +69,7 @@ export default {
   })
 
   const displaySiafunds = computed(() => {
-    const format = formatSiafundString(siafundAmount.value, settings?.currency);
+    const format = formatSiafundString(siafundAmount.value, settings?.value.currency);
 
     if (props.transaction.siafund_value.direction === 'sent' && !new BigNumber(props.transaction.siafund_value.value).eq(0))
       return `-${format.value} <span class="currency-display">${format.label}</span>`;
@@ -78,20 +78,20 @@ export default {
   })
 
   const displayCurrency = computed(() => {
-    let exchangeRate = exchangeRateSC.value[settings?.currency],
-        label = settings?.currency;
+    let exchangeRate = exchangeRateSC.value[settings?.value.currency],
+        label = settings?.value.currency;
 
     if (props.wallet.currency === 'sc' && props.useCostBasis && props.transaction.confirmations) {
       exchangeRate = props.transaction.exchange_rate.rate;
       label = props.transaction.exchange_rate.currency;
     } 
     // else if (props.wallet.currency && props.wallet.currency === 'scp')
-    //   exchangeRate = exchangeRateSCP.value[settings?.currency];
+    //   exchangeRate = exchangeRateSCP.value[settings?.value.currency];
 
     const format = formatPriceString(siacoinAmount.value, 2, label, exchangeRate, props.wallet.precision());
     let display = `${format.value} <span class="currency-display">${format.label}`;
 
-    if (settings?.useCostBasis)
+    if (settings?.value.useCostBasis)
       display += ` @ ${formatExchangeRate(exchangeRate, label, 'never')}`;
 
     display += '</span>';

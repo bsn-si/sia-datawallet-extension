@@ -30,7 +30,7 @@ export default {
 
   const props = defineProps<{
     wallets: Array,
-    active: number | null
+    active: string | null
   }>();
 
   const groups = computed(() => {

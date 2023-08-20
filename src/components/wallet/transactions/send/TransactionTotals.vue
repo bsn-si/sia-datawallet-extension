@@ -143,7 +143,7 @@ export default {
     // if (props.wallet.currency && props.wallet.currency === 'scp')
     //   exchangeRate = exchangeRateSCP.value;
 
-    const currency = formatPriceString(new BigNumber(value), 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
+    const currency = formatPriceString(new BigNumber(value), 2, settings?.value.currency, exchangeRate[settings?.value.currency], props.wallet.precision());
 
     return `${currency.value} <span class="currency-display">${currency.label}</span>`;
   }

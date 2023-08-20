@@ -89,6 +89,22 @@ export default {
   const txtSiacoin = ref(null);
   const txtCurrency = ref(null);
 
+  onMounted(async () => {
+    try {
+      if (typeof props.address === 'string' && props.address.length > 0)
+        recipientAddress.value = props.address;
+
+      onFormatValues();
+      await loadAddresses();
+    } catch (ex) {
+      console.error('TransactionSetupMounted', ex);
+      // this.pushNotification({
+      //   severity: 'danger',
+      //   message: ex.message
+      // });
+    }
+  });
+
   const baseCurrencyLabel = computed(() => {
     // if (props.wallet && props.wallet.currency === 'scp')
     //   return this.translate('currency.scp');
@@ -100,7 +116,7 @@ export default {
     // if (props.wallet && props.wallet.currency === 'scp')
     //   return this.scprimeNetworkFees;
 
-    return siaNetworkFees;
+    return siaNetworkFees.value;
   })
 
   const walletBalance = computed(() => {
@@ -155,13 +171,13 @@ export default {
     // if (props.wallet.currency && props.wallet.currency === 'scp')
     //   exchangeRate = exchangeRateSCP.value;
 
-    const currency = formatPriceString(fees.value, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
+    const currency = formatPriceString(fees.value, 2, settings?.value.currency, exchangeRate[settings?.value.currency], props.wallet.precision());
 
     return `${currency.value} <span class="currency-display">${currency.label}</span>`;
   })
 
   const calculatedAmount = computed(() => {
-    let amount = sendAmount;
+    let amount = sendAmount.value;
 
     if (ownedAddresses.value.indexOf(recipientAddress.value) !== -1)
       amount = new BigNumber(0);
@@ -170,7 +186,7 @@ export default {
   })
 
   const remainingBalanceSC = computed(() => {
-    const rem = walletBalance.value.minus(calculatedAmount).minus(fees.value),
+    const rem = walletBalance.value.minus(calculatedAmount.value).minus(fees.value),
         siacoins = formatPriceString(rem, 2, props.wallet.currency, 1, props.wallet.precision());
 
     return `${siacoins.value} <span class="currency-display">${siacoins.label}</span>`;
@@ -182,8 +198,8 @@ export default {
     // if (props.wallet.currency && props.wallet.currency === 'scp')
     //   exchangeRate = exchangeRateSCP.value;
 
-    const rem = walletBalance.value.minus(calculatedAmount).minus(fees.value),
-        currency = formatPriceString(rem, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
+    const rem = walletBalance.value.minus(calculatedAmount.value).minus(fees.value),
+        currency = formatPriceString(rem, 2, settings?.value.currency, exchangeRate[settings?.value.currency], props.wallet.precision());
 
     return `${currency.value} <span class="currency-display">${currency.label}</span>`;
   })
@@ -198,7 +214,7 @@ export default {
     if (sendAmount.value.lt(fees.value))
       return 'Amount sent is less than transaction fees';
 
-    if (!verifyAddress(recipientAddress))
+    if (!verifyAddress(recipientAddress.value))
       return 'Invalid recipient address';
 
     if (inputs.value.length >= 95)
@@ -222,7 +238,7 @@ export default {
     const sia = calculateFee(inputs, 3, new BigNumber(networkFees.value.minimum)),
         serverType = props.wallet?.server_type,
         walletType = props.wallet?.type,
-        authed = !!(process.env?.VUE_APP_SIACENTRAL_TOKEN?.length > 0);
+        authed = false;//!!(process.env?.VUE_APP_SIACENTRAL_TOKEN?.length > 0);
     let api = new BigNumber(0);
 
     if (serverType === 'siacentral' && (walletType !== 'ledger' || !authed))
@@ -334,7 +350,7 @@ export default {
     // if (props.wallet.currency && props.wallet.currency === 'scp')
     //   exchangeRate = exchangeRateSCP.value;
 
-    return formatPriceString(value, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision()).value;
+    return formatPriceString(value, 2, settings?.value.currency, exchangeRate[settings?.value.currency], props.wallet.precision()).value;
   }
 
   const onSendHalf = () => {
@@ -448,7 +464,7 @@ export default {
       //   exchangeRate = exchangeRateSCP.value;
 
       const value = txtCurrency.value.value,
-          parsed = parseCurrencyString(value, exchangeRate[settings?.currency], props.wallet.precision()),
+          parsed = parseCurrencyString(value, exchangeRate[settings?.value.currency], props.wallet.precision()),
           siacoins = formatPriceString(parsed, 2, props.wallet.currency, 1, props.wallet.precision());
 
       sendAmount.value = parsed;

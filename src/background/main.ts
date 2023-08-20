@@ -101,7 +101,7 @@ const loaded = load();
 onMessage('spawn-worker', async (message) => {
   const { data, sender } = message;
 
-  console.log('spawn-worker', data, 'sender', sender);
+  // console.log('spawn-worker', data, 'sender', sender);
 
   try {
     if (!Array.isArray(data) || data.length === 0)
@@ -129,7 +129,7 @@ onMessage('spawn-worker', async (message) => {
     const p = new Promise((resolve, reject) => {
       const f = async (err, value) => {
         // postMessage([err, value]);
-        console.log(err, value)
+        // console.log(err, value)
         // See sia/index.js, onMessage('spawn-worker-response')
         const r: {err: string, value: any} = await sendMessage(
             'spawn-worker-response',

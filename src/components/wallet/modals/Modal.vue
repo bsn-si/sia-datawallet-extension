@@ -1,6 +1,6 @@
 <template>
   <div class="page-modal">
-    <button href="#" class="close-btn" @click="$emit('close')"><font-awesome-icon icon="times" /></button>
+    <button href="#" class="close-btn" @click="$emit('close')"><font-awesome-icon icon="xmark" /></button>
     <div class="modal-content">
       <slot></slot>
     </div>

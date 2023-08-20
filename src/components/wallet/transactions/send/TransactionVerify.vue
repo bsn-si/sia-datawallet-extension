@@ -187,7 +187,7 @@ export default {
           throw new Error('unsupported wallet type');
       }
 
-      this.status = 'Broadcasting transaction... 0 / 1';
+      status.value = 'Broadcasting transaction... 0 / 1';
 
       await broadcastTxnset([{
         siacoininputs: signed.value.siacoininputs,

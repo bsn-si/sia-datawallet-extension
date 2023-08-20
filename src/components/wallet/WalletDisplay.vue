@@ -77,7 +77,7 @@ export default {
   const props = defineProps<{
     wallets: Wallet[],
     wallet: Wallet,
-    active: number | null
+    active: string | null
   }>();
 
   const modal = ref(''), selectedTransaction = ref(null), showMore = ref(false);
