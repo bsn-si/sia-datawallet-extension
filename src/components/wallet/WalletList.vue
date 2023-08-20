@@ -34,9 +34,7 @@ export default {
   }>();
 
   const groups = computed(() => {
-    console.log('walletGroups', walletGroups.value)
     const groups = Object.keys(walletGroups.value);
-    console.log('groups', groups)
     groups.sort();
 
     return groups;

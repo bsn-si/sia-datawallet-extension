@@ -69,41 +69,19 @@ export async function saveWallet(wallet, password) {
 		id: walletID,
 		salt: key.salt,
 		server_type: wallet.server_type || 'siacentral',
-		server_url: null,
+		server_url: wallet.server_url,
 		seed: encrypt(wallet.seed, key.hash),
 		confirmed_siafund_balance: confirmedSiafundBalance.toString(10),
 		confirmed_siacoin_balance: confirmedSiacoinBalance.toString(10),
 		unconfirmed_siacoin_delta: unconfirmedSiafundDelta.toString(10),
 		unconfirmed_siafund_delta: unconfirmedSiacoinDelta.toString(10),
-		siafund_claim: siafundClaim.toString(10)
+		siafund_claim: siafundClaim.toString(10),
+		transactions: toRaw(wallet.transactions),
+		unspent_siacoin_outputs: toRaw(wallet.unspent_siacoin_outputs),
+		unspent_siafund_outputs: toRaw(wallet.unspent_siafund_outputs),
+		spent_siacoin_outputs: toRaw(wallet.spent_siacoin_outputs),
+		spent_siafund_outputs: toRaw(wallet.spent_siafund_outputs),
 	}
-
-	function applyToRawRecursively(obj) {
-		// Base case: If the object is not reactive, return the original value
-		// if (!isReactive(obj)) {
-		// 	return obj;
-		// }
-
-		// Initialize an empty object to store the processed properties
-		const processedObj = {};
-
-		// Iterate through each property of the object
-		for (const key in obj) {
-			if (Object.hasOwnProperty.call(obj, key)) {
-				const value = obj[key];
-
-				// Apply toRaw to the property value
-				const rawValue = toRaw(value);
-
-				// Recursively process nested objects or arrays
-				processedObj[key] = typeof rawValue === 'object' ? applyToRawRecursively(rawValue) : rawValue;
-			}
-		}
-
-		return processedObj;
-	}
-
-	// value = applyToRawRecursively(value);
 
 	try {
 		await db.saveWallet(value);

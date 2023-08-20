@@ -23,7 +23,7 @@
   import WalletDisplay from "~/components/wallet/WalletDisplay.vue";
   import WalletList from "~/components/wallet/WalletList.vue";
 
-  const { allWallets } = useWalletsStore()
+  const { allWallets, pushNotification } = useWalletsStore()
   const selectedWallet = ref(null)
 
   onMounted(() => {
@@ -48,10 +48,10 @@
       localStorage.setItem('lastSelectedWallet', id);
     } catch (ex) {
       console.error('onSelectWallet', ex);
-      // pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 

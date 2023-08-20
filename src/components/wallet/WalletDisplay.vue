@@ -82,7 +82,7 @@ export default {
 
   const modal = ref(''), selectedTransaction = ref(null), showMore = ref(false);
 
-  const { exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet} = useWalletsStore()
+  const { exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet, pushNotification} = useWalletsStore()
 
   const walletQueued = computed(() => {
     return props.wallet.scanning === 'full' || scanQueue.filter(s => s.walletID === props.wallet.id && s.full).length !== 0;
@@ -215,16 +215,16 @@ export default {
     try {
       queueWallet(props.wallet.id, true);
 
-      // this.pushNotification({
-      //   icon: 'redo',
-      //   message: this.translate('alerts.rescanWallet')
-      // });
+      pushNotification({
+        icon: 'redo',
+        message: 'Rescan Wallet'
+      });
     } catch (ex) {
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   icon: 'redo',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        icon: 'redo',
+        message: ex.message
+      });
       console.error('onQueueWallet', ex);
     } finally {
       showMore.value = false;
@@ -240,10 +240,10 @@ export default {
       modal.value = 'transaction';
     } catch (ex) {
       console.error(ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 </script>

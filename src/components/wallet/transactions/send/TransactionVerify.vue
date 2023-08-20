@@ -60,7 +60,7 @@ export default {
   const emit = defineEmits(['done']);
 
 
-  const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees} = useWalletsStore()
+  const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees, pushNotification} = useWalletsStore()
 
   const mode = ref('summary'),
       sending = ref(false),
@@ -144,11 +144,11 @@ export default {
       transactionSigned.value = true;
     } catch (ex) {
       console.error('onLedgerSigned', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   icon: ['fab', 'usb'],
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        icon: ['fab', 'usb'],
+        message: ex.message
+      });
     }
   }
 
@@ -197,21 +197,21 @@ export default {
       }]);
 
       status.value = 'Transaction sent! Updating balance...';
-      // this.pushNotification({
-      //   icon: 'wallet',
-      //   message: this.translate('alerts.transactionBroadcast')
-      // });
+      pushNotification({
+        icon: 'wallet',
+        message: 'Transaction broadcast successfully'
+      });
 
       await scanTransactions(props.wallet);
 
       emit('done');
     } catch (ex) {
       console.error('onVerifyTxn', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   icon: 'wallet',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        icon: 'wallet',
+        message: ex.message
+      });
     } finally {
       sending.value = false;
     }

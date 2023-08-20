@@ -1,67 +1,93 @@
 <template>
   <div class="page page-setup">
-          <div class="setup-content" v-if="step === 'password'">
-            <p>{{ "Set a secure password to encrypt your wallets with. This password will be required to unlock, create, and recover your wallets. All wallet seeds are encrypted, stored locally and never leave the device." }}</p>
-            <div class="control">
-              <label >{{ "Unlock Password" }}</label>
-              <input type="password" v-model="form.unlockPassword" autocomplete="new-password" @input="onCheckPassword" @blur="onCheckPassword" />
-            </div>
-            <div class="control">
-              <label >{{ "Confirm Password" }}</label>
-              <input type="password" v-model="form.confirmPassword" autocomplete="new-password" @input="onCheckPassword" @blur="onCheckPassword" />
-              <div class="text-error text-small" v-if="!form.passwordsMatch">{{ "Unlock password does not match. Check your passwords and try again." }}</div>
-            </div>
-            <div class="buttons">
-              <button class="btn btn-success btn-inline" @click="onSetPassword" :disabled="!enableNext">{{ "Next" }}</button>
-            </div>
+    <div class="setup-step" v-if="step === 'password'">
+      <div class="setup-icon">
+        <img src="/assets/siacentral.svg"/>
+      </div>
+      <h2>{{ 'Get Started' }}</h2>
+      <div class="setup-content">
+        <p>{{
+            "Set a secure password to encrypt your wallets with. This password will be required to unlock, create, and recover your wallets. All wallet seeds are encrypted, stored locally and never leave the device."
+          }}</p>
+        <div class="control">
+          <label>{{ "Unlock Password" }}</label>
+          <input type="password" v-model="form.unlockPassword" autocomplete="new-password" @input="onCheckPassword"
+                 @blur="onCheckPassword"/>
+        </div>
+        <div class="control">
+          <label>{{ "Confirm Password" }}</label>
+          <input type="password" v-model="form.confirmPassword" autocomplete="new-password" @input="onCheckPassword"
+                 @blur="onCheckPassword"/>
+          <div class="text-error text-small" v-if="!form.passwordsMatch">
+            {{ "Unlock password does not match. Check your passwords and try again." }}
           </div>
-          <div class="wallet-step wallet-mode" v-if="step === 'choose'" key="pickMode">
-            <div class="create-wallet-button" @click="onClickWalletType('create')">
-              <div class="button-icon"><font-awesome-icon icon="plus" /></div>
-              <div class="button-title">{{ "New Wallet" }}</div>
-              <p>{{ "Generates a new wallet seed in the browser. Transactions can be sent and received." }}</p>
-            </div>
-            <div class="create-wallet-button" @click="onClickWalletType('recover')">
-              <div class="button-icon"><font-awesome-icon icon="arrow-rotate-right" /></div>
-              <div class="button-title">{{ "Recover Wallet" }}</div>
-              <p>{{ "Recovers an existing wallet from a 29 seed. Transactions can be sent and received." }}</p>
-            </div>
-          </div>
-          <div v-if="step ==='create'">
-            <div class="control">
-              <label>{{ "Wallet Name" }}</label>
-              <input type="text"  placeholder="Wallet" v-model="walletName" />
-            </div>
+        </div>
+        <div class="buttons">
+          <button class="btn btn-success btn-inline" @click="onSetPassword" :disabled="!enableNext">{{
+              "Next"
+            }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="wallet-step wallet-mode" v-if="step === 'choose'" key="pickMode">
+      <div class="create-wallet-button" @click="onClickWalletType('create')">
+        <div class="button-icon">
+          <font-awesome-icon icon="plus"/>
+        </div>
+        <div class="button-title">{{ "New Wallet" }}</div>
+        <p>{{ "Generates a new wallet seed in the browser. Transactions can be sent and received." }}</p>
+      </div>
+      <div class="create-wallet-button" @click="onClickWalletType('recover')">
+        <div class="button-icon">
+          <font-awesome-icon icon="arrow-rotate-right"/>
+        </div>
+        <div class="button-title">{{ "Recover Wallet" }}</div>
+        <p>{{ "Recovers an existing wallet from a 29 seed. Transactions can be sent and received." }}</p>
+      </div>
+    </div>
+    <div class="setup-step" v-if="step ==='create'">
+      <div class="control">
+        <label>{{ "Wallet Name" }}</label>
+        <input type="text" placeholder="Wallet" v-model="walletName"/>
+      </div>
 
-            <template v-if="createType === 'recover'">
-              <div class="control">
-                <label>{{ "Recovery Seed" }}</label>
-                <textarea v-model="recoverySeed"  />
-              </div>
-            </template>
-            <div class="buttons">
-              <button class="btn btn-success btn-inline"
-                      @click="onCreateWallet" :disabled="creating">{{ createType === 'recover' ? 'Recover' : 'Generate' }}</button>
-            </div>
-          </div>
-          <div v-if="step ==='review'">
-            <p v-if="createType === 'recover'">Your wallet has been successfully recovered. The blockchain is now being scanned for balance and transactions. Backup your recovery seed to a safe location, without your seed your funds cannot be recovered.</p>
-            <p v-else>A new wallet has been created. Backup your recovery seed to a safe location, without your seed your funds cannot be recovered.</p>
-            <template v-if="walletType === 'default'">
-              <div class="control">
-                <label>{{ "Recovery Seed" }}</label>
-                <textarea v-model="wallet.seed" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" readonly/>
-              </div>
-              <div class="control">
-                <input type="checkbox" id="chkSeedExported" v-model="exported" />
-                <label for="chkSeedExported">{{ "My recovery seed is saved in a secure location" }}</label>
-              </div>
-            </template>
-            <div class="controls">
-              <button class="btn btn-success btn-inline"
-                      @click="onWalletCreated" :disabled="doneDisabled">{{ "Done" }}</button>
-            </div>
-          </div>
+      <template v-if="createType === 'recover'">
+        <div class="control">
+          <label>{{ "Recovery Seed" }}</label>
+          <textarea v-model="recoverySeed"/>
+        </div>
+      </template>
+      <div class="buttons">
+        <button class="btn btn-success btn-inline"
+                @click="onCreateWallet" :disabled="creating">{{ createType === 'recover' ? 'Recover' : 'Generate' }}
+        </button>
+      </div>
+    </div>
+    <div class="wallet-step"  v-if="step ==='review'">
+      <p v-if="createType === 'recover'">Your wallet has been successfully recovered. The blockchain is now being
+        scanned for balance and transactions. Backup your recovery seed to a safe location, without your seed your funds
+        cannot be recovered.</p>
+      <p v-else>A new wallet has been created. Backup your recovery seed to a safe location, without your seed your
+        funds cannot be recovered.</p>
+      <template v-if="walletType === 'default'">
+        <div class="control">
+          <label>{{ "Recovery Seed" }}</label>
+          <textarea v-model="wallet.seed"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    readonly/>
+        </div>
+        <div class="control">
+          <input type="checkbox" id="chkSeedExported" v-model="exported"/>
+          <label for="chkSeedExported">{{ "My recovery seed is saved in a secure location" }}</label>
+        </div>
+      </template>
+      <div class="controls">
+        <button class="btn btn-success btn-inline"
+                @click="onWalletCreated" :disabled="doneDisabled">{{ "Done" }}
+        </button>
+      </div>
+    </div>
 
   </div>
 
@@ -75,17 +101,17 @@ export default {
 
 
 <script setup lang="ts">
-import { routerPush } from '~/popup/router'
-import { api, isFetchError } from '~/services'
-import { useUserStore } from '~/store/user'
-import { useWalletsStore } from '~/store/wallet'
-import { reactive, ref } from 'vue'
+import {routerPush} from '~/popup/router'
+import {api, isFetchError} from '~/services'
+import {useUserStore} from '~/store/user'
+import {useWalletsStore} from '~/store/wallet'
+import {reactive, ref} from 'vue'
 import setAuthorizationToken from '~/plugins/set-authorization-token'
 import {ConsensusState} from "~/types/users";
-import { generateSeed, generateAddresses } from '~/sia/index.js';
-import { hash } from 'tweetnacl';
-import { encode as encodeUTF8 } from '@stablelib/utf8';
-import { saveAddresses } from '~/store/db.js';
+import {generateSeed, generateAddresses} from '~/sia/index.js';
+import {hash} from 'tweetnacl';
+import {encode as encodeUTF8} from '@stablelib/utf8';
+import {saveAddresses} from '~/store/db.js';
 
 interface LoginUser {
   confirmPassword: string;
@@ -108,7 +134,7 @@ const step = ref('password'), createType = ref('create'),
     seedType = ref('sia'),
     serverType = ref('siacentral'), creating = ref(false), saving = ref(false), exported = ref(false);
 
-let wallet = reactive ({
+let wallet = reactive({
   id: '',
   seed: '',
   title: '',
@@ -117,6 +143,8 @@ let wallet = reactive ({
   server_type: '',
   server_url: null
 })
+
+const {pushNotification} = useWalletsStore()
 
 let addresses = []
 
@@ -134,8 +162,8 @@ const doneDisabled = computed(() => {
   return saving.value || (!exported.value && walletType.value === 'default');
 })
 
-const { updateUser } = useUserStore()
-const { createWallet, queueWallet, setSetup } = useWalletsStore()
+const {updateUser} = useUserStore()
+const {createWallet, queueWallet, setSetup} = useWalletsStore()
 
 
 const onCheckPassword = () => {
@@ -156,11 +184,11 @@ const onSetPassword = () => {
     step.value = 'choose';
   } catch (ex) {
     console.error('onSetPassword', ex);
-    // this.pushNotification({
-    //   severity: 'danger',
-    //   icon: 'wallet',
-    //   message: ex.message
-    // });
+    pushNotification({
+      severity: 'danger',
+      icon: 'wallet',
+      message: ex.message
+    });
   }
 }
 
@@ -170,10 +198,10 @@ const onClickWalletType = (type: string) => {
     createType.value = type;
   } catch (ex) {
     console.error('onClickWalletType', ex);
-    // this.pushNotification({
-    //   message: ex.message,
-    //   severity: 'danger'
-    // });
+    pushNotification({
+      message: ex.message,
+      severity: 'danger'
+    });
   }
 }
 
@@ -217,17 +245,17 @@ const onCreateWallet = async () => {
     step.value = 'review';
   } catch (ex) {
     console.error('onCreateWallet', ex);
-    // this.pushNotification({
-    //   severity: 'danger',
-    //   message: ex.message
-    // });
+    pushNotification({
+      severity: 'danger',
+      message: ex.message
+    });
   } finally {
     creating.value = false;
   }
 }
 
-const saveWallet = async() => {
-  const { user } = useUserStore()
+const saveWallet = async () => {
+  const {user} = useUserStore()
   if (saving.value)
     return;
 
@@ -249,27 +277,27 @@ const saveWallet = async() => {
     queueWallet(wallet.id, true);
   } catch (ex) {
     console.error('saveWallet', ex);
-    // this.pushNotification({
-    //   message: ex.message,
-    //   severity: 'danger'
-    // });
+    pushNotification({
+      message: ex.message,
+      severity: 'danger'
+    });
   } finally {
     saving.value = false;
   }
 }
 
-const onWalletCreated = async() => {
+const onWalletCreated = async () => {
   try {
     setSetup(true);
 
     await routerPush('wallets')
   } catch (ex) {
     console.error('onWalletCreated', ex);
-    // this.pushNotification({
-    //   severity: 'danger',
-    //   icon: 'wallet',
-    //   message: ex.message
-    // });
+    pushNotification({
+      severity: 'danger',
+      icon: 'wallet',
+      message: ex.message
+    });
   }
 }
 

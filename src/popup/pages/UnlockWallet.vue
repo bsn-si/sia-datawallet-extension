@@ -31,7 +31,7 @@ export default {
 
 import {useWalletsStore} from "~/store/wallet";
 
-const { unlockWallets } = useWalletsStore()
+const { unlockWallets, pushNotification } = useWalletsStore()
 
   const password = ref('')
   const unlocking = ref(false)
@@ -44,16 +44,16 @@ const { unlockWallets } = useWalletsStore()
 
   try {
     await unlockWallets(password.value);
-    // this.pushNotification({
-    //   icon: 'unlock',
-    //   message: this.translate('alerts.unlockSuccess')
-    // });
+    pushNotification({
+      icon: 'unlock',
+      message: 'Wallets decrypted. Welcome back!'
+    });
   } catch (ex) {
-    // this.pushNotification({
-    //   severity: 'danger',
-    //   icon: 'lock',
-    //   message: this.translate('alerts.unlockError')
-    // });
+    pushNotification({
+      severity: 'danger',
+      icon: 'lock',
+      message: 'Unable to decrypt wallets. Incorrect password'
+    });
     console.error('onUnlockWallets', ex);
   } finally {
     unlocking.value = false;

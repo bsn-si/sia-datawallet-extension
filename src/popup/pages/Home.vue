@@ -1,5 +1,5 @@
 <template>
-  <main class="px-4 py-5" style="min-width: 800px;">
+  <main class="px-4 py-5">
     <vue-finder id='my_vuefinder'></vue-finder>
 
     <div class="mt-2">

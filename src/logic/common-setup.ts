@@ -31,7 +31,6 @@ export async function setupApp(app: App) {
   registerGlobalComponents(app)
 
   library.add(faBluetoothB, faExclamationTriangle, faCreditCard, faSitemap, faFile, faFileExport, faUnlock, faLock, faEllipsisV, faChevronLeft, faChevronRight, faChevronDown, faEye, faUsb, faGithub, faPencilAlt, faTrash, faPaperPlane, faWallet, faAddressBook, faCogs, faPlus, faXmark, faTimes, faArrowRotateRight, faRedo, faEllipsisVertical, faCog);
-  console.log(library)
   app.component('font-awesome-icon', FontAwesomeIcon);
 
   const { setDBType, setUnavailable, setSetup } = useWalletsStore()

@@ -77,6 +77,7 @@ export default {
   const emit = defineEmits<Emits>()
 
   const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees} = storeToRefs(useWalletsStore())
+  const { pushNotification } = useWalletsStore()
 
   const recipientAddress = ref(''),
       inputs = ref([]),
@@ -98,10 +99,10 @@ export default {
       await loadAddresses();
     } catch (ex) {
       console.error('TransactionSetupMounted', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   });
 
@@ -373,10 +374,10 @@ export default {
       onFormatValues();
     } catch (ex) {
       console.error('onSendHalf', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 
@@ -398,10 +399,10 @@ export default {
       onFormatValues();
     } catch (ex) {
       console.error('onSendFull', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 
@@ -415,10 +416,10 @@ export default {
       emit('built', buildTransaction());
     } catch (ex) {
       console.error('onSendTxn', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     } finally {
       sending.value = false;
     }
@@ -432,10 +433,10 @@ export default {
       txtSiacoin.value.value = siacoins.value;
     } catch (ex) {
       console.error('onFormatValues', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 
@@ -449,10 +450,10 @@ export default {
       fundTransactionWithFees(sendAmount.value);
     } catch (ex) {
       console.error('onChangeSiacoin', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 
@@ -472,10 +473,10 @@ export default {
       fundTransactionWithFees(sendAmount.value);
     } catch (ex) {
       console.error('onChangeCurrency', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 

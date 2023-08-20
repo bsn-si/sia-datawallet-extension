@@ -54,11 +54,23 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     const feeAddresses = ref([]);
     const unavailable = ref(null);
     const dbType = ref('memory');
+    const notifications = ref([]);
 
     updateMetadata();
     setInterval(updateMetadata, 300000);
 
     const allWallets = computed(() => unref(wallets));
+
+    const pushNotification = (notification) => {
+        notifications.value.push(notification);
+    }
+
+    const clearNotification = () => {
+        if (notifications.value.length === 0)
+            return;
+
+        notifications.value.shift();
+    }
 
     return {
         settings,
@@ -81,7 +93,10 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         unlockWallets,
         lockWallets,
         siaNetworkFees,
-        feeAddresses
+        feeAddresses,
+        notifications,
+        clearNotification,
+        pushNotification
     };
 
     async function unlockWallets(password: string) {
@@ -156,7 +171,6 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
     async function setSetup(value) {
         setup.value = value;
-        console.log('setSetup', value)
     }
 
     async function setDBType(value) {
@@ -200,6 +214,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
             console.error('updatingMeta', ex);
         }
     }
+
+
 
     async function saveWalletMutation(wallet: Wallet) {
         if (!wallet || !wallet.seed)

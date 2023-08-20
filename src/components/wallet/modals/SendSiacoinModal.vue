@@ -19,11 +19,14 @@ export default {
   import TransactionSetup from "~/components/wallet/transactions/send/TransactionSetup.vue";
   import TransactionVerify from "~/components/wallet/transactions/send/TransactionVerify.vue";
   import Wallet from "~/types/wallet";
+  import {useWalletsStore} from "~/store/wallet";
 
   const props = defineProps({
     address: String,
     wallet: Wallet
   });
+
+  const { pushNotification } = useWalletsStore()
 
   const step = ref(''),
         transaction = ref(null),
@@ -42,10 +45,10 @@ export default {
       step.value = 'verify';
     } catch (ex) {
       console.error('onTransactionBuilt', ex);
-      // this.pushNotification({
-      //   severity: 'danger',
-      //   message: ex.message
-      // });
+      pushNotification({
+        severity: 'danger',
+        message: ex.message
+      });
     }
   }
 </script>

@@ -6,6 +6,7 @@
       <setup-page v-else-if="!setup" />
       <unlock-wallet v-else />
   </div>
+  <notification-queue />
 </template>
 
 <script setup lang="ts">
@@ -18,6 +19,7 @@
   import UnavailablePage from "~/popup/pages/UnavailablePage.vue";
   import {storeToRefs} from "pinia";
   import PrimaryNav from "~/components/wallet/PrimaryNav.vue";
+  import NotificationQueue from "~/components/wallet/NotificationQueue.vue";
 
   // const userStore = useUserStore()
 
@@ -68,7 +70,7 @@
   left: 75px;
   right: 0;
   bottom: 0;
-  width: 100%;
+  width: calc(100% - 75px);
   height: 100%;
 }
 
