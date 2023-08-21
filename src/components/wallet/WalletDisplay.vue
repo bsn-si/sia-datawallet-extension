@@ -216,13 +216,13 @@ export default {
       queueWallet(props.wallet.id, true);
 
       pushNotification({
-        icon: 'redo',
+        icon: 'arrow-rotate-right',
         message: 'Rescan Wallet'
       });
     } catch (ex) {
       pushNotification({
         severity: 'danger',
-        icon: 'redo',
+        icon: 'arrow-rotate-right',
         message: ex.message
       });
       console.error('onQueueWallet', ex);

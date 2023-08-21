@@ -9,6 +9,13 @@
  * ---------------------------------------------------------------
  */
 
+export type LoginData = {
+  user: {
+    wallet: string
+    password: string
+  }
+}
+
 export type AccountsListData = object;
 
 /** @example {"hostKey":"ed25519:0c920d0254011f1065eeb99aa909c644b991780c1155ce0aa34cce09e6eabdc9"} */
@@ -545,6 +552,24 @@ export class HttpClient<SecurityDataType = unknown> {
  * The **autopilot** is an optional component that helps with running `renterd` by automatically forming contracts, renewing them, scanning hosts as well as keeping ephemeral accounts funded. Users are free to disable it and manually interact with workers or write their own automation instead.
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  service = {
+    login: (data: LoginData, params: RequestParams = {}) =>
+        this.request<LoginData, {wallet: string, token: string}>({
+          path: `/users/login`,
+          method: "POST",
+          body: data,
+          // type: ContentType.Json,
+          ...params,
+        }),
+    register: (data: LoginData, params: RequestParams = {}) =>
+        this.request<LoginData, {wallet: string, token: string}>({
+          path: `/users`,
+          method: "POST",
+          body: data,
+          // type: ContentType.Json,
+          ...params,
+        })
+  }
   accounts = {
     /**
      * @description Returns all known ephemeral accounts from the bus.

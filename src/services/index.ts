@@ -7,7 +7,7 @@ export const limit = 10
 console.log('CONFIG.API_HOST', CONFIG.API_HOST)
 
 export const api = new Api({
-  baseUrl: `${CONFIG.API_HOST}/api/bus`,
+  baseUrl: `${CONFIG.API_HOST}/api`,
   securityWorker: token => token ? { headers: { authorization: `Basic ${token}` } } : {},
   baseApiParams: {
     headers: {

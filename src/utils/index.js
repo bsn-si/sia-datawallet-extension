@@ -21,6 +21,16 @@ export function getLastItems(arr, n) {
 	return values;
 };
 
+export function createUint8ArrayFromKeys(obj) {
+	const keys = Object.keys(obj);
+	const keyString = keys.join(',');
+
+	const encoder = new TextEncoder();
+	const keyArrayBuffer = encoder.encode(keyString);
+
+	return new Uint8Array(keyArrayBuffer);
+}
+
 export function concatUint8Array() {
 	let totalSize = 0,
 		offset = 0;
