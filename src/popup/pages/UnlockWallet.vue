@@ -34,16 +34,10 @@ export default {
 <script setup lang="ts">
 
 import {useWalletsStore} from "~/store/wallet";
-import setAuthorizationToken from "~/plugins/set-authorization-token";
 import {api, isFetchError} from "~/services";
-import {ConsensusState} from "~/types/users";
-import {routerPush} from "~/popup/router";
 import {useUserStore} from "~/store/user";
 import {onMounted, ref} from "vue";
 import {storeToRefs} from "pinia";
-import { pbkdf2 } from '~/utils/crypto';
-import {hash} from "tweetnacl";
-import {encode as encodeUTF8} from "@stablelib/utf8";
 import { createUint8ArrayFromKeys } from '~/utils/index.js';
 
 const store = useWalletsStore()

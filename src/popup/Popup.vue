@@ -4,14 +4,14 @@
       <unavailable-page v-if="typeof unavailable === 'string'" />
       <router-view v-if="setup && unlocked" />
       <setup-page v-else-if="!setup" />
-      <unlock-wallet v-else />
+      <unlock-wallet v-else-if="!userStore.isAuthorized" />
   </div>
   <notification-queue />
 </template>
 
 <script setup lang="ts">
 
-  // import {useUserStore} from "~/store/user";
+  import {useUserStore} from "~/store/user";
   import {routerPush} from "~/popup/router";
   import {useWalletsStore} from "~/store/wallet";
   import UnlockWallet from "~/popup/pages/UnlockWallet.vue";
@@ -21,19 +21,46 @@
   import PrimaryNav from "~/components/wallet/PrimaryNav.vue";
   import NotificationQueue from "~/components/wallet/NotificationQueue.vue";
 
-  // const userStore = useUserStore()
+  const userStore = useUserStore()
+  const { user } = storeToRefs(userStore)
 
   const walletsStore = useWalletsStore()
-  const { setup, unavailable, wallets } = storeToRefs(walletsStore)
-  const { allWallets } = walletsStore;
+  const { setup, unavailable, wallets, dbType } = storeToRefs(walletsStore)
+  const { allWallets, lockWallets, pushNotification, settings  } = walletsStore;
   console.log('setup', setup)
+
+  const autoLockTimeout = ref(null)
 
   const unlocked = computed(() => Array.isArray(wallets.value) && wallets.value.length !== 0)
   console.log('unlocked', unlocked)
 
-  // onMounted(async () => {
-  //   if (!userStore.isAuthorized) return await routerPush('login')
-  // })
+  onMounted(async () => {
+    window.addEventListener('mousemove', resetAutoLock);
+  })
+
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('mousemove', resetAutoLock);
+  })
+
+  const resetAutoLock = () => {
+    let lockms = settings?.autoLock * 60000;
+
+    if (lockms <= 0)
+      lockms = 60000;
+
+    clearTimeout(autoLockTimeout.value);
+
+    autoLockTimeout.value = setTimeout(() => {
+      if (!unlocked.value)
+        return;
+
+      lockWallets();
+      pushNotification({
+        message: 'Wallets automatically locked due to inactivity'
+      });
+    }, lockms);
+  }
 </script>
 
 <style lang="stylus">

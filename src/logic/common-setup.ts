@@ -10,6 +10,7 @@ import { faBluetoothB, faUsb, faGithub } from '@fortawesome/free-brands-svg-icon
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {useWalletsStore} from "~/store/wallet";
 import { siaAPI } from '~/services/wallet/siacentral';
+import {useUserStore} from "~/store/user";
 
 export async function setupApp(app: App) {
   // Inject a globally available `$app` object in template
@@ -33,7 +34,8 @@ export async function setupApp(app: App) {
   library.add(faBluetoothB, faExclamationTriangle, faCreditCard, faSitemap, faFile, faFileExport, faUnlock, faLock, faEllipsisV, faChevronLeft, faChevronRight, faChevronDown, faEye, faUsb, faGithub, faPencilAlt, faTrash, faPaperPlane, faWallet, faAddressBook, faCogs, faPlus, faXmark, faTimes, faArrowRotateRight, faRedo, faEllipsisVertical, faCog);
   app.component('font-awesome-icon', FontAwesomeIcon);
 
-  const { setDBType, setUnavailable, setSetup } = useWalletsStore()
+  const { setDBType, setUnavailable, setSetup, unlockWallets } = useWalletsStore()
+  const userStore = useUserStore()
 
   const dbType = await connect();
   console.log('dbType', dbType);
@@ -46,6 +48,10 @@ export async function setupApp(app: App) {
   } catch (ex) {
     console.error(ex.message);
     setUnavailable(ex.message);
+  }
+
+  if (userStore.isAuthorized) {
+    await unlockWallets()
   }
 
 }

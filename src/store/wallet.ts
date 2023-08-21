@@ -9,6 +9,7 @@ import {ref} from "vue";
 import { scanner } from '~/sync/scanner';
 import { siaAPI } from '~/services/wallet/siacentral';
 import {useUserStore} from "~/store/user";
+import { createUint8ArrayFromKeys } from '~/utils/index.js';
 
 
 interface WalletSettings {
@@ -96,18 +97,25 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         feeAddresses,
         notifications,
         clearNotification,
-        pushNotification
+        pushNotification,
+        dbType
     };
 
-    async function unlockWallets(password: string) {
-        const { updateUser } = useUserStore()
+    async function unlockWallets(password?: string) {
+        const { updateUser, user } = useUserStore()
 
-        const passwordHash = hash(encodeUTF8(password));
+        let passwordHash;
+        if (password) {
+            passwordHash = hash(encodeUTF8(password));
+        } else {
+            passwordHash = createUint8ArrayFromKeys(toRaw(user?.unlockPassword));
+        }
+
+        updateUser({unlockPassword: passwordHash})
 
         const wallets = await dbLoadWallets(passwordHash);
 
         setWalletsMutation(wallets);
-        updateUser({unlockPassword: passwordHash})
 
         wallets.forEach(w => queueWallet(w.id, false));
     }
@@ -237,7 +245,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
         wallets.value.splice(idx, 1, new Wallet(wallet));
 
-        console.log('*** wallets', wallets.value)
+        console.log('*** wallets after save', wallets.value)
     }
 
     async function queueWalletMutation( walletID, full ) {

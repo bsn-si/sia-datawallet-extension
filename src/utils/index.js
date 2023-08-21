@@ -23,12 +23,16 @@ export function getLastItems(arr, n) {
 
 export function createUint8ArrayFromKeys(obj) {
 	const keys = Object.keys(obj);
-	const keyString = keys.join(',');
+	const maxKey = Math.max(...keys.map(key => parseInt(key)));
 
-	const encoder = new TextEncoder();
-	const keyArrayBuffer = encoder.encode(keyString);
+	const array = new Uint8Array(maxKey + 1);
 
-	return new Uint8Array(keyArrayBuffer);
+	for (const key in obj) {
+		const index = parseInt(key);
+		array[index] = obj[key];
+	}
+
+	return array;
 }
 
 export function concatUint8Array() {
