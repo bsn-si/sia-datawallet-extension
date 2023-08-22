@@ -4,14 +4,14 @@
       <unavailable-page v-if="typeof unavailable === 'string'" />
       <router-view v-if="setup && unlocked" />
       <setup-page v-else-if="!setup" />
-      <unlock-wallet v-else-if="!userStore.isAuthorized" />
+      <unlock-wallet v-else-if="!isAuthorized" />
   </div>
   <notification-queue />
 </template>
 
 <script setup lang="ts">
 
-  import {useUserStore} from "~/store/user";
+  import {useUserStore, userStorage} from "~/store/user";
   import {routerPush} from "~/popup/router";
   import {useWalletsStore} from "~/store/wallet";
   import UnlockWallet from "~/popup/pages/UnlockWallet.vue";
@@ -20,13 +20,14 @@
   import {storeToRefs} from "pinia";
   import PrimaryNav from "~/components/wallet/PrimaryNav.vue";
   import NotificationQueue from "~/components/wallet/NotificationQueue.vue";
+  import { onMessage, sendMessage } from "webext-bridge/popup";
 
   const userStore = useUserStore()
-  const { user } = storeToRefs(userStore)
+  const { user, isAuthorized } = storeToRefs(userStore)
 
   const walletsStore = useWalletsStore()
-  const { setup, unavailable, wallets, dbType } = storeToRefs(walletsStore)
-  const { allWallets, lockWallets, pushNotification, settings  } = walletsStore;
+  const { setup, unavailable, wallets } = storeToRefs(walletsStore)
+  const { lockWallets, pushNotification, settings  } = walletsStore;
   console.log('setup', setup)
 
   const autoLockTimeout = ref(null)
@@ -60,7 +61,14 @@
         message: 'Wallets automatically locked due to inactivity'
       });
     }, lockms);
+
+    sendMessage(
+        'reset-autolock',
+        [],
+        'background'
+    );
   }
+
 </script>
 
 <style lang="stylus">

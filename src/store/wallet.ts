@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
 import Wallet from '~/types/wallet';
+import WalletSettings from '~/types/walletSettings';
 import { hash } from 'tweetnacl';
 import { encode as encodeB64 } from '@stablelib/base64';
 import { encode as encodeUTF8 } from '@stablelib/utf8';
@@ -11,16 +12,6 @@ import { siaAPI } from '~/services/wallet/siacentral';
 import {useUserStore} from "~/store/user";
 import { createUint8ArrayFromKeys } from '~/utils/index.js';
 
-
-interface WalletSettings {
-    autoLock: number,
-    currency: string,
-    useCostBasis: boolean,
-    changeSeedType: boolean,
-    changeServerType: boolean,
-    addressLookahead: number,
-    displayLanguage: string,
-}
 
 export const walletSettingsStorage = new Storage<WalletSettings>('walletSettings')
 walletSettingsStorage.set({

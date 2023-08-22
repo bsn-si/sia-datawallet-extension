@@ -27,14 +27,16 @@
 import VueFinder from "~/components/VueFinder.vue";
 import {useUserStore} from "~/store/user";
 import {routerPush} from "~/popup/router";
+import {useWalletsStore} from "~/store/wallet";
 const { updateUser } = useUserStore()
-
+const { lockWallets } = useWalletsStore()
 function openOptionsPage() {
   browser.runtime.openOptionsPage()
 }
 const logout = async () => {
   updateUser(null)
-  await routerPush('login')
+  lockWallets()
+
 }
 const openWalletsPage = async () => {
   await routerPush('wallets')

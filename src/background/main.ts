@@ -57,6 +57,28 @@ onMessage('get-current-tab', async () => {
   }
 })
 
+// TODO: localStorage doesn't work in web workers. See https://developer.chrome.com/docs/extensions/reference/storage/#examples
+// let autoLockTimeout = null;
+// let walletSettings = JSON.parse(localStorage.getItem('walletSettings') as string)
+//
+// const resetAutoLock = async () => {
+//   console.log('resetAutoLock')
+//   let lockms = walletSettings.autoLock * 60000;
+//
+//   if (lockms <= 0)
+//     lockms = 60000;
+//
+//   clearTimeout(autoLockTimeout);
+//
+//   autoLockTimeout = setTimeout(async () => {
+//     localStorage.removeItem('walletSettings')
+//   }, lockms);
+// }
+
+onMessage('reset-autolock', async () => {
+  // await resetAutoLock();
+})
+
 // Originally was in sia/sia.worker.js
 if (!WebAssembly.instantiateStreaming) { // polyfill
   WebAssembly.instantiateStreaming = async(resp, importObject) => {
