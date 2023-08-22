@@ -34,16 +34,15 @@ export default {
 <script setup lang="ts">
 
 import {useWalletsStore} from "~/store/wallet";
-import {api, isFetchError} from "~/services";
 import {useUserStore} from "~/store/user";
 import {onMounted, ref} from "vue";
 import {storeToRefs} from "pinia";
-import { createUint8ArrayFromKeys } from '~/utils/index.js';
+import {loginOrRegisterUser} from "~/services/backend";
 
 const store = useWalletsStore()
 const {unlockWallets, pushNotification} = store
 const {wallets} = storeToRefs(store)
-const {user, updateUser} = useUserStore()
+const {user} = storeToRefs(useUserStore())
 
 const password = ref('')
 const unlocking = ref(false)
@@ -78,46 +77,7 @@ const onUnlockWallets = async () => {
   try {
     await unlockWallets(password.value);
 
-    errors.value = {}
-
-    try {
-      const result = await api.service.login({user: {wallet: currentWallet.value.id, password: JSON.stringify(user?.unlockPassword)}})
-      const { token } = result.data.user
-      updateUser({unlockPassword: createUint8ArrayFromKeys(toRaw(user?.unlockPassword)), token: token as string})
-    } catch (e) {
-      if (isFetchError(e)) {
-        const status = (e as Response).status
-
-        if (status === 401) {
-          try {
-            const result = await api.service.register({user: {wallet: currentWallet.value.id, password: JSON.stringify(user?.unlockPassword)}})
-            const {token} = result.data.user
-            updateUser({unlockPassword: createUint8ArrayFromKeys(toRaw(user?.unlockPassword)), token: token as string})
-          } catch (e) {
-            if (isFetchError(e)) {
-              const status = (e as Response).status
-              if (status === 400) {
-                errors.value = {
-                  error: ['Error create user'],
-                }
-              } else {
-                 errors.value = {
-                  error: ['Error, something went wrong'],
-                }
-                console.error(e)
-              }
-            }
-          }
-        } else {
-          errors.value = {
-            error: ['Error, something went wrong'],
-          }
-          console.error(e)
-        }
-      }
-
-
-    }
+    errors.value = await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
 
     pushNotification({
       icon: 'unlock',
