@@ -41,7 +41,13 @@ import {api, isFetchError} from "~/services";
 import {CONFIG} from "~/env";
 import getCurrentDir, {storageName} from "~/utils/getCurrentDir";
 import {saveBlobToMachine} from "~/utils/saveBlobToMachine";
-
+import {useWalletsStore} from "~/store/wallet";
+import {storeToRefs} from "pinia";
+import {useUserStore} from "~/store/user";
+import {loginOrRegisterUser} from "~/services/backend";
+const { allWallets, pushNotification } = useWalletsStore()
+const { user } = storeToRefs(useUserStore())
+const selectedWallet = ref(null)
 
 const props = defineProps({
   url: {
@@ -150,7 +156,90 @@ emitter.on('vf-fetch-abort', () => {
   loadingState.value = false;
 });
 
+onMounted(() => {
+  selectedWallet.value = localStorage.getItem('lastSelectedWallet') || allWallets[0].id;
+})
 
+const currentWallet = computed(() => {
+  if (!Array.isArray(allWallets))
+    return null;
+
+  const selected = allWallets.filter(w => w.id === selectedWallet)[0];
+
+  if (!selected)
+    return allWallets[0];
+
+  return selected;
+})
+
+watchEffect(async () => {
+  if (!currentWallet.value)
+    return;
+
+  if (user?.value.token) {
+    const r = await getObjects('');
+    if (r.status === 404) {
+      await createFolder('', '');
+    }
+    emitter.emit('vf-fetch', {params: {q: 'index', adapter: (adapter.value)}});
+  } else {
+    await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
+  }
+})
+
+const getObjects = async (path, params = {}) => {
+  const currentDir = getCurrentDir(currentWallet.value.id, path);
+  console.log('%cGet objects: ' + currentDir, 'background: #222; color: #bada55')
+  const data = await api.objects.objectsDetail(currentDir, params).then(res => res.data);
+  console.log('%cdata: ', 'background: #222; color: #bada55', data)
+  if (data.status === 404) {
+    return data;
+  }
+  data.adapter = storageName;
+  data.storages = [storageName];
+  data.dirname = storageName + '://' + currentDir;
+  if (!data.entries) {
+    data.entries = [];
+  }
+  data.files = data.entries.map((entry) => {
+    const path = entry.name.replace(/\/$/, '').replace(/^\//g, '');
+    const filename = path.split('/').pop();
+    let extension = '';
+    if (entry.name.endsWith('/')) {
+      entry.type = 'dir';
+    } else {
+      entry.type = 'file';
+      extension = name.split('.').pop();
+      entry.mime_type = '';
+    }
+    entry.basename = filename;
+    entry.path = storageName + '://' + path;
+    entry.extension = extension;
+    entry.file_size = entry.size;
+    entry.visibility = 'public'
+    entry.last_modified = '';
+    entry.extra_metadata = [];
+    entry.storage = storageName;
+
+    delete entry.name;
+    delete entry.size;
+
+    return entry;
+  });
+  delete data.entries;
+  return data;
+};
+
+const createFolder = async (path, name) => {
+  const currentDir = getCurrentDir(currentWallet.value.id, path);
+  path = currentDir + name
+  if (!currentDir.endsWith('/')) {
+    path += '/'
+  }
+
+  const data = await api.objects.objectsUpdate(path, null ).then(res => res.data);
+  return data;
+};
 
 emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
   if (['index', 'search'].includes(params.q)) {
@@ -164,55 +253,8 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
   const signal = controller.signal;
 
 
-
-  const getObjects = async (path) => {
-    const currentDir = getCurrentDir(path);
-
-    const data = await api.objects.objectsDetail(currentDir, { signal }).then(res => res.data);
-    data.adapter = storageName;
-    data.storages = [storageName];
-    data.dirname = storageName + '://' + currentDir;
-    if (!data.entries) {
-      data.entries = [];
-    }
-    data.files = data.entries.map((entry) => {
-      const path = entry.name.replace(/\/$/, '').replace(/^\//g, '');
-      const filename = path.split('/').pop();
-      let extension = '';
-      if (entry.name.endsWith('/')) {
-        entry.type = 'dir';
-      } else {
-        entry.type = 'file';
-        extension = name.split('.').pop();
-        entry.mime_type = '';
-      }
-      entry.basename = filename;
-      entry.path = storageName + '://' + path;
-      entry.extension = extension;
-      entry.file_size = entry.size;
-      entry.visibility = 'public'
-      entry.last_modified = '';
-      entry.extra_metadata = [];
-      entry.storage = storageName;
-
-      delete entry.name;
-      delete entry.size;
-
-      return entry;
-    });
-    delete data.entries;
-    return data;
-  };
-
-  const createFolder = async (path, name) => {
-    const currentDir = getCurrentDir(path);
-
-    const data = await api.objects.objectsUpdate(currentDir + name + '/', null, {baseUrl: `${CONFIG.API_HOST}/api/worker`}).then(res => res.data);
-    return data;
-  };
-
   const deleteObjects = async (path, items) => {
-    const currentDir  = getCurrentDir(path);
+    const currentDir  = getCurrentDir(currentWallet.value.id, path);
 
     const deletionPromises = items.map(async item => {
       const itemPath = item.path.replace(storageName + '://', '') + (item.type === 'dir' ? '/' : '');
@@ -256,7 +298,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
       }
     })
   } else if (params.q === 'index') {
-    getObjects(params.path).then(data => {
+    getObjects(params.path, { signal }).then(data => {
       adapter.value = data.adapter;
       if (['index', 'search'].includes(params.q)) {
         loadingState.value = false;
@@ -313,10 +355,6 @@ emitter.on('vf-download', async (params) => {
   }
 
   emitter.emit('vf-modal-close');
-});
-
-onMounted(() => {
-  emitter.emit('vf-fetch', {params: {q: 'index', adapter: (adapter.value)}});
 });
 
 </script>

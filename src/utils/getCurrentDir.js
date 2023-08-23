@@ -1,6 +1,6 @@
 export const storageName = 'local';
 
-export default (path) => {
+export default (wallet, path) => {
     let currentDir = '';
     if (path) {
         currentDir = path.replace(storageName + '://', '');
@@ -8,5 +8,5 @@ export default (path) => {
             currentDir += '/';
         }
     }
-    return currentDir;
+    return wallet + '/' + currentDir;
 };

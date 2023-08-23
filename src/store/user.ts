@@ -3,6 +3,7 @@ import { api } from '~/services'
 import Storage from '~/utils/storage'
 import { computed, ref } from 'vue'
 import {User} from "~/types/users";
+import setAuthorizationToken from "~/plugins/set-authorization-token";
 
 
 
@@ -19,10 +20,12 @@ export const useUserStore = defineStore('user', () => {
       userStorage.remove()
       api.setSecurityData(null)
       user.value = null
+      setAuthorizationToken(null)
     } else {
       userStorage.set(userData)
       // api.setSecurityData(userData.token)
       user.value = userData
+      setAuthorizationToken(user.value.token)
     }
   }
 

@@ -3,7 +3,7 @@
     <wallet-list class="wallets-list"
                  :wallets="allWallets"
                  :active="selectedWallet"
-                 @selected="onWalletSelected" />
+                 @selected="onWalletSelected"/>
     <div class="wallets-detail">
       <transition name="fade-top" mode="out-in">
         <wallet-display
@@ -12,48 +12,61 @@
             :wallets="allWallets"
             :active="selectedWallet"
             :key="currentWallet.id"
-            @selected="onWalletSelected" />
+            @selected="onWalletSelected"/>
       </transition>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-  import {useWalletsStore} from "~/store/wallet";
-  import {onMounted} from "vue";
-  import WalletDisplay from "~/components/wallet/WalletDisplay.vue";
-  import WalletList from "~/components/wallet/WalletList.vue";
+import {useWalletsStore} from "~/store/wallet";
+import {onMounted} from "vue";
+import WalletDisplay from "~/components/wallet/WalletDisplay.vue";
+import WalletList from "~/components/wallet/WalletList.vue";
+import {loginOrRegisterUser} from "~/services/backend";
+import {useUserStore} from "~/store/user";
+import {storeToRefs} from "pinia";
 
-  const { allWallets, pushNotification } = useWalletsStore()
-  const selectedWallet = ref(null)
+const {allWallets, pushNotification} = useWalletsStore()
+const {user} = storeToRefs(useUserStore())
+const selectedWallet = ref(null)
 
-  onMounted(() => {
-    selectedWallet.value = localStorage.getItem('lastSelectedWallet') || allWallets[0].id;
-  })
+onMounted(() => {
+  selectedWallet.value = localStorage.getItem('lastSelectedWallet') || allWallets[0].id;
+})
 
-  const currentWallet = computed(() => {
-    if (!Array.isArray(allWallets))
-      return null;
+const currentWallet = computed(() => {
+  if (!Array.isArray(allWallets))
+    return null;
 
-    const selected = allWallets.filter(w => w.id === selectedWallet)[0];
+  const selected = allWallets.filter(w => w.id === selectedWallet)[0];
 
-    if (!selected)
-      return allWallets[0];
+  if (!selected)
+    return allWallets[0];
 
-    return selected;
-  })
+  return selected;
+})
 
-  const onWalletSelected = async(id) => {
-    try {
-      selectedWallet.value = id;
-      localStorage.setItem('lastSelectedWallet', id);
-    } catch (ex) {
-      console.error('onSelectWallet', ex);
-      pushNotification({
-        severity: 'danger',
-        message: ex.message
-      });
-    }
+watchEffect(async () => {
+  if (!currentWallet.value)
+    return;
+
+  if (!user?.value.token) {
+    const errors = await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
   }
+})
+
+const onWalletSelected = async (id) => {
+  try {
+    selectedWallet.value = id;
+    localStorage.setItem('lastSelectedWallet', id);
+  } catch (ex) {
+    console.error('onSelectWallet', ex);
+    pushNotification({
+      severity: 'danger',
+      message: ex.message
+    });
+  }
+}
 
 </script>
 
