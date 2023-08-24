@@ -180,6 +180,7 @@ const showContextMenu = (event, area) => {
     let menuWidth = contextmenu.value.offsetWidth;
 
     left = (container.right - event.pageX + window.scrollX) < menuWidth ? left - menuWidth : left;
+    left -= 75; // 75px is the width of the main nav panel
     top = (container.bottom - event.pageY + window.scrollY) < menuHeight ? top - menuHeight : top;
 
     context.positions = {

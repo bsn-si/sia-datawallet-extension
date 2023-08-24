@@ -7,7 +7,7 @@
           class="border flex flex-col bg-white dark:bg-gray-800 text-gray-700 dark:text-neutral-400 border-neutral-300 dark:border-gray-900 min-w-min select-none"
           @mousedown="emitter.emit('vf-contextmenu-hide')" @touchstart="emitter.emit('vf-contextmenu-hide')">
         <v-f-toolbar :data="fetchData" />
-        <v-f-breadcrumb :data="fetchData"/>
+        <v-f-breadcrumb :data="fetchData" :currentWalletId="currentWallet.id"/>
         <v-f-explorer :view="view" :data="fetchData"/>
         <v-f-statusbar :data="fetchData"/>
       </div>
@@ -172,20 +172,7 @@ const currentWallet = computed(() => {
   return selected;
 })
 
-watchEffect(async () => {
-  if (!currentWallet.value)
-    return;
 
-  if (user?.value.token) {
-    const r = await getObjects('/');
-    if (r.status === 404) {
-      await createFolder('', '');
-    }
-    emitter.emit('vf-fetch', {params: {q: 'index', path:'/', adapter: (adapter.value)}});
-  } else {
-    await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
-  }
-})
 
 const getObjects = async (path, params = {}) => {
   const currentDir = getCurrentDir(currentWallet.value.id, path);
@@ -200,7 +187,7 @@ const getObjects = async (path, params = {}) => {
   if (data.status === 404) {
     return data;
   }
-  data = data.data;
+
   data.adapter = storageName;
   data.storages = [storageName];
   data.dirname = storageName + '://' + currentWallet.value.id + (!currentDir.startsWith('/') ? '/' : '') + currentDir;
@@ -237,6 +224,21 @@ const getObjects = async (path, params = {}) => {
   return data;
 };
 
+watchEffect(async () => {
+  if (!currentWallet.value)
+    return;
+
+  if (user?.value.token) {
+    const r = await getObjects('/');
+    if (r.status === 404) {
+      await createFolder('', '');
+    }
+    emitter.emit('vf-fetch', {params: {q: 'index', path:'/', adapter: (adapter.value)}});
+  } else {
+    await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
+  }
+})
+
 const createFolder = async (path, name) => {
   const currentDir = getCurrentDir(currentWallet.value.id, path);
   path = currentDir + name
@@ -244,7 +246,7 @@ const createFolder = async (path, name) => {
     path += '/'
   }
 
-  const data = await api.objects.objectsUpdate(currentWallet.value.id, null, {pathType: 'dir', path: path} ).then(res => res.data);
+  const data = await api.objects.objectsUpdate(currentWallet.value.id, null, {query: {pathType: 'dir', path: path}} ).then(res => res.data);
   return data;
 };
 
@@ -352,8 +354,10 @@ emitter.on('vf-download', async (params) => {
 
   const downloadObject = async (path) => {
     const response = await api.objects.objectsDetail(
-        path.replace(storageName + '://', ''),
-        { baseUrl: `${CONFIG.API_HOST}/api/worker`, format: 'blob' }
+        currentWallet.value.id,
+        { query: { pathType: 'file',
+            path: path.replace(storageName + '://', '').replace(currentWallet.value.id + '/', ''),
+            serviceName: 'worker', format: 'blob' }, format: 'blob'}
     );
     return response.data;
   };

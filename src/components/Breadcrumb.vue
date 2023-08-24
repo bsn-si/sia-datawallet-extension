@@ -88,7 +88,8 @@ const searchMode = ref(false);
 const searchInput = ref(null);
 
 const props = defineProps({
-  data: Object
+  data: Object,
+  currentWalletId: String
 });
 
 const {t} = inject('i18n');
@@ -103,6 +104,7 @@ emitter.on('vf-explorer-update', () => {
   }
   dirname.value
       .replace(adapter.value + '://', '')
+      .replace(props.currentWalletId + '/', '')
       .split('/')
       .forEach(function (item) {
         items.push(item);
