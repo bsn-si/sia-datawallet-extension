@@ -47,9 +47,6 @@ import plupload from 'plupload'
 import VFModalLayout from './ModalLayout.vue';
 import {inject, onMounted, ref} from 'vue';
 import {useApiUrl} from '../../composables/useApiUrl.js';
-// import buildURLQuery from '../../utils/buildURLQuery.js';
-import Message from '../Message.vue';
-// import {csrf} from '../../utils/ajax.js';
 import {CONFIG} from "~/env";
 import {userStorage} from "~/store/user";
 import getCurrentDir from "~/utils/getCurrentDir";
@@ -60,7 +57,8 @@ const {t} = inject('i18n');
 const maxFileSize = inject('maxFileSize');
 
 const props = defineProps({
-  current: Object
+  current: Object,
+  currentWalletId: String
 });
 
 const uploader = ref(null);
@@ -87,7 +85,7 @@ onMounted(() => {
     multiple_queues: true,
     file_data_name: 'file',
     http_method: 'PUT',
-    url: `${CONFIG.API_HOST}/api/worker/objects/`,//apiUrl.value + '?' + buildURLQuery(Object.assign(postData, {q: 'upload', adapter: props.current.adapter, path: props.current.dirname})),
+    url: `${CONFIG.API_HOST}/api/objects/`,//apiUrl.value + '?' + buildURLQuery(Object.assign(postData, {q: 'upload', adapter: props.current.adapter, path: props.current.dirname})),
     // filters : [
     // 	{title : "Image files", extensions : "jpg,gif,png,jpeg"},
     // 	{title : "Zip files", extensions : "zip"}
@@ -114,8 +112,8 @@ onMounted(() => {
       },
 
       BeforeUpload: function (up, file) {
-        const currentDir = getCurrentDir(props.current.dirname);
-        up.setOption('url', `${CONFIG.API_HOST}/api/worker/objects/` + currentDir + encodeURIComponent(file.name));
+        const currentDir = getCurrentDir(props.currentWalletId, props.current.dirname);
+        up.setOption('url', `${CONFIG.API_HOST}/api/objects/` + props.currentWalletId + '?pathType=file' + '&path=' + currentDir + encodeURIComponent(file.name));
       },
 
       UploadProgress: function (up, file) {

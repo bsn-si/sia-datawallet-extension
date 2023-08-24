@@ -12,7 +12,7 @@
         <v-f-statusbar :data="fetchData"/>
       </div>
 
-      <component v-if="modal.active" :is="'v-f-modal-'+ modal.type" :selection="modal.data" :current="fetchData"/>
+      <component v-if="modal.active" :is="'v-f-modal-'+ modal.type" :selection="modal.data" :current="fetchData" :currentWalletId="currentWallet.id"/>
       <v-f-context-menu :current="fetchData"/>
       <iframe id="download_frame" style="display:none;"></iframe>
     </div>
@@ -177,11 +177,11 @@ watchEffect(async () => {
     return;
 
   if (user?.value.token) {
-    const r = await getObjects('');
+    const r = await getObjects('/');
     if (r.status === 404) {
       await createFolder('', '');
     }
-    emitter.emit('vf-fetch', {params: {q: 'index', adapter: (adapter.value)}});
+    emitter.emit('vf-fetch', {params: {q: 'index', path:'/', adapter: (adapter.value)}});
   } else {
     await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
   }
@@ -189,15 +189,21 @@ watchEffect(async () => {
 
 const getObjects = async (path, params = {}) => {
   const currentDir = getCurrentDir(currentWallet.value.id, path);
+  const pathType = currentDir.endsWith('/') ? 'dir' : 'file';
   console.log('%cGet objects: ' + currentDir, 'background: #222; color: #bada55')
-  const data = await api.objects.objectsDetail(currentDir, params).then(res => res.data);
+  let data = await api.objects.objectsDetail(currentWallet.value.id, {...params,
+    query: {
+      pathType: pathType,
+      path: currentDir
+  }}).then(res => res.data);
   console.log('%cdata: ', 'background: #222; color: #bada55', data)
   if (data.status === 404) {
     return data;
   }
+  data = data.data;
   data.adapter = storageName;
   data.storages = [storageName];
-  data.dirname = storageName + '://' + currentDir;
+  data.dirname = storageName + '://' + currentWallet.value.id + (!currentDir.startsWith('/') ? '/' : '') + currentDir;
   if (!data.entries) {
     data.entries = [];
   }
@@ -227,6 +233,7 @@ const getObjects = async (path, params = {}) => {
     return entry;
   });
   delete data.entries;
+  console.log(data)
   return data;
 };
 
@@ -237,7 +244,7 @@ const createFolder = async (path, name) => {
     path += '/'
   }
 
-  const data = await api.objects.objectsUpdate(path, null ).then(res => res.data);
+  const data = await api.objects.objectsUpdate(currentWallet.value.id, null, {pathType: 'dir', path: path} ).then(res => res.data);
   return data;
 };
 
@@ -257,8 +264,9 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
     const currentDir  = getCurrentDir(currentWallet.value.id, path);
 
     const deletionPromises = items.map(async item => {
-      const itemPath = item.path.replace(storageName + '://', '') + (item.type === 'dir' ? '/' : '');
-      const result = await api.objects.objectsDelete2(currentDir + itemPath);
+      let itemPath = item.path.replace(storageName + '://' + currentWallet.value.id + '/', '');
+      itemPath += (item.type === 'dir' && !itemPath.endsWith('/') ? '/' : '')
+      const result = await api.objects.objectsDelete2(currentWallet.value.id, {query: {pathType: item.type, path: itemPath}})
       return result.data;
     });
 
@@ -304,6 +312,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         loadingState.value = false;
       }
       emitter.emit('vf-modal-close');
+      console.log(data)
       updateItems(data);
       if (onSuccess) {
         onSuccess(data);
