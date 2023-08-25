@@ -19,39 +19,31 @@
 </template>
 <script setup lang="ts">
 import {useWalletsStore} from "~/store/wallet";
-import {onMounted} from "vue";
+import {computed, onMounted} from "vue";
 import WalletDisplay from "~/components/wallet/WalletDisplay.vue";
 import WalletList from "~/components/wallet/WalletList.vue";
 import {loginOrRegisterUser} from "~/services/backend";
 import {useUserStore} from "~/store/user";
 import {storeToRefs} from "pinia";
 
-const {allWallets, pushNotification} = useWalletsStore()
+const store = useWalletsStore()
+const {allWallets, pushNotification, getSelectedWallet} = store;
+const { currentWallet, getCurrentWalletId } = storeToRefs(useWalletsStore())
 const {user} = storeToRefs(useUserStore())
 const selectedWallet = ref(null)
 
 onMounted(() => {
-  selectedWallet.value = localStorage.getItem('lastSelectedWallet') || allWallets[0].id;
+  selectedWallet.value = getSelectedWallet.value;
 })
 
-const currentWallet = computed(() => {
-  if (!Array.isArray(allWallets))
-    return null;
 
-  const selected = allWallets.filter(w => w.id === selectedWallet)[0];
-
-  if (!selected)
-    return allWallets[0];
-
-  return selected;
-})
 
 watchEffect(async () => {
   if (!currentWallet.value)
     return;
 
   if (!user?.value.token) {
-    const errors = await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
+    const errors = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword);
   }
 })
 

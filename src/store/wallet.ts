@@ -6,7 +6,7 @@ import { encode as encodeB64 } from '@stablelib/base64';
 import { encode as encodeUTF8 } from '@stablelib/utf8';
 import { saveWallet as dbSaveWallet, loadWallets as dbLoadWallets, deleteWallet as dbDeleteWallet } from './db';
 import Storage from "~/utils/storage";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import { scanner } from '~/sync/scanner';
 import { siaAPI } from '~/services/wallet/siacentral';
 import {useUserStore} from "~/store/user";
@@ -52,6 +52,25 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     setInterval(updateMetadata, 300000);
 
     const allWallets = computed(() => unref(wallets));
+    const getSelectedWallet = computed(() =>  {return localStorage.getItem('lastSelectedWallet') || wallets.value[0].id;})
+    const currentWallet = computed(() => {
+        if (!Array.isArray(wallets.value))
+            return null;
+
+        const selected = wallets.value.filter(w => w.id === getSelectedWallet.value)[0];
+
+        if (!selected)
+            return wallets.value[0];
+
+        return selected;
+    })
+
+    const getCurrentWalletId = computed(() => {
+        if (!currentWallet.value)
+            return null;
+
+        return currentWallet.value.id.replace(/\//g, '$');
+    })
 
     const pushNotification = (notification) => {
         notifications.value.push(notification);
@@ -68,6 +87,9 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         settings,
         wallets,
         allWallets,
+        currentWallet,
+        getCurrentWalletId,
+        getSelectedWallet,
         saveWallet,
         createWallet,
         queueWallet,

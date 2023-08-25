@@ -35,38 +35,23 @@ export default {
 
 import {useWalletsStore} from "~/store/wallet";
 import {useUserStore} from "~/store/user";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {storeToRefs} from "pinia";
 import {loginOrRegisterUser} from "~/services/backend";
 
 const store = useWalletsStore()
 const {unlockWallets, pushNotification} = store
-const {wallets} = storeToRefs(store)
+const {wallets, currentWallet, getCurrentWalletId} = storeToRefs(store)
 const {user} = storeToRefs(useUserStore())
-
 const password = ref('')
 const unlocking = ref(false)
 const errors = ref()
 
-const selectedWallet = ref(null)
 
 onMounted(() => {
-  if (localStorage.getItem('lastSelectedWallet') || wallets.value.length > 0) {
-    selectedWallet.value = localStorage.getItem('lastSelectedWallet') || wallets.value[0].id;
-  }
+
 })
 
-const currentWallet = computed(() => {
-  if (!Array.isArray(wallets.value))
-    return null;
-
-  const selected = wallets.value.filter(w => w.id === selectedWallet)[0];
-
-  if (!selected)
-    return wallets.value[0];
-
-  return selected;
-})
 
 const onUnlockWallets = async () => {
   if (unlocking.value)
@@ -77,7 +62,7 @@ const onUnlockWallets = async () => {
   try {
     await unlockWallets(password.value);
 
-    errors.value = await loginOrRegisterUser(currentWallet.value.id, user?.value.unlockPassword);
+    errors.value = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword);
 
     pushNotification({
       icon: 'unlock',
