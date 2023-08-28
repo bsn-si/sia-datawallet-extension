@@ -1,6 +1,6 @@
 {
-  "name": "vitesse-webext",
-  "displayName": "Vitesse WebExt",
+  "name": "sia-data-wallet-webext",
+  "displayName": "SIA Data Wallet WebExt",
   "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@8.3.1",
@@ -64,7 +64,6 @@
     "esno": "^0.16.3",
     "fs-extra": "^11.1.1",
     "jsdom": "^21.1.2",
-    "json-server": "^0.17.3",
     "kolorist": "^1.8.0",
     "lint-staged": "^13.2.2",
     "lodash-es": "^4.17.21",
