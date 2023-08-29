@@ -18,7 +18,10 @@ export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
 go mod download golang.org/x/net
 
 make build
+
+copy sia-lite-wallet-web-master/src/sia/* to src/sia/
 ```
+
 - https://github.com/acacode/swagger-typescript-api
 
 ```bash
