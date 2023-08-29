@@ -36,3 +36,7 @@ renderd
 - https://github.com/antfu/vitesse-webext
 - https://github.com/n1crack/vuefinder
 - https://github.com/getlago/lago
+
+```bash
+https://github.com/sh-dv/hat.sh/
+```

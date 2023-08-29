@@ -48,8 +48,13 @@ import VFModalLayout from './ModalLayout.vue';
 import {inject, onMounted, ref} from 'vue';
 import {useApiUrl} from '../../composables/useApiUrl.js';
 import {CONFIG} from "~/env";
-import {userStorage} from "~/store/user";
+import {userStorage, useUserStore} from "~/store/user";
 import getCurrentDir from "~/utils/getCurrentDir";
+import {storeToRefs} from "pinia";
+const { user } = storeToRefs(useUserStore())
+import { onMessage, sendMessage } from "webext-bridge/popup";
+import {CHUNK_SIZE} from "~/hat-sh-config/constants";
+import {encodeArrayBufferToUrlSafeBase64} from "~/utils/base64";
 
 const emitter = inject('emitter');
 const {apiUrl} = useApiUrl();
@@ -67,11 +72,24 @@ const pickFiles = ref(null);
 const queue = ref([]);
 const message = ref('');
 
+const files = ref([]);
+const currFile = ref(0);
+const isDownloading = ref(false);
+let file,
+    password,
+    index,
+    numberOfFiles,
+    encryptionMethodState = "secretKey",
+    privateKey,
+    publicKey;
+
 const disableUploadButton = ref(true);
 
 const handleUpload = () => {
   message.value = '';
-  uploader.value.start();
+  //TODO: remove plupload which was needed for uploading files without encryption
+  // uploader.value.start();
+  handleEncryptedFilesDownload();
 };
 
 const postData = inject('postData');
@@ -99,9 +117,9 @@ onMounted(() => {
       PostInit: function () {
       },
 
-      FilesAdded: function (up, files) {
+      FilesAdded: function (up, selectedFiles) {
         disableUploadButton.value = false;
-        plupload.each(files, function (file) {
+        plupload.each(selectedFiles, function (file) {
           queue.value.push({
             id: file.id,
             name: file.name,
@@ -109,6 +127,18 @@ onMounted(() => {
             percent: ''
           });
         });
+
+        selectedFiles = Array.from(selectedFiles);
+        if (files.value.length > 0) {
+          files.value = files.concat(selectedFiles);
+          files.value = files.value.filter(
+              (thing, index, self) =>
+                  index ===
+                  self.findIndex((t) => t.name === thing.name && t.size === thing.size)
+          );
+        } else {
+          files.value = selectedFiles;
+        }
       },
 
       BeforeUpload: function (up, file) {
@@ -141,4 +171,136 @@ onMounted(() => {
 
   uploader.value.init();
 });
+
+// See https://github.com/sh-dv/hat.sh/blob/master/src/components/EncryptionPanel.js
+onMessage('hat-sh-response', async (message) => {
+  const {data, sender} = message;
+
+  if (!Array.isArray(data)) {
+    console.error('unexpected data', data);
+  }
+
+  const action = data[0];
+
+  let params = [];
+
+  if (data.length > 1)
+    params = data.slice(1);
+
+  switch (action) {
+    case 'keysGenerated':
+      startEncryption("secretKey");
+      break;
+
+    case "keyPairReady":
+      startEncryption("publicKey");
+      break;
+
+    case "filePreparedEnc":
+      kickOffEncryption();
+      break;
+
+    case "continueEncryption":
+      continueEncryption();
+      break;
+
+    case "encryptionFinished":
+      if (numberOfFiles > 1) {
+        updateCurrFile();
+        file = null;
+        index = null;
+        if (currFile.value <= numberOfFiles - 1) {
+          setTimeout(function () {
+            prepareFile();
+          }, 1000);
+        } else {
+          isDownloading.value = false;
+          // handleNext();
+        }
+      } else {
+        isDownloading.value = false;
+        // handleNext();
+      }
+      break;
+  }
+});
+
+const updateCurrFile = () => {
+  currFile.value += 1;
+};
+
+const handleEncryptedFilesDownload = async () => {
+  numberOfFiles = files.value.length;
+  prepareFile();
+};
+
+const prepareFile = async () => {
+  // send file name to sw
+  let fileName = encodeURIComponent(files.value[currFile.value].name + ".enc");
+
+  await sendMessage('hat-sh', [ "prepareFileNameEnc", fileName ], 'background');
+};
+
+const startEncryption = (method) => {
+  // file is plupload object, to get native file use file.getSource()
+  file.getSource()
+      .slice(0, CHUNK_SIZE).getSource()
+      .arrayBuffer()
+      .then(async (chunk) => {
+        index = CHUNK_SIZE;
+
+        const chunkString = encodeArrayBufferToUrlSafeBase64(chunk);
+
+        if (method === "secretKey") {
+          await sendMessage('hat-sh', [ "encryptFirstChunk", chunkString, index >= file.size ], 'background');
+        }
+        if (method === "publicKey") {
+          await sendMessage('hat-sh', [ "asymmetricEncryptFirstChunk", chunkString, index >= file.size ], 'background');
+        }
+      });
+
+};
+
+const kickOffEncryption = async () => {
+  if (currFile.value <= numberOfFiles - 1) {
+    file = files.value[currFile.value];
+    // window.open(`file`, "_self");
+    const currentDir = getCurrentDir(props.currentWalletId, props.current.dirname);
+    sendMessage('hat-sh', [ "doFetch",
+      `${CONFIG.API_HOST}/api/objects/` + props.currentWalletId + '?pathType=file' + '&path=' + currentDir + encodeURIComponent(file.name),
+      user?.value.token
+    ], 'background');
+
+    isDownloading.value = true;
+
+    if (encryptionMethodState === "publicKey") {
+
+      let mode = "derive";
+
+      await sendMessage('hat-sh', [ "requestEncKeyPair", privateKey, publicKey, mode ], 'background');
+    }
+
+    if (encryptionMethodState === "secretKey") {
+      await sendMessage('hat-sh', [ "requestEncryption", JSON.stringify(user?.value.unlockPassword) ], 'background');
+    }
+  } else {
+    // console.log("out of files")
+  }
+};
+
+const continueEncryption = (e) => {
+  // file is plupload object, to get native file use file.getSource()
+  file.getSource()
+      .slice(index, index + CHUNK_SIZE).getSource()
+      .arrayBuffer()
+      .then(async (chunk) => {
+        index += CHUNK_SIZE;
+
+        const chunkString = encodeArrayBufferToUrlSafeBase64(chunk);
+
+        await sendMessage('hat-sh', [ "encryptRestOfChunks", chunkString, index >= file.size ], 'background');
+      });
+
+};
+
 </script>

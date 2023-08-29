@@ -17,5 +17,5 @@ export const CONFIG = {
   // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   // API_HOST: import.meta.env.VITE_API_HOST || '',
   // API_HOST: 'http://localhost:9880' || '',
-  API_HOST: 'http://localhost:3000' || '',
+  API_HOST: 'https://localhost:443' || '',
 }
