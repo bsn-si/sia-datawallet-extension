@@ -240,15 +240,15 @@ onMessage('hat-sh', async (message) => {
         break;
 
       case "asymmetricEncryptFirstChunk":
-        asymmetricEncryptFirstChunk(params[0]/*e.data.chunk*/, params[1]/*e.data.last*/);
+        asymmetricEncryptFirstChunk(params[0]/*e.data.chunk*/, params[1]/*e.data.last*/, params[2]/*fileId*/);
         break;
 
       case "encryptFirstChunk":
-        encryptFirstChunk(params[0]/*e.data.chunk*/, params[1]/*e.data.last*/);
+        encryptFirstChunk(params[0]/*e.data.chunk*/, params[1]/*e.data.last*/, params[2]/*fileId*/);
         break;
 
       case "encryptRestOfChunks":
-        encryptRestOfChunks(params[0]/*e.data.chunk*/, params[1]/*e.data.last*/);
+        encryptRestOfChunks(params[0]/*e.data.chunk*/, params[1]/*e.data.last*/, params[2]/*fileId*/);
         break;
 
       case "checkFile":
@@ -297,8 +297,8 @@ onMessage('hat-sh', async (message) => {
         // console.log("SW running");
         break;
 
-      case "doPutStreamFetch":
-        doPutStreamFetch(params[0], params[1])
+      case "doStreamFetch":
+        doStreamFetch(params[0]/*url*/, params[1]/*token*/, params[2]/*fileId*/)
         break;
     }
   } catch (ex) {
@@ -306,9 +306,10 @@ onMessage('hat-sh', async (message) => {
   }
 })
 
-const doPutStreamFetch = async (url, token) => {
+const doStreamFetch = async (url, token, fileId) => {
   const stream = new ReadableStream({
     start(controller) {
+      console.log('Start stream controller fileId', fileId)
       streamController = controller;
     },
   });
@@ -341,20 +342,24 @@ const doPutStreamFetch = async (url, token) => {
 
   // See https://developer.chrome.com/articles/fetch-streaming-requests/
   // Test on https://httpbin.org/put
-  (async function() {
-    console.log('doPutStreamFetch', url)
-    let r = (
-        await (await fetch(url, {
-          method: 'PUT',
-          duplex: 'half',
-          body: stream,
-          headers: {
-            'Authorization': `Basic ${token}`
-          },
-        })))
-    // let b = r.body
-    // console.log(await b.getReader().read());
-  })();
+
+    console.log('doStreamFetch', url)
+
+    await fetch(url, {
+    method: 'PUT',
+    duplex: 'half',
+    body: stream,
+    headers: {
+      'Authorization': `Basic ${token}`
+    },
+  })
+
+  console.log('Finished uploading fileId', fileId)
+  await sendMessage(
+      'hat-sh-response',
+      ['uploadingFinished', fileId],
+      'popup'
+  );
 }
 
 // Fetch request handler to download decrypted file
@@ -379,6 +384,7 @@ self.addEventListener("fetch", (e) => {
 const assignFileNameEnc = async (name) => {
   fileName = name;
 
+  console.log('assignFileNameEnc')
   await sendMessage(
       'hat-sh-response',
       ['filePreparedEnc'],
@@ -510,7 +516,7 @@ const encKeyPair = async (csk, spk, mode) => {
   }
 };
 
-const asymmetricEncryptFirstChunk = async (chunk, last) => {
+const asymmetricEncryptFirstChunk = async (chunk, last, fileId) => {
   setTimeout(async function () {
     if (!streamController) {
       console.log("stream does not exist");
@@ -555,7 +561,7 @@ const asymmetricEncryptFirstChunk = async (chunk, last) => {
   }, 500);
 };
 
-const encryptFirstChunk = async (chunk, last) => {
+const encryptFirstChunk = async (chunk, last, fileId) => {
   if (!streamController) {
     console.log("stream does not exist");
   }
@@ -585,7 +591,7 @@ const encryptFirstChunk = async (chunk, last) => {
 
     await sendMessage(
         'hat-sh-response',
-        ['encryptionFinished'],
+        ['encryptionFinished', fileId],
         'popup'
     );
   }
@@ -600,7 +606,7 @@ const encryptFirstChunk = async (chunk, last) => {
   }
 };
 
-const encryptRestOfChunks = async (chunk, last) => {
+const encryptRestOfChunks = async (chunk, last, fileId) => {
 
   let tag = last
       ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
@@ -620,7 +626,7 @@ const encryptRestOfChunks = async (chunk, last) => {
 
     await sendMessage(
         'hat-sh-response',
-        ['encryptionFinished'],
+        ['encryptionFinished', fileId],
         'popup'
     );
   }

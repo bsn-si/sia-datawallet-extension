@@ -9,9 +9,9 @@
       <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
         <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400" id="modal-title">{{ t('Upload files') }}</h3>
         <div class="mt-2">
-          <div class="text-gray-500 mb-1">
+          <div class="text-gray-500 mb-1 py-2">
             <div v-for="file in queue">
-              <div :id="file.id"> {{ file.name }} ( {{ file.size }}) <b>{{ file.percent }}</b></div>
+              <div :id="file.id"> {{ file.name }} ( {{ file.size }}) <b>{{ humanFileStatus(file.status) }}</b></div>
             </div>
 
             <div class="py-2" v-if="!queue.length">{{ t('No files selected!') }}</div>
@@ -29,7 +29,15 @@
       <button :disabled="disableUploadButton" @click.prevent="handleUpload" type="button"
               :class="disableUploadButton ? 'bg-blue-200 hover:bg-blue-200 dark:bg-gray-700/50 dark:hover:bg-gray-700/50 dark:text-gray-500' : 'bg-blue-600 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-500'"
               class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-        {{ t('Upload') }}</button>
+        <span v-if="!isDownloading">{{ t('Upload') }}</span>
+        <div v-else role="status">
+          <svg aria-hidden="true" class="w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-green-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+          </svg>
+          <span class="sr-only">Loading...</span>
+        </div>
+      </button>
       <button type="button" @click="emitter.emit('vf-modal-close')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">{{ t('Cancel') }}</button>
     </template>
   </v-f-modal-layout>
@@ -124,7 +132,7 @@ onMounted(() => {
             id: file.id,
             name: file.name,
             size: plupload.formatSize(file.size),
-            percent: ''
+            status: '',
           });
         });
 
@@ -197,6 +205,7 @@ onMessage('hat-sh-response', async (message) => {
       break;
 
     case "filePreparedEnc":
+      console.log("filePreparedEnc")
       kickOffEncryption();
       break;
 
@@ -214,12 +223,30 @@ onMessage('hat-sh-response', async (message) => {
             prepareFile();
           }, 1000);
         } else {
-          isDownloading.value = false;
+          // isDownloading.value = false;
+          queue.value[queue.value.findIndex((item) => item.id === params[0])].status = 'encrypted';
           // handleNext();
         }
       } else {
-        isDownloading.value = false;
+        // isDownloading.value = false;
+        queue.value[queue.value.findIndex((item) => item.id === params[0])].status = 'encrypted';
         // handleNext();
+      }
+      break;
+    case "uploadingFinished":
+      queue.value[queue.value.findIndex((item) => item.id === params[0])].status = 'uploaded';
+
+      let totalUploaded = queue.value.reduce((count, item) => {
+        if (item.status === 'uploaded') {
+          return count + 1;
+        }
+        return count;
+      }, 0);
+
+      if (totalUploaded === numberOfFiles) {
+        isDownloading.value = false;
+        disableUploadButton.value = true;
+        emitter.emit('vf-fetch', {params: {q: 'index', adapter: props.current.adapter, path: props.current.dirname}});
       }
       break;
   }
@@ -237,7 +264,7 @@ const handleEncryptedFilesDownload = async () => {
 const prepareFile = async () => {
   // send file name to sw
   let fileName = encodeURIComponent(files.value[currFile.value].name + ".enc");
-
+  console.trace("prepareFile")
   await sendMessage('hat-sh', [ "prepareFileNameEnc", fileName ], 'background');
 };
 
@@ -249,15 +276,13 @@ const startEncryption = (method) => {
       .then(async (chunk) => {
         index = CHUNK_SIZE;
 
-        console.log("chunk " + index, chunk)
-
         const chunkString = encodeArrayBufferToUrlSafeBase64(chunk);
 
         if (method === "secretKey") {
-          await sendMessage('hat-sh', [ "encryptFirstChunk", chunkString, index >= file.size ], 'background');
+          await sendMessage('hat-sh', [ "encryptFirstChunk", chunkString, index >= file.size, file.id ], 'background');
         }
         if (method === "publicKey") {
-          await sendMessage('hat-sh', [ "asymmetricEncryptFirstChunk", chunkString, index >= file.size ], 'background');
+          await sendMessage('hat-sh', [ "asymmetricEncryptFirstChunk", chunkString, index >= file.size, file.id ], 'background');
         }
       });
 
@@ -266,11 +291,14 @@ const startEncryption = (method) => {
 const kickOffEncryption = async () => {
   if (currFile.value <= numberOfFiles - 1) {
     file = files.value[currFile.value];
+
+    queue.value[queue.value.findIndex((item) => item.id === file.id)].status = 'encrypting';
+
     // window.open(`file`, "_self");
     const currentDir = getCurrentDir(props.currentWalletId, props.current.dirname);
-    sendMessage('hat-sh', [ "doPutStreamFetch",
+    await sendMessage('hat-sh', [ "doStreamFetch",
       `${CONFIG.API_HOST}/api/objects/` + props.currentWalletId + '?pathType=file' + '&path=' + currentDir + encodeURIComponent(file.name),
-      user?.value.token
+      user?.value.token, file.id
     ], 'background');
 
     isDownloading.value = true;
@@ -301,9 +329,14 @@ const continueEncryption = (e) => {
         console.log("chunk " + index, chunk)
         const chunkString = encodeArrayBufferToUrlSafeBase64(chunk);
 
-        await sendMessage('hat-sh', [ "encryptRestOfChunks", chunkString, index >= file.size ], 'background');
+        await sendMessage('hat-sh', [ "encryptRestOfChunks", chunkString, index >= file.size, file.id ], 'background');
       });
-
 };
+
+const humanFileStatus = (status) => {
+  if (status === 'encrypting') return 'Encrypting';
+  if (status === 'encrypted') return 'Encrypted. Uploading...';
+  if (status === 'uploaded') return 'Uploaded';
+}
 
 </script>
