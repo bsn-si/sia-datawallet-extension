@@ -5,7 +5,7 @@ import type { Tabs } from 'webextension-polyfill'
 import '~/sia/wasm_exec.js';
 import Sia from '~/sia/sia.wasm?url';
 import _sodium from 'libsodium-wrappers-sumo';
-import {APP_URL, encoder, decoder, sigCodes} from './config.js';
+import {encoder, decoder, sigCodes, FILE_URL} from './config.js';
 import {decodeUrlSafeBase64ToArrayBuffer} from "~/utils/base64";
 
 let sodium: any, fileName: string, streamController, theKey, state, header, salt, encRx, encTx, decRx, decTx;
@@ -228,7 +228,7 @@ onMessage('hat-sh', async (message) => {
         break;
 
       case "prepareFileNameDec":
-        assignFileNameDec(params[0]);
+        params.length === 1 ? assignFileNameDec(params[0]) : assignFileNameDec(params[0], params[1]);
         break;
 
       case "requestEncryption":
@@ -252,19 +252,19 @@ onMessage('hat-sh', async (message) => {
         break;
 
       case "checkFile":
-        checkFile(params[0]/*e.data.signature*/, params[1]/*e.data.legacy*/);
+        params.length === 2 ? checkFile(params[0]/*e.data.signature*/, params[1]/*e.data.legacy*/)
+            : checkFile(params[0]/*e.data.signature*/, params[1]/*e.data.legacy*/, params[2/*responseSuffix*/]);
         break;
 
-      // case "requestTestDecryption":
-      //   testDecryption(
-      //       e.data.password,
-      //       e.data.signature,
-      //       e.data.salt,
-      //       e.data.header,
-      //       e.data.decFileBuff,
-      //       e.source
-      //   );
-      //   break;
+      case "requestTestDecryption":
+        testDecryption(
+            params[0]/*e.data.password*/,
+            params[1]/*e.data.signature*/,
+            params[2]/*e.data.salt*/,
+            params[3]/*e.data.header*/,
+            params[4]/*e.data.decFileBuff*/
+        );
+        break;
 
       case "requestDecKeyPair":
         requestDecKeyPair(
@@ -297,8 +297,8 @@ onMessage('hat-sh', async (message) => {
         // console.log("SW running");
         break;
 
-      case "doFetch":
-        doFetch(params[0], params[1])
+      case "doPutStreamFetch":
+        doPutStreamFetch(params[0], params[1])
         break;
     }
   } catch (ex) {
@@ -306,29 +306,29 @@ onMessage('hat-sh', async (message) => {
   }
 })
 
-const doFetch = async (url, token) => {
+const doPutStreamFetch = async (url, token) => {
   const stream = new ReadableStream({
     start(controller) {
       streamController = controller;
     },
   });
 
-  const supportsRequestStreams = (() => {
-    let duplexAccessed = false;
+  // const supportsRequestStreams = (() => {
+  //   let duplexAccessed = false;
+  //
+  //   const hasContentType = new Request('', {
+  //     body: new ReadableStream(),
+  //     method: 'POST',
+  //     get duplex() {
+  //       duplexAccessed = true;
+  //       return 'half';
+  //     },
+  //   }).headers.has('Content-Type');
+  //
+  //   return duplexAccessed && !hasContentType;
+  // })();
 
-    const hasContentType = new Request('', {
-      body: new ReadableStream(),
-      method: 'POST',
-      get duplex() {
-        duplexAccessed = true;
-        return 'half';
-      },
-    }).headers.has('Content-Type');
-
-    return duplexAccessed && !hasContentType;
-  })();
-
-  console.log('supportsRequestStreams', supportsRequestStreams)
+  // console.log('supportsRequestStreams', supportsRequestStreams)
 
 
   // Test
@@ -342,6 +342,7 @@ const doFetch = async (url, token) => {
   // See https://developer.chrome.com/articles/fetch-streaming-requests/
   // Test on https://httpbin.org/put
   (async function() {
+    console.log('doPutStreamFetch', url)
     let r = (
         await (await fetch(url, {
           method: 'PUT',
@@ -356,6 +357,25 @@ const doFetch = async (url, token) => {
   })();
 }
 
+// Fetch request handler to download decrypted file
+self.addEventListener("fetch", (e) => {
+  // console.log(e); // log fetch event
+  if (e.request.url.startsWith(FILE_URL)) {
+    const stream = new ReadableStream({
+      start(controller) {
+        streamController = controller;
+      },
+    });
+    const response = new Response(stream);
+    response.headers.append(
+        "Content-Disposition",
+        'attachment; filename="' + fileName + '"'
+    );
+    e.respondWith(response);
+  }
+});
+
+
 const assignFileNameEnc = async (name) => {
   fileName = name;
 
@@ -366,11 +386,11 @@ const assignFileNameEnc = async (name) => {
   );
 }
 
-const assignFileNameDec = async (name) => {
+const assignFileNameDec = async (name, responseSuffix = '') => {
   fileName = name;
 
   await sendMessage(
-      'hat-sh-response',
+      'hat-sh-response' + responseSuffix,
       ['filePreparedDec'],
       'popup'
   );
@@ -499,9 +519,6 @@ const asymmetricEncryptFirstChunk = async (chunk, last) => {
         encoder.encode(sigCodes["v2_asymmetric"])
     );
 
-    chunk = decodeUrlSafeBase64ToArrayBuffer(chunk);
-
-
     streamController.enqueue(SIGNATURE);
     streamController.enqueue(header);
 
@@ -511,7 +528,7 @@ const asymmetricEncryptFirstChunk = async (chunk, last) => {
 
     let encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(
         state,
-        new Uint8Array(chunk),
+        decodeUrlSafeBase64ToArrayBuffer(chunk),
         null,
         tag
     );
@@ -546,8 +563,6 @@ const encryptFirstChunk = async (chunk, last) => {
       encoder.encode(sigCodes["v2_symmetric"])
   );
 
-  chunk = decodeUrlSafeBase64ToArrayBuffer(chunk);
-
   streamController.enqueue(SIGNATURE);
   streamController.enqueue(salt);
   streamController.enqueue(header);
@@ -558,7 +573,7 @@ const encryptFirstChunk = async (chunk, last) => {
 
   let encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(
       state,
-      new Uint8Array(chunk),
+      decodeUrlSafeBase64ToArrayBuffer(chunk),
       null,
       tag
   );
@@ -587,15 +602,13 @@ const encryptFirstChunk = async (chunk, last) => {
 
 const encryptRestOfChunks = async (chunk, last) => {
 
-  chunk = decodeUrlSafeBase64ToArrayBuffer(chunk);
-
   let tag = last
       ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
       : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE;
 
   let encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(
       state,
-      new Uint8Array(chunk),
+      decodeUrlSafeBase64ToArrayBuffer(chunk),
       null,
       tag
   );
@@ -622,11 +635,14 @@ const encryptRestOfChunks = async (chunk, last) => {
   }
 };
 
-const checkFile = async (signature, legacy) => {
+const checkFile = async (signature, legacy, responseSuffix = '') => {
+  signature = decodeUrlSafeBase64ToArrayBuffer(signature);
+  legacy = decodeUrlSafeBase64ToArrayBuffer(legacy);
+
   if (decoder.decode(signature) === sigCodes["v2_symmetric"]) {
 
     await sendMessage(
-        'hat-sh-response',
+        'hat-sh-response' + responseSuffix,
         ['secretKeyEncryption'],
         'popup'
     );
@@ -635,21 +651,21 @@ const checkFile = async (signature, legacy) => {
   ) {
 
     await sendMessage(
-        'hat-sh-response',
+        'hat-sh-response' + responseSuffix,
         ['publicKeyEncryption'],
         'popup'
     );
   } else if (decoder.decode(legacy) === sigCodes["v1"]) {
 
     await sendMessage(
-        'hat-sh-response',
+        'hat-sh-response' + responseSuffix,
         ['oldVersion'],
         'popup'
     );
   } else {
 
     await sendMessage(
-        'hat-sh-response',
+        'hat-sh-response' + responseSuffix,
         ['badFile'],
         'popup'
     );
@@ -661,7 +677,7 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
     if (ssk === cpk) {
 
       await sendMessage(
-          'hat-sh-response',
+          'hat-sh-response-dec',
           ['wrongDecKeyPair'],
           'popup'
       );
@@ -673,7 +689,7 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
     if (cpk === computed) {
 
       await sendMessage(
-          'hat-sh-response',
+          'hat-sh-response-dec',
           ['wrongDecKeyPair'],
           'popup'
       );
@@ -683,7 +699,7 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
     if (sodium.from_base64(ssk).length !== sodium.crypto_kx_SECRETKEYBYTES) {
 
       await sendMessage(
-          'hat-sh-response',
+          'hat-sh-response-dec',
           ['wrongDecPrivateKey'],
           'popup'
       );
@@ -693,7 +709,7 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
     if (sodium.from_base64(cpk).length !== sodium.crypto_kx_PUBLICKEYBYTES) {
 
       await sendMessage(
-          'hat-sh-response',
+          'hat-sh-response-dec',
           ['wrongDecPublicKey'],
           'popup'
       );
@@ -711,7 +727,7 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
 
       if (mode === "test" && decRx && decTx) {
         let state_in = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
-            new Uint8Array(header),
+            decodeUrlSafeBase64ToArrayBuffer(header),
             decRx
         );
 
@@ -719,20 +735,20 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
           let decTestresults =
               sodium.crypto_secretstream_xchacha20poly1305_pull(
                   state_in,
-                  new Uint8Array(decFileBuff)
+                  decodeUrlSafeBase64ToArrayBuffer(decFileBuff)
               );
 
           if (decTestresults) {
 
             await sendMessage(
-                'hat-sh-response',
+                'hat-sh-response-dec',
                 ['readyToDecrypt'],
                 'popup'
             );
           } else {
 
             await sendMessage(
-                'hat-sh-response',
+                'hat-sh-response-dec',
                 ['wrongDecKeys'],
                 'popup'
             );
@@ -742,14 +758,14 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
 
       if (mode === "derive" && decRx && decTx) {
         state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
-            new Uint8Array(header),
+            decodeUrlSafeBase64ToArrayBuffer(header),
             decRx
         );
 
         if (state) {
 
           await sendMessage(
-              'hat-sh-response',
+              'hat-sh-response-dec',
               ['decKeyPairGenerated'],
               'popup'
           );
@@ -759,7 +775,7 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
   } catch (error) {
 
     await sendMessage(
-        'hat-sh-response',
+        'hat-sh-response-dec',
         ['wrongDecKeyInput'],
         'popup'
     );
@@ -767,9 +783,11 @@ const requestDecKeyPair = async (ssk, cpk, header, decFileBuff, mode) => {
 };
 
 const decKeyGenerator = async (password, signature, salt, header) => {
+  signature = decodeUrlSafeBase64ToArrayBuffer(signature);
+
   if (decoder.decode(signature) === sigCodes["v2_symmetric"]) {
-    salt = new Uint8Array(salt);
-    header = new Uint8Array(header);
+    salt = decodeUrlSafeBase64ToArrayBuffer(salt);
+    header = decodeUrlSafeBase64ToArrayBuffer(header);
 
     theKey = sodium.crypto_pwhash(
         sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES,
@@ -788,7 +806,7 @@ const decKeyGenerator = async (password, signature, salt, header) => {
     if (state) {
 
       await sendMessage(
-          'hat-sh-response',
+          'hat-sh-response-dec',
           ['decKeysGenerated'],
           'popup'
       );
@@ -799,7 +817,7 @@ const decryptChunks = async (chunk, last) => {
   setTimeout(async function () {
     let result = sodium.crypto_secretstream_xchacha20poly1305_pull(
         state,
-        new Uint8Array(chunk)
+        decodeUrlSafeBase64ToArrayBuffer(chunk)
     );
 
     if (result) {
@@ -810,24 +828,73 @@ const decryptChunks = async (chunk, last) => {
       if (last) {
         streamController.close();
         await sendMessage(
-            'hat-sh-response',
+            'hat-sh-response-dec',
             ['decryptionFinished'],
             'popup'
         );
       }
       if (!last) {
         await sendMessage(
-            'hat-sh-response',
+            'hat-sh-response-dec',
             ['continueDecryption'],
             'popup'
         );
       }
     } else {
       await sendMessage(
-          'hat-sh-response',
+          'hat-sh-response-dec',
           ['wrongPassword'],
           'popup'
       );
     }
   }, 500);
+};
+
+const testDecryption = async (
+    password,
+    signature,
+    salt,
+    header,
+    decFileBuff
+) => {
+  signature = decodeUrlSafeBase64ToArrayBuffer(signature);
+
+  if (decoder.decode(signature) === sigCodes["v2_symmetric"]) {
+    let decTestsalt = decodeUrlSafeBase64ToArrayBuffer(salt);
+    let decTestheader = decodeUrlSafeBase64ToArrayBuffer(header);
+
+    let decTestKey = sodium.crypto_pwhash(
+        sodium.crypto_secretstream_xchacha20poly1305_KEYBYTES,
+        password,
+        decTestsalt,
+        sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+        sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+        sodium.crypto_pwhash_ALG_ARGON2ID13
+    );
+
+    let state_in = sodium.crypto_secretstream_xchacha20poly1305_init_pull(
+        decTestheader,
+        decTestKey
+    );
+
+    if (state_in) {
+      let decTestresults = sodium.crypto_secretstream_xchacha20poly1305_pull(
+          state_in,
+          decodeUrlSafeBase64ToArrayBuffer(decFileBuff)
+      );
+      if (decTestresults) {
+        await sendMessage(
+            'hat-sh-response-dec',
+            ['readyToDecrypt'],
+            'popup'
+        );
+      } else {
+        await sendMessage(
+            'hat-sh-response-dec',
+            ['wrongPassword'],
+            'popup'
+        );
+      }
+    }
+  }
 };

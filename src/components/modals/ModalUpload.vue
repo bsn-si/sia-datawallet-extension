@@ -249,6 +249,8 @@ const startEncryption = (method) => {
       .then(async (chunk) => {
         index = CHUNK_SIZE;
 
+        console.log("chunk " + index, chunk)
+
         const chunkString = encodeArrayBufferToUrlSafeBase64(chunk);
 
         if (method === "secretKey") {
@@ -266,7 +268,7 @@ const kickOffEncryption = async () => {
     file = files.value[currFile.value];
     // window.open(`file`, "_self");
     const currentDir = getCurrentDir(props.currentWalletId, props.current.dirname);
-    sendMessage('hat-sh', [ "doFetch",
+    sendMessage('hat-sh', [ "doPutStreamFetch",
       `${CONFIG.API_HOST}/api/objects/` + props.currentWalletId + '?pathType=file' + '&path=' + currentDir + encodeURIComponent(file.name),
       user?.value.token
     ], 'background');
@@ -296,6 +298,7 @@ const continueEncryption = (e) => {
       .then(async (chunk) => {
         index += CHUNK_SIZE;
 
+        console.log("chunk " + index, chunk)
         const chunkString = encodeArrayBufferToUrlSafeBase64(chunk);
 
         await sendMessage('hat-sh', [ "encryptRestOfChunks", chunkString, index >= file.size ], 'background');

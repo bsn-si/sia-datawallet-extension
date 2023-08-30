@@ -1,4 +1,4 @@
-export const APP_URL = self.location.origin + "/file";
+export const FILE_URL = self.location.origin + "/dist/popup/file";
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
 export const sigCodes = {

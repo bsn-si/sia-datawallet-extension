@@ -26,7 +26,7 @@ export default {
 </script>
 
 <script setup>
-import {computed, defineProps, onMounted, provide, reactive, ref} from 'vue';
+import {computed, defineProps, onMounted, provide, reactive, ref, watch} from 'vue';
 import ajax from '../utils/ajax.js';
 import mitt from 'mitt';
 import {useStorage} from '../composables/useStorage.js';
@@ -45,9 +45,13 @@ import {useWalletsStore} from "~/store/wallet";
 import {storeToRefs} from "pinia";
 import {useUserStore} from "~/store/user";
 import {loginOrRegisterUser} from "~/services/backend";
+import { onMessage, sendMessage } from "webext-bridge/popup";
+import { CHUNK_SIZE, crypto_secretstream_xchacha20poly1305_ABYTES } from "~/hat-sh-config/constants";
+import {encodeArrayBufferToUrlSafeBase64} from "~/utils/base64";
+import {formatName} from "~/utils/formatName";
+
 const { currentWallet, getCurrentWalletId } = storeToRefs(useWalletsStore())
 const { user } = storeToRefs(useUserStore())
-
 
 const props = defineProps({
   url: {
@@ -92,6 +96,21 @@ provide('postData', props.postData);
 provide('adapter', adapter);
 provide('maxFileSize', props.maxFileSize);
 provide('usePropDarkMode', props.usePropDarkMode);
+
+// Decryption
+let file,
+    index,
+    decFileBuff,
+    files = [],
+    currFile = 0,
+    numberOfFiles,
+    privateKey,
+    publicKey;
+
+const badFile = ref(false), isCheckingFile = ref(false), fileMixUp = ref(false), decryptionMethod = ref(''), decryptionMethodState = ref(''),
+      currFileState = ref(0), wrongPassword = ref(false), wrongPrivateKey = ref(false), wrongPublicKey = ref(false),
+      keysError = ref(false), keysErrorMessage = ref(''), isTestingKeys = ref(false), isTestingPassword = ref(false),
+      isDownloading = ref(false);
 
 // Lang Management
 const i18n = useI18n(props.id, props.locale, emitter);
@@ -226,7 +245,10 @@ watchEffect(async () => {
   } else {
     await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword);
   }
+
 })
+
+watch(decryptionMethodState, (val) => {if (val) prepareFile();});
 
 const createFolder = async (path, name) => {
   const currentDir = getCurrentDir(getCurrentWalletId.value, path);
@@ -352,11 +374,433 @@ emitter.on('vf-download', async (params) => {
   };
 
   const data = await downloadObject(params.path);
+  console.log(data)
   if (data) {
-    saveBlobToMachine(params.path.split('/').pop(), data);
+    // saveBlobToMachine(params.path.split('/').pop(), data);
+
+    resetFileErrors();
+    files = [{
+      name: params.path.split('/').pop(),
+      blob: data,
+      size: data.size
+    }];
+    handleEncryptedFilesDownload();
   }
 
   emitter.emit('vf-modal-close');
 });
+
+// See https://github.com/sh-dv/hat.sh/blob/master/src/components/EncryptionPanel.js
+
+const handleEncryptedFilesDownload = async () => {
+  numberOfFiles = files.length;
+  checkFiles();
+};
+
+const prepareFile = async () => {
+  console.log('prepareFile')
+  // send file name to sw
+  let fileName = encodeURIComponent(formatName(files[currFile].name));
+  await sendMessage('hat-sh', [ "prepareFileNameDec", fileName, '-dec' ], 'background');
+};
+
+onMessage('hat-sh-response-dec', async (message) => {
+  const {data, sender} = message;
+
+  if (!Array.isArray(data)) {
+    console.error('unexpected data', data);
+  }
+
+  const action = data[0];
+
+  let params = [];
+
+  if (data.length > 1)
+    params = data.slice(1);
+
+  switch (action) {
+    case 'badFile':
+      if (numberOfFiles > 1) {
+        badFile.value = files[currFile].name;
+        isCheckingFile.value = false;
+      } else {
+        badFile.value = true;
+        isCheckingFile.value = true;
+      }
+      break;
+    case "secretKeyEncryption":
+      console.log('secretKeyEncryption received')
+      if (numberOfFiles > 1) {
+        if (
+            decryptionMethodState.value &&
+            decryptionMethodState.value !== "secretKey"
+        ) {
+          checkFileMixUp();
+          return;
+        } else {
+          decryptionMethodState.value = "secretKey";
+          decryptionMethod.value = "secretKey";
+          checkFilesQueue();
+        }
+      } else {
+        decryptionMethod.value = "secretKey";
+        decryptionMethodState.value = "secretKey";
+        // setActiveStep(1);
+        isCheckingFile.value = false;
+        resetCurrFile();
+      }
+      break;
+    case "publicKeyEncryption":
+      if (numberOfFiles > 1) {
+        if (
+            decryptionMethodState.value &&
+            decryptionMethodState.value !== "publicKey"
+        ) {
+          checkFileMixUp();
+          return;
+        } else {
+          decryptionMethodState.value = "publicKey";
+          decryptionMethod.value = "publicKey";
+          checkFilesQueue();
+        }
+      } else {
+        decryptionMethodState.value = "publicKey";
+        decryptionMethod.value = "publicKey";
+        // setActiveStep(1);
+        isCheckingFile.value = false;
+        resetCurrFile();
+      }
+      break;
+    case "wrongDecPrivateKey":
+      wrongPrivateKey.value = true;
+      isTestingKeys.value = false;
+      break;
+
+    case "wrongDecPublicKey":
+      wrongPublicKey.value = true;
+      isTestingKeys.value = false;
+      break;
+
+    case "wrongDecKeys":
+      wrongPublicKey.value = true;
+      wrongPrivateKey.value = true;
+      isTestingKeys.value = false;
+      break;
+
+    case "wrongDecKeyPair":
+      keysError.value = true;
+      keysErrorMessage.value = 'This key pair is invalid! Please select keys for different parties.';
+      isTestingKeys.value = false;
+      break;
+
+    case "wrongDecKeyInput":
+      keysError.value = true;
+      keysErrorMessage.value = 'Invalid keys input.';
+      isTestingKeys.value = false;
+      break;
+
+    case "wrongPassword":
+      console.log('wrongPassword')
+      wrongPassword.value  = true;
+      isTestingPassword.value = false;
+      break;
+
+    case "filePreparedDec":
+      kickOffDecryption();
+      break;
+
+    case "readyToDecrypt":
+      if (numberOfFiles > 1) {
+        checkFilesTestQueue();
+      } else {
+        isTestingKeys.value = false;
+        isTestingPassword.value = false;
+        // handleNext();
+        resetCurrFile();
+      }
+      break;
+
+    case "decKeyPairGenerated":
+      console.log('decKeyPairGenerated')
+      startDecryption("publicKey");
+      break;
+
+    case "decKeysGenerated":
+      console.log('decKeysGenerated')
+      startDecryption("secretKey");
+      break;
+
+    case "continueDecryption":
+      continueDecryption();
+      break;
+
+    case "decryptionFinished":
+      if (numberOfFiles > 1) {
+        updateCurrFile();
+        file = null;
+        index = null;
+        if (currFile <= numberOfFiles - 1) {
+          setTimeout(function () {
+            prepareFile();
+          }, 1000);
+        } else {
+          isDownloading.value = false;
+          // handleNext();
+        }
+      } else {
+        isDownloading.value = false;
+        // handleNext();
+      }
+      break;
+  }
+});
+
+const checkFileMixUp = () => {
+  fileMixUp.value = true;
+  isCheckingFile.value = false;
+};
+
+const checkFilesQueue = () => {
+  if (numberOfFiles > 1) {
+    updateCurrFile();
+
+    if (currFile <= numberOfFiles - 1) {
+      checkFiles();
+    } else {
+      // setActiveStep(1);
+      isCheckingFile.value = false;
+      resetCurrFile();
+    }
+  }
+};
+
+const resetCurrFile = () => {
+  currFile = 0;
+  currFileState.value = currFile;
+};
+
+const checkFiles = () => {
+  numberOfFiles = files.length;
+  if (currFile <= numberOfFiles - 1) {
+    checkFile(files[currFile].blob);
+  }
+};
+
+const checkFile = (file) => {
+
+    isCheckingFile.value = true;
+    badFile.value = false;
+    fileMixUp.value = false;
+
+    Promise.all([
+      file.slice(0, 11).arrayBuffer(), //signatures
+      file.slice(0, 22).arrayBuffer(), //v1 signature
+    ]).then(async ([signature, legacy]) => {
+      console.log('checkFile sent')
+      await sendMessage('hat-sh', [ "checkFile",
+        encodeArrayBufferToUrlSafeBase64(signature),
+        encodeArrayBufferToUrlSafeBase64(legacy),
+        '-dec'
+      ], 'background');
+    });
+};
+
+const kickOffDecryption = async (e) => {
+  if (currFile <= numberOfFiles - 1) {
+    file = files[currFile].blob;
+    window.open(`file`, "_self");
+    isDownloading.value = true;
+
+    if (decryptionMethodState.value === "secretKey") {
+
+        Promise.all([
+          file.slice(0, 11).arrayBuffer(), //signature
+          file.slice(11, 27).arrayBuffer(), //salt
+          file.slice(27, 51).arrayBuffer(), //header
+          file
+              .slice(
+                  51,
+                  51 + CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES
+              )
+              .arrayBuffer(), //17
+        ]).then(async ([signature, salt, header, chunk]) => {
+          // console.log('signature', signature, 'salt', salt, 'header', header, 'chunk', chunk)
+          await sendMessage('hat-sh', [ "requestDecryption",
+            JSON.stringify(user?.value.unlockPassword),
+            encodeArrayBufferToUrlSafeBase64(signature),
+            encodeArrayBufferToUrlSafeBase64(salt),
+            encodeArrayBufferToUrlSafeBase64(header)
+          ], 'background');
+        });
+
+    }
+
+    if (decryptionMethodState.value === "publicKey") {
+
+        let mode = "derive";
+
+        Promise.all([
+          file.slice(11, 35).arrayBuffer(), //header
+          file
+              .slice(
+                  35,
+                  35 + CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES
+              )
+              .arrayBuffer(), //17
+        ]).then(async ([header, chunk]) => {
+          decFileBuff = chunk;
+          await sendMessage('hat-sh', [ "requestDecKeyPair",
+            privateKey,
+            publicKey,
+            encodeArrayBufferToUrlSafeBase64(header),
+            encodeArrayBufferToUrlSafeBase64(decFileBuff),
+            mode
+          ], 'background');
+        });
+
+    }
+  } else {
+    // console.log("out of files")
+  }
+};
+
+const checkFilesTestQueue = () => {
+  if (numberOfFiles > 1) {
+    updateCurrFile();
+
+    if (currFile <= numberOfFiles - 1) {
+      testFilesDecryption();
+    } else {
+      isTestingKeys.value = false;
+      isTestingPassword.value = false;
+      // handleNext();
+      resetCurrFile();
+    }
+  }
+};
+
+const testFilesDecryption = () => {
+  numberOfFiles = files.length;
+  if (currFile <= numberOfFiles - 1) {
+    testDecryption(files[currFile].blob);
+  }
+};
+
+const testDecryption = (file) => {
+  if (decryptionMethodState.value === "secretKey") {
+
+      isTestingPassword.value  = true;
+      wrongPassword.value = false;
+
+      Promise.all([
+        file.slice(0, 11).arrayBuffer(), //signature
+        file.slice(11, 27).arrayBuffer(), //salt
+        file.slice(27, 51).arrayBuffer(), //header
+        file
+            .slice(
+                51,
+                51 + CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES
+            )
+            .arrayBuffer(), //17
+      ]).then(async ([signature, salt, header, chunk]) => {
+        decFileBuff = chunk; //for testing the dec password
+
+        await sendMessage('hat-sh', [ "requestTestDecryption",
+          JSON.stringify(user?.value.unlockPassword),
+          encodeArrayBufferToUrlSafeBase64(signature),
+          encodeArrayBufferToUrlSafeBase64(salt),
+          encodeArrayBufferToUrlSafeBase64(header),
+          encodeArrayBufferToUrlSafeBase64(decFileBuff)
+        ], 'background');
+      });
+
+  }
+
+  if (decryptionMethodState.value === "publicKey") {
+
+      isTestingKeys.value = true;
+      keysError.value = false;
+      wrongPrivateKey.value = false;
+      wrongPublicKey.value = false;
+
+      let mode = "test";
+
+      Promise.all([
+        file.slice(11, 35).arrayBuffer(), //header
+        file
+            .slice(
+                35,
+                35 + CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES
+            )
+            .arrayBuffer(), //17
+      ]).then(async ([header, chunk]) => {
+        decFileBuff = chunk;
+
+        await sendMessage('hat-sh', [ "requestTestDecryption",
+          privateKey,
+          publicKey,
+          encodeArrayBufferToUrlSafeBase64(header),
+          encodeArrayBufferToUrlSafeBase64(decFileBuff),
+          mode
+        ], 'background');
+      });
+
+  }
+};
+
+const startDecryption = (method) => {
+  let startIndex;
+  if (method === "secretKey") startIndex = 51;
+  if (method === "publicKey") startIndex = 35;
+
+  file = files[currFile].blob;
+
+  file
+      .slice(
+          startIndex,
+          startIndex + CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES
+      )
+      .arrayBuffer()
+      .then(async (chunk) => {
+        index =
+            startIndex +
+            CHUNK_SIZE +
+            crypto_secretstream_xchacha20poly1305_ABYTES;
+
+        // transfer chunk ArrayBuffer to service worker
+        await sendMessage('hat-sh', [ "decryptFirstChunk",
+          encodeArrayBufferToUrlSafeBase64(chunk),
+          index >= file.size
+        ], 'background');
+      });
+
+};
+
+const continueDecryption = () => {
+  file = files[currFile].blob;
+
+  file
+      .slice(
+          index,
+          index + CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES
+      )
+      .arrayBuffer()
+      .then(async (chunk) => {
+        index += CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES;
+
+        await sendMessage('hat-sh', [ "decryptRestOfChunks",
+          encodeArrayBufferToUrlSafeBase64(chunk),
+          index >= file.size
+        ], 'background');
+      });
+
+};
+
+const resetFileErrors = () => {
+  badFile.value = false;
+  fileMixUp.value = false;
+  resetCurrFile();
+  decryptionMethodState.value = null;
+};
 
 </script>
