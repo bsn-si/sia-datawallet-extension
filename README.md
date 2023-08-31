@@ -4,6 +4,13 @@
 
 - https://github.com/siacentral/sia-lite-wallet-web
 
+Change in sia-lite-wallet-web-master:
+
+Main net: https://api.siacentral.com/v2
+
+Test net: https://api.siacentral.com/v2/zen
+
+and rebuild:
 
 ```bash
 nvm use 12.22.1
@@ -19,8 +26,11 @@ go mod download golang.org/x/net
 
 make build
 
-copy sia-lite-wallet-web-master/src/sia/* to src/sia/
 ```
+
+Copy sia-lite-wallet-web-master/src/sia/* to src/sia/.
+
+Api generated from https://api.sia.tech/renterd using Postman to get the swagger.json file and then using swagger-typescript-api to generate the api.ts file.
 
 - https://github.com/acacode/swagger-typescript-api
 
@@ -36,10 +46,38 @@ renderd
 ./renterd --autopilot.scannerInterval=2m --autopilot.heartbeat=1m
 ```
 
+```bash
+curl -u ":test" -X PUT localhost:9880/api/bus/setting/redundancy --data '{
+    "minShards": 1,
+    "totalShards": 3
+}'
+```
+
+```bash
+curl -u ":test" -X PUT localhost:9880/api/autopilot/config --data '{
+    "wallet": {
+        "defragThreshold": 1000
+    },
+    "hosts": {
+        "ignoreRedundantIPs": true,
+        "maxDowntimeHours": 168,
+        "scoreOverrides": {}
+    },
+    "contracts": {
+        "set": "autopilot",
+        "amount": 10,
+        "allowance": "1000000000000000000000000000",
+        "period": 6048,
+        "renewWindow": 2016,
+        "download": 10000000000,
+        "upload": 10000000000,
+        "storage": 10000000000
+    }
+}'
+```
+
 - https://github.com/antfu/vitesse-webext
 - https://github.com/n1crack/vuefinder
 - https://github.com/getlago/lago
+- https://github.com/sh-dv/hat.sh/
 
-```bash
-https://github.com/sh-dv/hat.sh/
-```
