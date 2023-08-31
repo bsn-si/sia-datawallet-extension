@@ -33,7 +33,7 @@ const {user} = storeToRefs(useUserStore())
 const selectedWallet = ref(null)
 
 onMounted(() => {
-  selectedWallet.value = getSelectedWallet.value;
+  selectedWallet.value = getSelectedWallet.value || null;
 })
 
 

@@ -362,7 +362,7 @@ const doStreamFetch = async (url, token, fileId) => {
   );
 }
 
-// Fetch request handler to download decrypted file
+// Fetch request handler to download decrypted file: chrome-extension://XXX/dist/popup/file
 self.addEventListener("fetch", (e) => {
   // console.log(e); // log fetch event
   if (e.request.url.startsWith(FILE_URL)) {

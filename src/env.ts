@@ -15,7 +15,7 @@ export const isFirefox = navigator.userAgent.includes('Firefox')
 
 export const CONFIG = {
   // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-  // API_HOST: import.meta.env.VITE_API_HOST || '',
-  // API_HOST: 'http://localhost:9880' || '',
-  API_HOST: 'https://localhost:443' || '',
+  API_HOST: import.meta.env.VITE_API_HOST || '',
+  SIG_V2_SYMMETRIC: import.meta.env.VITE_SIG_V2_SYMMETRIC,
+  SIG_V2_ASYMMETRIC: import.meta.env.VITE_SIG_V2_ASYMMETRIC,
 }

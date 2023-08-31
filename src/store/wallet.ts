@@ -52,7 +52,9 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     setInterval(updateMetadata, 300000);
 
     const allWallets = computed(() => unref(wallets));
-    const getSelectedWallet = computed(() =>  {return localStorage.getItem('lastSelectedWallet') || wallets.value[0].id;})
+    const getSelectedWallet = computed(() =>  {
+        return localStorage.getItem('lastSelectedWallet') || wallets.value[0].id;
+    })
     const currentWallet = computed(() => {
         if (!Array.isArray(wallets.value))
             return null;

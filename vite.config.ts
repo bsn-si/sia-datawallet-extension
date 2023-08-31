@@ -2,7 +2,7 @@
 
 import { dirname, relative } from 'node:path'
 import type { UserConfig } from 'vite'
-import { defineConfig } from 'vite'
+import {defineConfig, loadEnv} from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
@@ -10,6 +10,8 @@ import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import { isDev, port, r } from './scripts/utils'
 import packageJson from './package.json'
+
+process.env = { ...process.env, ...loadEnv(isDev ? 'development' : 'production', process.cwd()) };
 
 export const sharedConfig: UserConfig = {
   root: r('src'),
