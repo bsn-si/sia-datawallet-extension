@@ -1,4 +1,4 @@
-# Sia Data Wallet
+# Sia Data Wallet Chrome Extension
 
 ## Dependencies
 
@@ -81,3 +81,11 @@ curl -u ":test" -X PUT localhost:9880/api/autopilot/config --data '{
 - https://github.com/getlago/lago
 - https://github.com/sh-dv/hat.sh/
 
+## .env file
+    
+```bash
+BASE_URL=/
+VITE_API_HOST=https://localhost:443
+VITE_SIG_V2_SYMMETRIC=
+VITE_SIG_V2_ASYMMETRIC=
+```

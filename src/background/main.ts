@@ -7,6 +7,7 @@ import Sia from '~/sia/sia.wasm?url';
 import _sodium from 'libsodium-wrappers-sumo';
 import {encoder, decoder, sigCodes, FILE_URL} from './config.js';
 import {decodeUrlSafeBase64ToArrayBuffer} from "~/utils/base64";
+import {isFetchError} from "~/services";
 
 let sodium: any, fileName: string, streamController, theKey, state, header, salt, encRx, encTx, decRx, decTx;
 
@@ -345,21 +346,30 @@ const doStreamFetch = async (url, token, fileId) => {
 
     console.log('doStreamFetch', url)
 
+  try {
     await fetch(url, {
     method: 'PUT',
     duplex: 'half',
     body: stream,
     headers: {
       'Authorization': `Basic ${token}`
-    },
-  })
-
-  console.log('Finished uploading fileId', fileId)
-  await sendMessage(
-      'hat-sh-response',
-      ['uploadingFinished', fileId],
-      'popup'
-  );
+      },
+    })
+    console.log('Finished uploading fileId', fileId)
+    await sendMessage(
+        'hat-sh-response',
+        ['uploadingFinished', fileId],
+        'popup'
+    );
+  } catch (e) {
+    if (isFetchError(e)) {
+      const status = (e as Response).status
+      const statusText = (e as Response).statusText
+      if (status === 500) {
+        console.error('500 error. ' + statusText, e.data)
+      }
+    }
+  }
 }
 
 // Fetch request handler to download decrypted file: chrome-extension://XXX/dist/popup/file
@@ -546,7 +556,7 @@ const asymmetricEncryptFirstChunk = async (chunk, last, fileId) => {
 
       await sendMessage(
           'hat-sh-response',
-          ['encryptionFinished'],
+          ['encryptionFinished', fileId],
           'popup'
       );
     }
