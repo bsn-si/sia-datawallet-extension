@@ -5,7 +5,10 @@ import registerGlobalComponents from '~/plugins/global-components'
 import setAuthorizationToken from "~/plugins/set-authorization-token";
 import { connect, walletCount } from '~/store/db';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faExclamationTriangle, faCreditCard, faSitemap, faFile, faFileExport, faUnlock, faLock, faEllipsisV, faChevronLeft, faChevronRight, faChevronDown, faEye, faPencilAlt, faTrash, faPaperPlane, faWallet, faAddressBook, faCogs, faPlus, faXmark, faTimes, faArrowRotateRight, faRedo, faEllipsisVertical, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle, faCreditCard, faSitemap, faFile, faFileExport, faUnlock, faLock, faEllipsisV,
+  faChevronLeft, faChevronRight, faChevronDown, faEye, faPencilAlt, faTrash, faPaperPlane, faWallet,
+  faAddressBook, faCogs, faPlus, faXmark, faTimes, faArrowRotateRight, faRedo, faEllipsisVertical, faCog, faArrowRightFromBracket, faSignOut }
+  from '@fortawesome/free-solid-svg-icons';
 import { faBluetoothB, faUsb, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {useWalletsStore} from "~/store/wallet";
@@ -31,7 +34,10 @@ export async function setupApp(app: App) {
   setAuthorizationToken()
   registerGlobalComponents(app)
 
-  library.add(faBluetoothB, faExclamationTriangle, faCreditCard, faSitemap, faFile, faFileExport, faUnlock, faLock, faEllipsisV, faChevronLeft, faChevronRight, faChevronDown, faEye, faUsb, faGithub, faPencilAlt, faTrash, faPaperPlane, faWallet, faAddressBook, faCogs, faPlus, faXmark, faTimes, faArrowRotateRight, faRedo, faEllipsisVertical, faCog);
+  library.add(faBluetoothB, faExclamationTriangle, faCreditCard, faSitemap, faFile, faFileExport, faUnlock,
+      faLock, faEllipsisV, faChevronLeft, faChevronRight, faChevronDown, faEye, faUsb, faGithub, faPencilAlt,
+      faTrash, faPaperPlane, faWallet, faAddressBook, faCogs, faPlus, faXmark, faTimes,
+      faArrowRotateRight, faRedo, faEllipsisVertical, faCog, faArrowRightFromBracket, faSignOut);
   app.component('font-awesome-icon', FontAwesomeIcon);
 
   const { setDBType, setUnavailable, setSetup, unlockWallets } = useWalletsStore()

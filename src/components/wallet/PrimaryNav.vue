@@ -14,10 +14,10 @@
         <font-awesome-icon icon="file" />
       </router-link>
     </div>
-    <div v-if="false" class="lower">
-      <router-link :to="{ name: 'settings' }" class="menu-item">
-        <font-awesome-icon icon="cog" />
-      </router-link>
+    <div class="lower">
+      <a class="menu-item" @click.prevent="logout">
+        <font-awesome-icon icon="arrow-right-from-bracket" />
+      </a>
     </div>
   </div>
 </template>
@@ -32,9 +32,18 @@ export default {
 <script setup lang="ts">
 import {storeToRefs} from "pinia";
 import {useWalletsStore} from "~/store/wallet";
+import {useUserStore} from "~/store/user";
 
+const { updateUser } = useUserStore()
 const walletsStore = useWalletsStore()
 const { offline } = storeToRefs(walletsStore)
+const { lockWallets } = walletsStore
+
+const logout = async () => {
+  updateUser(null)
+  lockWallets()
+
+}
 </script>
 
 <style lang="stylus" scoped>

@@ -1,20 +1,20 @@
 <template>
-  <main class="px-4 py-5">
+  <main class="px-4 py-5 h-full">
     <vue-finder id='my_vuefinder'></vue-finder>
 
-    <div class="mt-2">
+    <div v-if="false" class="mt-2">
       <button class="btn mt-2" @click="openOptionsPage">
         Open Options
       </button>
     </div>
 
-    <div class="mt-2">
+    <div v-if="false"  class="mt-2">
       <button class="btn mt-2" @click="openWalletsPage">
         Wallets
       </button>
     </div>
 
-    <div class="mt-2">
+    <div v-if="false"  class="mt-2">
       <button class="btn mt-2" @click="logout">
         Logout
       </button>
