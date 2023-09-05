@@ -9,7 +9,7 @@ ARC Data Wallet is an easy way to use the SIA network for on-chain file storage 
 This repository contains the ARC Data Wallet browser extension, it splits user's files into chunks, encrypts them with the user’s key and send them to the ARC Gateway for organizing storage in the SIA network.
 
 ## Disclaimer
-Thу work is in progress. You can see progress reports [here](https://github.com/bsn-si/sia-datawallet-extension/grant_reports/).
+Thу work is in progress. You can see progress reports [here](https://github.com/bsn-si/sia-datawallet-extension/tree/develop/grant_reports).
 
 ## Dependencies
 
