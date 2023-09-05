@@ -1,4 +1,15 @@
-# Sia Data Wallet Chrome Extension
+<h1 align="center">
+     ✨ ARC Data Wallet 👛
+</h1>
+ 
+ARC Data Wallet is an easy way to use the SIA network for on-chain file storage with a ligt "wallet-like" browser extension. This solution enables private users to use the SIA storage network independently on any device without the need to download and sync the local SIA node. This project is developed under the SIA Foundation grant.
+
+![siaDataWallet final](https://github.com/bsn-si/sia-datawallet-gateway/assets/98888366/6124bd98-29b4-482b-9001-bbfccb1687ba)
+
+This repository contains the ARC Data Wallet browser extension, it splits user's files into chunks, encrypts them with the user’s key and send them to the ARC Gateway for organizing storage in the SIA network.
+
+## Disclaimer
+Thу work is in progress. You can see progress reports [here](https://github.com/bsn-si/sia-datawallet-extension/grant_reports/).
 
 ## Dependencies
 
@@ -89,3 +100,6 @@ VITE_API_HOST=https://localhost:443
 VITE_SIG_V2_SYMMETRIC=
 VITE_SIG_V2_ASYMMETRIC=
 ```
+
+##Related repos
+[The ARC Gateway](https://github.com/bsn-si/sia-datawallet-extension)
