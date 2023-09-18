@@ -43,7 +43,7 @@ watchEffect(async () => {
     return;
 
   if (!user?.value.token) {
-    const errors = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword);
+    const errors = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword, true);
   }
 })
 

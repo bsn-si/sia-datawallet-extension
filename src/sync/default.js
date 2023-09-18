@@ -23,9 +23,13 @@ export default {
 
 		console.log(`starting quick scan of ${wallet.title} starting at ${startIndex}/${lastKnownIndex} with ${maxLookahead} lookahead`);
 
+		console.log('wallet seed', wallet.seed)
+
 		await recoverAddresses(wallet.seed, wallet.currency, startIndex, maxLookahead, lastKnownIndex, async(progress) => {
-			if (!progress || !Array.isArray(progress.addresses))
+			if (!progress || !Array.isArray(progress.addresses)) {
+				console.warn('no progress or addresses');
 				return;
+			}
 
 			await saveAddresses(progress.addresses.map((a, i) => {
 				return {
@@ -45,9 +49,13 @@ export default {
 
 		console.log(`starting full scan of ${wallet.title} with ${maxLookahead} lookahead`);
 
+		console.log('wallet seed', wallet.seed)
+
 		await recoverAddresses(wallet.seed, wallet.currency, 0, maxLookahead, 0, async(progress) => {
-			if (!progress || !Array.isArray(progress.addresses))
+			if (!progress || !Array.isArray(progress.addresses)) {
+				console.warn('no progress or addresses');
 				return;
+			}
 
 			await saveAddresses(progress.addresses.map(a => ({
 				...a,

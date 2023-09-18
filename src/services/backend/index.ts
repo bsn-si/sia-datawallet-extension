@@ -2,7 +2,7 @@ import {api, isFetchError} from "~/services";
 import {createUint8ArrayFromKeys} from "~/utils";
 import {useUserStore} from "~/store/user";
 
-export async function loginOrRegisterUser (walletId, password) {
+export async function loginOrRegisterUser (walletId, password, register = false) {
     const { updateUser } = useUserStore()
     let errors = {}
     try {
@@ -15,24 +15,8 @@ export async function loginOrRegisterUser (walletId, password) {
             const status = (e as Response).status
 
             if (status === 401) {
-                try {
-                    const result = await api.service.register({user: {wallet: walletId, password: JSON.stringify(password)}})
-                    const {token} = result.data.user
-                    updateUser({unlockPassword: createUint8ArrayFromKeys(password), token: token as string})
-                } catch (e) {
-                    if (isFetchError(e)) {
-                        const status = (e as Response).status
-                        if (status === 400) {
-                            errors = {
-                                error: ['Error create user'],
-                            }
-                        } else {
-                            errors = {
-                                error: ['Error, something went wrong'],
-                            }
-                            console.error(e)
-                        }
-                    }
+                if (register) {
+                    errors = await registerUser(walletId, password)
                 }
             } else {
                 errors = {
@@ -40,6 +24,53 @@ export async function loginOrRegisterUser (walletId, password) {
                 }
                 console.error(e)
             }
+        }
+    }
+    return errors;
+}
+
+async function registerUser (walletId, password) {
+    const { updateUser } = useUserStore()
+    let errors = {}
+    try {
+        const result = await api.service.register({user: {wallet: walletId, password: JSON.stringify(password)}})
+        const {token} = result.data.user
+        updateUser({unlockPassword: createUint8ArrayFromKeys(password), token: token as string})
+    } catch (e) {
+        if (isFetchError(e)) {
+            const status = (e as Response).status
+            if (status === 400) {
+                errors = {
+                    error: ['Error create user'],
+                }
+            } else {
+                errors = {
+                    error: ['Error, something went wrong'],
+                }
+                console.error(e)
+            }
+        }
+    }
+    return errors;
+}
+
+export async function subscribeUser (walletId, subscriptionCode) {
+    // const { updateUser } = useUserStore()
+    let errors = {}
+    try {
+        const result = await api.service.subscribe({subscription: {wallet: walletId, subscriptionCode}})
+        console.log(result)
+        // const {token} = result.data.user
+        // updateUser({token: token as string})
+        console.log('%cSubscribe successful', 'background: #222; color: #bada55')
+    } catch (e) {
+        if (isFetchError(e)) {
+            const status = (e as Response).status
+
+            errors = {
+                error: ['Error, something went wrong'],
+            }
+            console.error(e)
         }
     }
     return errors;

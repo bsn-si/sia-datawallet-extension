@@ -1,8 +1,8 @@
 <template>
   <modal @close="$emit('close')">
     <transition name="fade-top" mode="out-in" appear>
-      <transaction-setup class="transaction-step" :wallet="wallet" :address="address" v-if="step === 'setup'" key="setup" @built="onTransactionBuilt" />
-      <transaction-verify class="transaction-step" :wallet="wallet" :transaction="transaction" v-else-if="step === 'verify'" key="verify" @done="$emit('close')" />
+      <transaction-setup class="transaction-step" :wallet="wallet" :address="address" :subscription="subscription" v-if="step === 'setup'" key="setup" @built="onTransactionBuilt" />
+      <transaction-verify class="transaction-step" :wallet="wallet" :transaction="transaction" :subscription="subscription" v-else-if="step === 'verify'" key="verify" @done="$emit('close')" />
     </transition>
   </modal>
 </template>
@@ -23,7 +23,8 @@ export default {
 
   const props = defineProps({
     address: String,
-    wallet: Wallet
+    wallet: Wallet,
+    subscription: String
   });
 
   const { pushNotification } = useWalletsStore()

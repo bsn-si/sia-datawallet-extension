@@ -60,7 +60,7 @@ export default {
   })
 
   const displaySiacoins = computed(() => {
-    const format = formatPriceString(siacoinAmount.value, 2, settings?.value.currency, 1, props.wallet.precision());
+    const format = formatPriceString(siacoinAmount.value, 2, props.wallet.currency, 1, props.wallet.precision());
 
     if (props.transaction.siacoin_value.direction === 'sent' && !new BigNumber(props.transaction.siacoin_value.value).eq(0))
       return `-${format.value} <span class="currency-display">${format.label}</span>`;
@@ -69,7 +69,7 @@ export default {
   })
 
   const displaySiafunds = computed(() => {
-    const format = formatSiafundString(siafundAmount.value, settings?.value.currency);
+    const format = formatSiafundString(siafundAmount.value, props.wallet.currency);
 
     if (props.transaction.siafund_value.direction === 'sent' && !new BigNumber(props.transaction.siafund_value.value).eq(0))
       return `-${format.value} <span class="currency-display">${format.label}</span>`;

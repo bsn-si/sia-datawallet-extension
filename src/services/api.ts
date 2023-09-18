@@ -16,6 +16,13 @@ export type LoginData = {
   }
 }
 
+export type SubscriptionData = {
+    subscription: {
+        wallet: string
+        subscriptionCode: string
+    }
+}
+
 export type AccountsListData = object;
 
 /** @example {"hostKey":"ed25519:0c920d0254011f1065eeb99aa909c644b991780c1155ce0aa34cce09e6eabdc9"} */
@@ -568,7 +575,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
           body: data,
           // type: ContentType.Json,
           ...params,
-        })
+        }),
+    subscribe: (data: SubscriptionData, params: RequestParams = {}) =>
+          this.request<SubscriptionData, {user: {wallet: string} }>({
+              path: `/users/subscribe`,
+              method: "POST",
+              body: data,
+              // type: ContentType.Json,
+              ...params,
+          })
   }
   accounts = {
     /**

@@ -46,14 +46,15 @@ export default {
   import {useWalletsStore} from "~/store/wallet";
   import BigNumber from 'bignumber.js';
   import { formatPriceString } from '~/utils/format';
-
+  import {subscribeUser} from "~/services/backend";
   import { signTransaction } from '~/sia';
   import { scanTransactions } from '~/sync/scanner';
   import { siaAPI/*, scprimeAPI */ } from '~/services/wallet/siacentral';;
 
   const props = defineProps({
     wallet: Wallet,
-    transaction: Object
+    transaction: Object,
+    subscription: String
   });
 
 
@@ -203,6 +204,8 @@ export default {
       });
 
       await scanTransactions(props.wallet);
+
+      await subscribeUser(props.wallet.id, props.subscription)
 
       emit('done');
     } catch (ex) {

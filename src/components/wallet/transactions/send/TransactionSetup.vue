@@ -57,11 +57,13 @@ export default {
   import {hash} from "tweetnacl";
   import {encode as encodeUTF8} from "@stablelib/utf8";
   import {storeToRefs} from "pinia";
+  import {CONFIG} from "~/env";
 
 
   const props = defineProps({
     address: String,
-    wallet: Wallet
+    wallet: Wallet,
+    subscription: String
   });
 
   interface Txn {
@@ -97,6 +99,20 @@ export default {
 
       onFormatValues();
       await loadAddresses();
+
+      if (typeof props.subscription === 'string' && props.subscription.length > 0) {
+        if (props.subscription === 'small') {
+          txtSiacoin.value.value = CONFIG.SUBSCRIPTION_SMALL;
+        } else if (props.subscription === 'medium') {
+          txtSiacoin.value.value = CONFIG.SUBSCRIPTION_MEDIUM;
+        } else {
+          txtSiacoin.value.value = CONFIG.SUBSCRIPTION_LARGE;
+        }
+        onChangeSiacoin();
+      }
+
+      console.log(props.wallet)
+
     } catch (ex) {
       console.error('TransactionSetupMounted', ex);
       pushNotification({
@@ -483,6 +499,20 @@ export default {
   watch(() => props.address, (newAddress) => {
     if (typeof newAddress === 'string' && newAddress.length > 0) {
       recipientAddress.value = newAddress;
+    }
+  });
+
+  watch(() => props.subscription, (newSubscription) => {
+    console.log(props.subscription, newSubscription)
+    if (typeof newSubscription === 'string' && newSubscription.length > 0) {
+      if (newSubscription === 'small') {
+        txtSiacoin.value.value = CONFIG.SUBSCRIPTION_SMALL;
+      } else if (newSubscription === 'medium') {
+        txtSiacoin.value.value = CONFIG.SUBSCRIPTION_MEDIUM;
+      } else {
+        txtSiacoin.value.value = CONFIG.SUBSCRIPTION_LARGE;
+      }
+      onChangeSiacoin();
     }
   });
 

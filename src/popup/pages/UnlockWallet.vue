@@ -62,7 +62,7 @@ const onUnlockWallets = async () => {
   try {
     await unlockWallets(password.value);
 
-    errors.value = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword);
+    errors.value = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword, true);
 
     pushNotification({
       icon: 'unlock',
