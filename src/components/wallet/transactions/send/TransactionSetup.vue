@@ -101,9 +101,9 @@ export default {
       await loadAddresses();
 
       if (typeof props.subscription === 'string' && props.subscription.length > 0) {
-        if (props.subscription === 'small') {
+        if (props.subscription === 'SMALL_YEARLY') {
           txtSiacoin.value.value = CONFIG.SUBSCRIPTION_SMALL;
-        } else if (props.subscription === 'medium') {
+        } else if (props.subscription === 'MEDIUM_YEARLY') {
           txtSiacoin.value.value = CONFIG.SUBSCRIPTION_MEDIUM;
         } else {
           txtSiacoin.value.value = CONFIG.SUBSCRIPTION_LARGE;
@@ -505,9 +505,9 @@ export default {
   watch(() => props.subscription, (newSubscription) => {
     console.log(props.subscription, newSubscription)
     if (typeof newSubscription === 'string' && newSubscription.length > 0) {
-      if (newSubscription === 'small') {
+      if (newSubscription === 'SMALL_YEARLY') {
         txtSiacoin.value.value = CONFIG.SUBSCRIPTION_SMALL;
-      } else if (newSubscription === 'medium') {
+      } else if (newSubscription === 'MEDIUM_YEARLY') {
         txtSiacoin.value.value = CONFIG.SUBSCRIPTION_MEDIUM;
       } else {
         txtSiacoin.value.value = CONFIG.SUBSCRIPTION_LARGE;

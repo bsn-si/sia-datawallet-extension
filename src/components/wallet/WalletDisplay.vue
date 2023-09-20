@@ -20,7 +20,7 @@
       <div class="wallet-display-balance" v-html="formatCurrencyString(siacoinBalance)"></div>
       <siafund-balance :siafunds="siafundBalance" :claim="claimBalance" :wallet="wallet" v-if="siafundBalance.gt(0)"/>
 
-      <div>
+      <div v-if="userSubscriptions && userSubscriptions.subscriptions && userSubscriptions.subscriptions.length > 0">
         <div class="flex flex-col items-center justify-center dark:bg-gray-800 py-[12px] min-h-screen">
           <div class="md:text:4xl flex w-auto flex-col px-6 text-center text-2xl sm:text-3xl">
             <span class="font-medium"> Powerful features when </span>
@@ -78,7 +78,7 @@
     </span>
           </div>
           <div class="flex h-full flex-col gap-6 px-5 lg:flex-row">
-            <div class="h-full max-w-[378px] rounded-xl bg-white dark:text-black lg:w-auto xl:w-[378px]">
+            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'SMALL_YEARLY', 'bg-white dark:text-black': activeSubscription.plan_code !== 'SMALL_YEARLY'}">
               <div class="flex h-full flex-col rounded-xl border border-gray-500 py-6 px-5 sm:px-10 lg:border-none">
                 <div class="flex flex-col text-left">
                   <div class="flex flex-col gap-3">
@@ -89,7 +89,7 @@
                     <span class="text-[56px] font-semibold">10 sc</span>
                     <span class="font-normal">/ Month</span>
                   </div>
-                  <button class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('small')">
+                  <button v-if="activeSubscription.plan_code !== 'SMALL_YEARLY'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('SMALL_YEARLY')">
                     Get Started Now
                   </button>
                   <div class="mt-10 space-y-3">
@@ -147,8 +147,8 @@
                 </div>
               </div>
             </div>
-            <div
-                class="flex h-full max-w-[378px] flex-col rounded-xl bg-[#19cf86] py-6 px-5 text-white dark:text-white sm:px-10 lg:w-auto xl:w-[378px]">
+            <div :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'MEDIUM_YEARLY', 'bg-white dark:text-black': activeSubscription.plan_code !== 'MEDIUM_YEARLY'}"
+                class="flex h-full max-w-[378px] flex-col rounded-xl py-6 px-5 sm:px-10 lg:w-auto xl:w-[378px]">
               <div class="flex flex-col text-left">
                 <div class="flex flex-col gap-3">
                   <span class="text-[22px]">Medium</span>
@@ -160,7 +160,7 @@
                   <span class="text-[56px] font-semibold">50 sc</span>
                   <span class="font-normal">/ Month</span>
                 </div>
-                <button class="w-full rounded bg-white py-2.5 text-[#19cf86]" @click="paySubscription('medium')">
+                <button v-if="activeSubscription.plan_code !== 'MEDIUM_YEARLY'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('MEDIUM_YEARLY')">
                   Get Started Now
                 </button>
                 <div class="mt-10 space-y-3">
@@ -219,7 +219,7 @@
                 </div>
               </div>
             </div>
-            <div class="h-full max-w-[378px] rounded-xl bg-white dark:text-black lg:w-auto xl:w-[378px]">
+            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'LARGE_YEARLY', 'bg-white dark:text-black': activeSubscription.plan_code !== 'LARGE_YEARLY'}">
               <div class="flex h-full flex-col rounded-xl border border-gray-500 py-6 px-5 sm:px-10 lg:border-none">
                 <div class="flex flex-col text-left">
                   <div class="flex flex-col gap-3">
@@ -232,7 +232,7 @@
                     <span class="text-[56px] font-semibold">100 sc</span>
                     <span class="font-normal">/ Month</span>
                   </div>
-                  <button class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('large')">
+                  <button v-if="activeSubscription.plan_code !== 'LARGE_YEARLY'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('LARGE_YEARLY')">
                     Get Started Now
                   </button>
                   <div class="mt-10 space-y-3">
@@ -364,13 +364,15 @@ export default {
 
 import BigNumber from 'bignumber.js';
 import {formatPriceString, formatSiafundString, formatExchangeRate} from '~/utils/format';
-import {defineProps} from "vue";
+import {defineProps, onMounted} from "vue";
 import Wallet from "~/types/wallet";
 import {useWalletsStore} from "~/store/wallet";
 import TransactionListItem from "~/components/wallet/transactions/TranscationListItem.vue";
 import SelectWalletModal from "~/components/wallet/modals/SelectWalletModal.vue";
 import {CONFIG} from "~/env";
 
+import {useUserStore} from "~/store/user";
+import {storeToRefs} from "pinia";
 const props = defineProps<{
   wallets: Wallet[],
   wallet: Wallet,
@@ -379,7 +381,15 @@ const props = defineProps<{
 
 const modal = ref(''), selectedTransaction = ref(null), showMore = ref(false), subscriptionName = ref('');
 
+const userStore = useUserStore();
+const { userSubscriptions, activeSubscription } = storeToRefs(userStore)
+const { loadSubscriptions } = userStore;
+
 const {exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet, pushNotification} = useWalletsStore()
+
+onMounted(async () => {
+  loadSubscriptions(props.wallet.id)
+})
 
 const walletQueued = computed(() => {
   return props.wallet.scanning === 'full' || scanQueue.filter(s => s.walletID === props.wallet.id && s.full).length !== 0;
@@ -708,8 +718,8 @@ const paySubscription = (subscription) => {
 .wallet-transactions {
   height: 100%;
   border-top: 1px solid bg-dark-accent;
-  overflow-x: hidden;
-  overflow-y: auto;
+  //overflow-x: hidden;
+  //overflow-y: auto;
 
   .transactions-grid {
     padding: 15px;

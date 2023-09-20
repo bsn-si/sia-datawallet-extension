@@ -59,11 +59,12 @@ import {CONFIG} from "~/env";
 import {userStorage, useUserStore} from "~/store/user";
 import getCurrentDir from "~/utils/getCurrentDir";
 import {storeToRefs} from "pinia";
-const { user } = storeToRefs(useUserStore())
 import { onMessage, sendMessage } from "webext-bridge/popup";
 import {CHUNK_SIZE} from "~/hat-sh-config/constants";
 import {encodeArrayBufferToUrlSafeBase64} from "~/utils/base64";
+import {subscriptionUsageEvent} from "~/services/backend";
 
+const { user } = storeToRefs(useUserStore())
 const emitter = inject('emitter');
 const {apiUrl} = useApiUrl();
 const {t} = inject('i18n');

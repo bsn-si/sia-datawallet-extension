@@ -347,7 +347,7 @@ const doStreamFetch = async (url, token, fileId) => {
     console.log('doStreamFetch', url)
 
   try {
-    await fetch(url, {
+    const r = await fetch(url, {
     method: 'PUT',
     duplex: 'half',
     body: stream,
@@ -355,6 +355,7 @@ const doStreamFetch = async (url, token, fileId) => {
       'Authorization': `Basic ${token}`
       },
     })
+    console.log('doStreamFetch response', r)
     console.log('Finished uploading fileId', fileId)
     await sendMessage(
         'hat-sh-response',
@@ -362,6 +363,7 @@ const doStreamFetch = async (url, token, fileId) => {
         'popup'
     );
   } catch (e) {
+    console.error(e)
     if (isFetchError(e)) {
       const status = (e as Response).status
       const statusText = (e as Response).statusText

@@ -23,6 +23,20 @@ export type SubscriptionData = {
     }
 }
 
+export type SubscriptionListData = {
+    subscription: {
+        external_customer_id: string
+    }
+}
+
+export type SubscriptionUsageEventData = {
+    event: {
+        transaction_id: string
+        external_customer_id: string
+        filesize: string
+    }
+}
+
 export type AccountsListData = object;
 
 /** @example {"hostKey":"ed25519:0c920d0254011f1065eeb99aa909c644b991780c1155ce0aa34cce09e6eabdc9"} */
@@ -583,7 +597,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
               body: data,
               // type: ContentType.Json,
               ...params,
-          })
+          }),
+    subscriptionList: (data: SubscriptionListData, params: RequestParams = {}) =>
+      this.request<SubscriptionListData, {subscriptions: [{status: boolean, plan_code: string}] }>({
+          path: `/users/subscriptions`,
+          method: "POST",
+          body: data,
+          // type: ContentType.Json,
+          ...params,
+      }),
+    subscriptionUsageEvent: (data: SubscriptionUsageEventData, params: RequestParams = {}) =>
+      this.request<SubscriptionUsageEventData, any>({
+          path: `users/subscription-usage-event`,
+          method: "POST",
+          body: data,
+          // type: ContentType.Json,
+          ...params,
+      })
   }
   accounts = {
     /**
