@@ -20,7 +20,7 @@
       <div class="wallet-display-balance" v-html="formatCurrencyString(siacoinBalance)"></div>
       <siafund-balance :siafunds="siafundBalance" :claim="claimBalance" :wallet="wallet" v-if="siafundBalance.gt(0)"/>
 
-      <div v-if="userSubscriptions && userSubscriptions.subscriptions && userSubscriptions.subscriptions.length > 0">
+      <div>
         <div class="flex flex-col items-center justify-center dark:bg-gray-800 py-[12px] min-h-screen">
           <div class="md:text:4xl flex w-auto flex-col px-6 text-center text-2xl sm:text-3xl">
             <span class="font-medium"> Powerful features when </span>

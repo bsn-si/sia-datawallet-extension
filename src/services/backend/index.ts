@@ -55,6 +55,7 @@ async function registerUser(walletId, password) {
 }
 
 export async function subscribeUser(walletId, subscriptionCode) {
+    walletId = walletId.replace(/\//g, '$');
     let errors = {}
     try {
         const result = await api.service.subscribe({subscription: {wallet: walletId, subscriptionCode}})
@@ -74,6 +75,7 @@ export async function subscribeUser(walletId, subscriptionCode) {
 }
 
 export async function subscriptions(walletId) {
+    walletId = walletId.replace(/\//g, '$');
     let errors = {}
     try {
         return api.service.subscriptionList({subscription: {external_customer_id: walletId}})
@@ -92,6 +94,7 @@ export async function subscriptions(walletId) {
 }
 
 export async function subscriptionUsageEvent(walletId, filesize) {
+    walletId = walletId.replace(/\//g, '$');
     let errors = {}
     try {
         return api.service.subscriptionUsageEvent(
