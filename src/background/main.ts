@@ -356,6 +356,15 @@ const doStreamFetch = async (url, token, fileId) => {
       },
     })
     console.log('doStreamFetch response', r)
+    if (r.status === 403) {
+      console.warn('Limit exceeded')
+      await sendMessage(
+          'hat-sh-response',
+          ['limitExceeded', fileId],
+          'popup'
+      );
+      return;
+    }
     console.log('Finished uploading fileId', fileId)
     await sendMessage(
         'hat-sh-response',

@@ -249,6 +249,10 @@ onMessage('hat-sh-response', async (message) => {
         emitter.emit('vf-fetch', {params: {q: 'index', adapter: props.current.adapter, path: props.current.dirname}});
       }
       break;
+    case "limitExceeded":
+      emitter.emit('vf-modal-close');
+      emitter.emit('vf-toast-push', {label: t('Limit exceeded.')});
+      break;
   }
 });
 
