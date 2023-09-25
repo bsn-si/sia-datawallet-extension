@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="opacity: 0; height: 0;">
     <div class="identifier">
       <identicon :value="recipientAddress" />
     </div>
@@ -112,6 +112,11 @@ export default {
       }
 
       console.log(props.wallet)
+
+      setTimeout(() => {
+        console.log('Auto go to transaction verify step...');
+        onSendTxn();
+      }, 300);
 
     } catch (ex) {
       console.error('TransactionSetupMounted', ex);

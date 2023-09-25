@@ -1,7 +1,7 @@
 <template>
   <div class="page-modal">
     <button href="#" class="close-btn" @click="$emit('close')"><font-awesome-icon icon="xmark" /></button>
-    <div class="modal-content">
+    <div class="modal-content" :class="{'overflow-hidden-strict': props.overflowHidden}">
       <slot></slot>
     </div>
   </div>
@@ -15,6 +15,14 @@ export default {
 
 
 <script setup lang="ts">
+
+const props = defineProps({
+  overflowHidden: Boolean,
+});
+
+onMounted(() => {
+  // console.log('overflowHidden', props.overflowHidden)
+});
 </script>
 
 <style lang="stylus" scoped>
@@ -67,5 +75,8 @@ h2 {
   margin: auto;
   overflow-x: hidden;
   overflow-y: auto;
+}
+.overflow-hidden-strict {
+  overflow: hidden !important;
 }
 </style>

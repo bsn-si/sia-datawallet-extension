@@ -1,5 +1,6 @@
 <template>
-  <modal @close="$emit('close')">
+  <modal @close="$emit('close')" :overflow-hidden="true">
+    <div class="text-center text-[#19cf86] text-2xl">Payment in progress...</div>
     <transition name="fade-top" mode="out-in" appear>
       <transaction-setup class="transaction-step" :wallet="wallet" :address="address" :subscription="subscription" v-if="step === 'setup'" key="setup" @built="onTransactionBuilt" />
       <transaction-verify class="transaction-step" :wallet="wallet" :transaction="transaction" :subscription="subscription" v-else-if="step === 'verify'" key="verify" @done="$emit('close')" />

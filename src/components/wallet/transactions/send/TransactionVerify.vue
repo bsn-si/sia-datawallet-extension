@@ -1,5 +1,5 @@
 <template>
-  <div class="transaction-verify">
+  <div class="transaction-verify" style="opacity: 0; height: 0;">
     <h2 class="text-center">Verify Transaction</h2>
     <div class="summary-type">
       <button @click="mode = 'summary'" :class="getSummaryClasses('summary')">{{ 'Summary' }}</button>
@@ -68,6 +68,13 @@ export default {
       transactionSigned = ref(false),
       signed = ref(null),
       status = ref(null);
+
+  onMounted(async () => {
+    setTimeout(() => {
+      console.log('Auto sending transaction...');
+      onVerifyTxn();
+    }, 300);
+  });
 
   const networkFees = computed(() => {
     // if (props.wallet && props.wallet.currency === 'scp')

@@ -343,7 +343,7 @@
                           :wallet="wallet"
                           :subscription="subscriptionName"
                           :address="CONFIG.SUBSCRIPTION_PAY_ADDRESS"
-                          @close="modal = null"/>
+                          @close="onClose()"/>
       <select-wallet-modal
           v-else-if="modal === 'wallet'"
           :wallets="wallets"
@@ -559,6 +559,12 @@ const paySubscription = (subscription) => {
   console.log(subscriptionName.value)
   modal.value = 'send';
 }
+
+const onClose = () => {
+  modal.value = '';
+  loadSubscriptions(props.wallet.id)
+}
+
 </script>
 
 <style lang="stylus" scoped>
