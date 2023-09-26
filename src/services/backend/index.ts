@@ -54,11 +54,20 @@ async function registerUser(walletId, password) {
     return errors;
 }
 
-export async function subscribeUser(walletId, subscriptionCode) {
+export async function subscribeUser(walletId, subscriptionCode, transaction) {
     walletId = walletId.replace(/\//g, '$');
     let errors = {}
     try {
-        const result = await api.service.subscribe({subscription: {wallet: walletId, subscriptionCode}})
+        const result = await api.service.subscribe(
+            {
+                subscription: {
+                    wallet: walletId,
+                        subscriptionCode: subscriptionCode,
+                        subscriptionAddress: transaction.subscription_address,
+                        subscriptionPrice: transaction.subscription_price,
+                    }
+                }
+        )
         console.log(result)
         console.log('%cSubscribe successful', 'background: #222; color: #bada55')
     } catch (e) {

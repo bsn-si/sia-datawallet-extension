@@ -328,7 +328,10 @@ export default {
           change_index: 0,
           miner_fees: [siaFee.value.toString(10)],
           siacoin_inputs: inputs.value,
-          siacoin_outputs: []
+          siacoin_outputs: [],
+          subscription_address: recipientAddress.value,
+          subscription_price: txtSiacoin.value.value,
+          subscription_code: props.subscription
         },
         feeAddress = networkFees.value.api.address,
         change = added.minus(fees.value).minus(sendAmount.value);

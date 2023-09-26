@@ -212,7 +212,7 @@ export default {
 
       await scanTransactions(props.wallet);
 
-      await subscribeUser(props.wallet.id, props.subscription)
+      await subscribeUser(props.wallet.id, props.subscription, props.transaction)
 
       emit('done');
     } catch (ex) {

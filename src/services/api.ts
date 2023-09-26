@@ -19,7 +19,9 @@ export type LoginData = {
 export type SubscriptionData = {
     subscription: {
         wallet: string
-        subscriptionCode: string
+        subscriptionCode: string,
+        subscriptionAddress: string,
+        subscriptionPrice: string
     }
 }
 
