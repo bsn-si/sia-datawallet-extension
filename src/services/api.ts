@@ -590,6 +590,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
           // type: ContentType.Json,
           ...params,
         }),
+    settings: (wallet: string, params: RequestParams = {}) =>
+          this.request<any, any>({
+              path: `/settings/${wallet}/subscription`,
+              method: "GET",
+              secure: true,
+              ...params,
+          }),
     subscribe: (data: SubscriptionData, params: RequestParams = {}) =>
           this.request<SubscriptionData, {user: {wallet: string} }>({
               path: `/users/subscribe`,

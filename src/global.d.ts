@@ -13,9 +13,5 @@ interface ImportMeta {
     VITE_API_HOST: string,
     VITE_SIG_V2_SYMMETRIC: string,
     VITE_SIG_V2_ASYMMETRIC: string,
-    VITE_SUBSCRIPTION_PAY_ADDRESS: string,
-    VITE_SUBSCRIPTION_SMALL: string,
-    VITE_SUBSCRIPTION_MEDIUM: string,
-    VITE_SUBSCRIPTION_LARGE: string,
   }
 }

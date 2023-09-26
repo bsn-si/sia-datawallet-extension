@@ -342,7 +342,6 @@
       <send-siacoin-modal v-if="modal === 'send'"
                           :wallet="wallet"
                           :subscription="subscriptionName"
-                          :address="CONFIG.SUBSCRIPTION_PAY_ADDRESS"
                           @close="onClose()"/>
       <select-wallet-modal
           v-else-if="modal === 'wallet'"
