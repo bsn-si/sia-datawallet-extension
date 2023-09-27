@@ -346,41 +346,41 @@ const doStreamFetch = async (url, token, fileId) => {
 
     console.log('doStreamFetch', url)
 
-  try {
-    const r = await fetch(url, {
-    method: 'PUT',
-    duplex: 'half',
-    body: stream,
-    headers: {
-      'Authorization': `Basic ${token}`
-      },
-    })
-    console.log('doStreamFetch response', r)
-    if (r.status === 403) {
-      console.warn('Limit exceeded')
+    try {
+      const r = await fetch(url, {
+      method: 'PUT',
+      duplex: 'half',
+      body: stream,
+      headers: {
+        'Authorization': `Basic ${token}`
+        },
+      })
+      console.log('doStreamFetch response', r)
+      if (r.status === 403) {
+        console.warn('Limit exceeded')
+        await sendMessage(
+            'hat-sh-response',
+            ['limitExceeded', fileId],
+            'popup'
+        );
+        return;
+      }
+      console.log('Finished uploading fileId', fileId)
       await sendMessage(
           'hat-sh-response',
-          ['limitExceeded', fileId],
+          ['uploadingFinished', fileId],
           'popup'
       );
-      return;
-    }
-    console.log('Finished uploading fileId', fileId)
-    await sendMessage(
-        'hat-sh-response',
-        ['uploadingFinished', fileId],
-        'popup'
-    );
-  } catch (e) {
-    console.error(e)
-    if (isFetchError(e)) {
-      const status = (e as Response).status
-      const statusText = (e as Response).statusText
-      if (status === 500) {
-        console.error('500 error. ' + statusText, e.data)
+    } catch (e) {
+      console.error(e)
+      if (isFetchError(e)) {
+        const status = (e as Response).status
+        const statusText = (e as Response).statusText
+        if (status === 500) {
+          console.error('500 error. ' + statusText, e.data)
+        }
       }
     }
-  }
 }
 
 // Fetch request handler to download decrypted file: chrome-extension://XXX/dist/popup/file

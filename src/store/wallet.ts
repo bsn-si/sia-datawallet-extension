@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import Wallet from '~/types/wallet';
 import WalletSettings from '~/types/walletSettings';
+import UploadingFile from '~/types/uploadingFile';
 import { hash } from 'tweetnacl';
 import { encode as encodeB64 } from '@stablelib/base64';
 import { encode as encodeUTF8 } from '@stablelib/utf8';
@@ -23,6 +24,8 @@ walletSettingsStorage.set({
     addressLookahead: 25000,
     displayLanguage: 'detect'
 });
+
+export const uploadingFileStorage = new Storage<UploadingFile[]>('uploadingFiles')
 
 function getLocalStorageNumeric(key, def) {
     const v = localStorage.getItem(key);
@@ -113,7 +116,9 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         notifications,
         clearNotification,
         pushNotification,
-        dbType
+        dbType,
+        getUploadingFiles,
+        setUploadingFiles,
     };
 
     async function unlockWallets(password?: string) {
@@ -238,7 +243,13 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         }
     }
 
+    function getUploadingFiles() {
+        return uploadingFileStorage.get();
+    }
 
+    function setUploadingFiles(files: UploadingFile[]) {
+        uploadingFileStorage.set(files);
+    }
 
     async function saveWalletMutation(wallet: Wallet) {
         if (!wallet || !wallet.seed)

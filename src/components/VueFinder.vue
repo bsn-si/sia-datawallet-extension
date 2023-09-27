@@ -50,7 +50,9 @@ import { CHUNK_SIZE, crypto_secretstream_xchacha20poly1305_ABYTES } from "~/hat-
 import {encodeArrayBufferToUrlSafeBase64} from "~/utils/base64";
 import {formatName} from "~/utils/formatName";
 
-const { currentWallet, getCurrentWalletId } = storeToRefs(useWalletsStore())
+const store = useWalletsStore();
+const { currentWallet, getCurrentWalletId } = storeToRefs(store)
+const { getUploadingFiles, setUploadingFiles } = store;
 const { user } = storeToRefs(useUserStore())
 
 const props = defineProps({
@@ -221,6 +223,7 @@ const getObjects = async (path, params = {}) => {
     entry.last_modified = '';
     entry.extra_metadata = [];
     entry.storage = storageName;
+    entry.status = ''
 
     delete entry.name;
     delete entry.size;
@@ -324,7 +327,44 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
       if (['index', 'search'].includes(params.q)) {
         loadingState.value = false;
       }
-      emitter.emit('vf-modal-close');
+      const uploadingFiles = getUploadingFiles() || [];
+      if (!params.hasOwnProperty('uploadingFilename')) {
+        emitter.emit('vf-modal-close');
+      } else {
+        let uploadingCurrentDir = params.uploadingCurrentDir;
+        if (!uploadingCurrentDir.startsWith('/')) {
+          uploadingCurrentDir = '/' + uploadingCurrentDir;
+        }
+        if (!uploadingCurrentDir.endsWith('/')) {
+          uploadingCurrentDir = uploadingCurrentDir + '/';
+        }
+        const path = 'local://' + params.uploadingWalletId + uploadingCurrentDir + params.uploadingFilename;
+        if (!data.files.find(file => file.path === path) && !uploadingFiles.find(file => file.path === path)) {
+          uploadingFiles.push({
+            basename: params.uploadingFilename,
+            path: path,
+            type: 'file',
+            visibility: 'public',
+            storage: storageName,
+            file_size: 0,
+            last_modified: '',
+            extra_metadata: [],
+            extension: '',
+            mime_type: '',
+            status: 'uploading',
+          })
+        }
+      }
+      for (let i=0; i < data.files.length; i++) {
+        const idx = uploadingFiles.findIndex(file => file.path === data.files[i].path);
+        if (idx !== -1) {
+          uploadingFiles.splice(idx, 1);
+        }
+      }
+
+      setUploadingFiles(uploadingFiles);
+      data.files.push(...uploadingFiles);
+
       console.log(data)
       updateItems(data);
       if (onSuccess) {

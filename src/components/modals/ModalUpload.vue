@@ -234,19 +234,22 @@ onMessage('hat-sh-response', async (message) => {
       }
       break;
     case "uploadingFinished":
-      queue.value[queue.value.findIndex((item) => item.id === params[0])].status = 'uploaded';
+      const idx = queue.value.findIndex((item) => item.id === params[0]);
+      if (idx !== -1) {
+        queue.value[idx].status = 'uploaded';
 
-      let totalUploaded = queue.value.reduce((count, item) => {
-        if (item.status === 'uploaded') {
-          return count + 1;
+        let totalUploaded = queue.value.reduce((count, item) => {
+          if (item.status === 'uploaded') {
+            return count + 1;
+          }
+          return count;
+        }, 0);
+
+        if (totalUploaded === numberOfFiles) {
+          isDownloading.value = false;
+          disableUploadButton.value = true;
+          emitter.emit('vf-fetch', {params: {q: 'index', adapter: props.current.adapter, path: props.current.dirname}});
         }
-        return count;
-      }, 0);
-
-      if (totalUploaded === numberOfFiles) {
-        isDownloading.value = false;
-        disableUploadButton.value = true;
-        emitter.emit('vf-fetch', {params: {q: 'index', adapter: props.current.adapter, path: props.current.dirname}});
       }
       break;
     case "limitExceeded":
@@ -300,6 +303,18 @@ const kickOffEncryption = async () => {
 
     // window.open(`file`, "_self");
     const currentDir = getCurrentDir(props.currentWalletId, props.current.dirname);
+
+    emitter.emit('vf-fetch', {params:
+          {
+            q: 'index',
+            adapter: props.current.adapter,
+            path: props.current.dirname,
+            uploadingWalletId: props.currentWalletId,
+            uploadingCurrentDir: currentDir,
+            uploadingFilename: file.name
+          }
+    });
+
     await sendMessage('hat-sh', [ "doStreamFetch",
       `${CONFIG.API_HOST}/api/objects/` + props.currentWalletId + '?pathType=file' + '&path=' + currentDir + encodeURIComponent(file.name),
       user?.value.token, file.id
