@@ -90,11 +90,12 @@ export default {
 
   const txtSiacoin = ref(null);
   const txtCurrency = ref(null);
+  let subscriptionSettings : {data: {pay_address: string, small_plan_price: number, medium_plan_price: number, large_plan_price: number}};
 
   onMounted(async () => {
     try {
 
-      const subscriptionSettings : {data: {pay_address: string, small_plan_price: number, medium_plan_price: number, large_plan_price: number}} = await api.service.settings(props.wallet)
+      subscriptionSettings = await api.service.settings(props.wallet)
       if (subscriptionSettings.data.pay_address) {
         recipientAddress.value = subscriptionSettings.data.pay_address
       }
@@ -103,9 +104,9 @@ export default {
       await loadAddresses();
 
       if (typeof props.subscription === 'string' && props.subscription.length > 0) {
-        if (props.subscription === 'SMALL_YEARLY') {
+        if (props.subscription === 'SMALL') {
           txtSiacoin.value.value = subscriptionSettings.data.small_plan_price;
-        } else if (props.subscription === 'MEDIUM_YEARLY') {
+        } else if (props.subscription === 'MEDIUM') {
           txtSiacoin.value.value = subscriptionSettings.data.medium_plan_price;
         } else {
           txtSiacoin.value.value = subscriptionSettings.data.large_plan_price;
@@ -514,13 +515,13 @@ export default {
 
   watch(() => props.subscription, (newSubscription) => {
     console.log(props.subscription, newSubscription)
-    if (typeof newSubscription === 'string' && newSubscription.length > 0) {
-      if (newSubscription === 'SMALL_YEARLY') {
-        txtSiacoin.value.value = CONFIG.SUBSCRIPTION_SMALL;
-      } else if (newSubscription === 'MEDIUM_YEARLY') {
-        txtSiacoin.value.value = CONFIG.SUBSCRIPTION_MEDIUM;
+    if (typeof newSubscription === 'string' && newSubscription.length > 0 && subscriptionSettings) {
+      if (newSubscription === 'SMALL') {
+        txtSiacoin.value.value =  subscriptionSettings.data.small_plan_price;
+      } else if (newSubscription === 'MEDIUM') {
+        txtSiacoin.value.value = subscriptionSettings.data.medium_plan_price;
       } else {
-        txtSiacoin.value.value = CONFIG.SUBSCRIPTION_LARGE;
+        txtSiacoin.value.value = subscriptionSettings.data.large_plan_price;
       }
       onChangeSiacoin();
     }

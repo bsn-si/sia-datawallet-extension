@@ -78,7 +78,7 @@
     </span>
           </div>
           <div class="flex h-full flex-col gap-6 px-5 lg:flex-row">
-            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'SMALL_YEARLY', 'bg-white dark:text-black': activeSubscription.plan_code !== 'SMALL_YEARLY'}">
+            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'SMALL', 'bg-white dark:text-black': activeSubscription.plan_code !== 'SMALL'}">
               <div class="flex h-full flex-col rounded-xl border border-gray-500 py-6 px-5 sm:px-10 lg:border-none">
                 <div class="flex flex-col text-left">
                   <div class="flex flex-col gap-3">
@@ -89,7 +89,7 @@
                     <span class="text-[56px] font-semibold">10 sc</span>
                     <span class="font-normal">/ Month</span>
                   </div>
-                  <button v-if="activeSubscription.plan_code !== 'SMALL_YEARLY'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('SMALL_YEARLY')">
+                  <button v-if="activeSubscription.plan_code !== 'SMALL'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('SMALL')">
                     Get Started Now
                   </button>
                   <div class="mt-10 space-y-3">
@@ -147,7 +147,7 @@
                 </div>
               </div>
             </div>
-            <div :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'MEDIUM_YEARLY', 'bg-white dark:text-black': activeSubscription.plan_code !== 'MEDIUM_YEARLY'}"
+            <div :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'MEDIUM', 'bg-white dark:text-black': activeSubscription.plan_code !== 'MEDIUM'}"
                 class="flex h-full max-w-[378px] flex-col rounded-xl py-6 px-5 sm:px-10 lg:w-auto xl:w-[378px]">
               <div class="flex flex-col text-left">
                 <div class="flex flex-col gap-3">
@@ -160,7 +160,7 @@
                   <span class="text-[56px] font-semibold">50 sc</span>
                   <span class="font-normal">/ Month</span>
                 </div>
-                <button v-if="activeSubscription.plan_code !== 'MEDIUM_YEARLY'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('MEDIUM_YEARLY')">
+                <button v-if="activeSubscription.plan_code !== 'MEDIUM'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('MEDIUM')">
                   Get Started Now
                 </button>
                 <div class="mt-10 space-y-3">
@@ -219,7 +219,7 @@
                 </div>
               </div>
             </div>
-            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'LARGE_YEARLY', 'bg-white dark:text-black': activeSubscription.plan_code !== 'LARGE_YEARLY'}">
+            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'LARGE', 'bg-white dark:text-black': activeSubscription.plan_code !== 'LARGE'}">
               <div class="flex h-full flex-col rounded-xl border border-gray-500 py-6 px-5 sm:px-10 lg:border-none">
                 <div class="flex flex-col text-left">
                   <div class="flex flex-col gap-3">
@@ -232,7 +232,7 @@
                     <span class="text-[56px] font-semibold">100 sc</span>
                     <span class="font-normal">/ Month</span>
                   </div>
-                  <button v-if="activeSubscription.plan_code !== 'LARGE_YEARLY'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('LARGE_YEARLY')">
+                  <button v-if="activeSubscription.plan_code !== 'LARGE'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('LARGE')">
                     Get Started Now
                   </button>
                   <div class="mt-10 space-y-3">
