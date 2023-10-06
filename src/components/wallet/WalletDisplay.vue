@@ -27,8 +27,8 @@
             <span class="bg-[#19cf86] bg-clip-text font-medium text-transparent">
       subscripted.
     </span>
-            <span class="mt-4"> Chose a plan that&apos;s right for you </span>
-            <div class="mt-8 flex items-center justify-center gap-4 pl-5 text-base md:mt-16">
+            <span class="mt-4 mb-8"> Chose a plan that&apos;s right for you </span>
+            <div v-if="false" class="mt-8 flex items-center justify-center gap-4 pl-5 text-base md:mt-16">
               <span>Pay monthly </span>
               <div class="flex items-center">
                 <label for="small-toggle" class="relative inline-flex cursor-pointer">
@@ -45,7 +45,7 @@
               <span>Pay yearly</span>
             </div>
           </div>
-          <div class="flex w-[300px] justify-end pt-2 sm:w-[350px] md:w-[590px] md:pt-0">
+          <div v-if="false" class="flex w-[300px] justify-end pt-2 sm:w-[350px] md:w-[590px] md:pt-0">
             <svg
                 width="107"
                 height="88"
@@ -74,8 +74,8 @@
               />
             </svg>
             <span class="pr-2 pt-2 text-sm font-medium text-[#19cf86] md:text-lg">
-      Save 25%
-    </span>
+              Save 25%
+            </span>
           </div>
           <div class="flex h-full flex-col gap-6 px-5 lg:flex-row">
             <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'SMALL', 'bg-white dark:text-black': activeSubscription.plan_code !== 'SMALL'}">
@@ -300,7 +300,7 @@
 
       </div>
 
-      <div class="wallet-button-wrapper">
+      <div v-if="false" class="wallet-button-wrapper">
         <div class="wallet-buttons">
           <button class="btn wallet-btn" @click="modal='send'" v-if="wallet.type !== 'watch'">{{ 'Send' }}</button>
           <button class="btn wallet-btn" @click="modal='receive'">{{ 'Receive' }}</button>
