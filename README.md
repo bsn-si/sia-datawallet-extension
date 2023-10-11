@@ -57,6 +57,8 @@ renderd
 ./renterd --autopilot.scannerInterval=2m --autopilot.heartbeat=1m
 ```
 
+Initial renterd setup:
+
 ```bash
 curl -u ":test" -X PUT localhost:9880/api/bus/setting/redundancy --data '{
     "minShards": 1,
@@ -65,25 +67,30 @@ curl -u ":test" -X PUT localhost:9880/api/bus/setting/redundancy --data '{
 ```
 
 ```bash
-curl -u ":test" -X PUT localhost:9880/api/autopilot/config --data '{
-    "wallet": {
-        "defragThreshold": 1000
-    },
-    "hosts": {
-        "ignoreRedundantIPs": true,
-        "maxDowntimeHours": 168,
-        "scoreOverrides": {}
-    },
-    "contracts": {
-        "set": "autopilot",
-        "amount": 10,
-        "allowance": "1000000000000000000000000000",
-        "period": 6048,
-        "renewWindow": 2016,
-        "download": 10000000000,
-        "upload": 10000000000,
-        "storage": 10000000000
-    }
+curl -u ":test" -X PUT localhost:9880/api/autopilot/config --data '{  
+"wallet": {  
+"defragThreshold": 1000  
+},  
+"hosts": {  
+"ignoreRedundantIPs": false,  
+"scoreOverrides": {}  
+},  
+"contracts": {  
+"set": "autopilot",  
+"amount": 50,  
+"allowance": "10000000000000000000000000000",  
+"period": 6048,  
+"renewWindow": 2016,  
+"download": 1099511627776,  
+"upload": 1099511627776,  
+"storage": 1099511627776  
+}  
+}'
+```
+
+```bash
+curl -u ":test" -X PUT localhost:9880/api/bus/setting/contractset --data '{  
+"default": "autopilot"  
 }'
 ```
 
