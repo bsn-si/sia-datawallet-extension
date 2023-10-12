@@ -100,5 +100,9 @@
   },
   "lint-staged": {
     "*": "eslint --fix"
+  },
+  "dependencies": {
+    "@types/clipboard": "^2.0.7",
+    "clipboard": "^2.0.11"
   }
 }

@@ -118,7 +118,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         pushNotification,
         dbType,
         getUploadingFiles,
-        setUploadingFiles,
+        setUploadingFiles
     };
 
     async function unlockWallets(password?: string) {

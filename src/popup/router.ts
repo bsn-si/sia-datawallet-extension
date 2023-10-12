@@ -15,6 +15,11 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('./pages/Wallets.vue'),
     },
     {
+        name: 'history',
+        path: '/history',
+        component: () => import('./pages/History.vue'),
+    },
+    {
         name: 'login',
         path: '/login',
         component: () => import('./pages/Login.vue'),

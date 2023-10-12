@@ -102,10 +102,10 @@
 .page-wrapper {
   position: absolute;
   top: 0;
-  left: 75px;
+  left: 198px;
   right: 0;
   bottom: 0;
-  width: calc(100% - 75px);
+  width: calc(100% - 198px);
   height: 100%;
 }
 

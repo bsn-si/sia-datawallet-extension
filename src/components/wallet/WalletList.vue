@@ -72,7 +72,8 @@ export default {
   grid-template-rows: minmax(0, 1fr) auto;
   grid-gap: 15px;
   overflow: hidden;
-  min-width: 100px;
+  //min-width: 100px;
+  max-width: 0;
 }
 
 .wallets {

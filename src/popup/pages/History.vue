@@ -6,7 +6,7 @@
                  @selected="onWalletSelected"/>
     <div class="wallets-detail">
       <transition name="fade-top" mode="out-in">
-        <wallet-display
+        <wallet-transactions
             v-if="currentWallet"
             :wallet="currentWallet"
             :wallets="allWallets"
@@ -20,11 +20,11 @@
 <script setup lang="ts">
 import {useWalletsStore} from "~/store/wallet";
 import {computed, onMounted} from "vue";
-import WalletDisplay from "~/components/wallet/WalletDisplay.vue";
 import WalletList from "~/components/wallet/WalletList.vue";
 import {loginOrRegisterUser} from "~/services/backend";
 import {useUserStore} from "~/store/user";
 import {storeToRefs} from "pinia";
+import WalletTransactions from "~/components/wallet/WalletTransactions.vue";
 
 const store = useWalletsStore()
 const {allWallets, pushNotification, getSelectedWallet} = store;

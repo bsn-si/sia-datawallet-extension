@@ -1,7 +1,7 @@
 <template>
   <div class="wallet-display">
     <div class="wallet-balance">
-      <div class="wallet-title">{{ name }}
+      <div v-if="false" class="wallet-title">{{ name }}
         <button class="btn-select" @click="modal = 'wallet'">
           <font-awesome-icon icon="chevron-down"/>
         </button>
@@ -16,288 +16,138 @@
           </div>
         </transition>
       </div>
-      <div class="wallet-siacoin-balance" v-html="formatSiacoinString(siacoinBalance)"></div>
-      <div class="wallet-display-balance" v-html="formatCurrencyString(siacoinBalance)"></div>
-      <siafund-balance :siafunds="siafundBalance" :claim="claimBalance" :wallet="wallet" v-if="siafundBalance.gt(0)"/>
 
-      <div>
-        <div class="flex flex-col items-center justify-center dark:bg-gray-800 py-[12px] min-h-screen">
-          <div class="md:text:4xl flex w-auto flex-col px-6 text-center text-2xl sm:text-3xl">
-            <span class="font-medium"> Powerful features when </span>
-            <span class="bg-[#19cf86] bg-clip-text font-medium text-transparent">
-      subscripted.
-    </span>
-            <span class="mt-4 mb-8"> Chose a plan that&apos;s right for you </span>
-            <div v-if="false" class="mt-8 flex items-center justify-center gap-4 pl-5 text-base md:mt-16">
-              <span>Pay monthly </span>
-              <div class="flex items-center">
-                <label for="small-toggle" class="relative inline-flex cursor-pointer">
-                  <input
-                      type="checkbox"
-                      value=""
-                      id="small-toggle"
-                      class="peer sr-only"
-                  />
-                  <div
-                      class="peer h-5 w-9 flex-1 rounded-full bg-gray-200 align-middle after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-[#19cf86] peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none  dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:bg-[#19cf86]"></div>
-                </label>
-              </div>
-              <span>Pay yearly</span>
-            </div>
+      <div class="flex justify-center">
+        <div class="wallet-balance-c">
+          <div>
+            <div><span class="wallet-siacoin-balance" v-html="formatSiacoinString(siacoinBalance)"></span><span
+                class="wallet-display-balance" v-html="formatCurrencyString(siacoinBalance)"></span></div>
+            <siafund-balance :siafunds="siafundBalance" :claim="claimBalance" :wallet="wallet"
+                             v-if="siafundBalance.gt(0)"/>
+            <div><span class="wallet-plan-caption">Plan: </span><span
+                class="wallet-plan-name">{{ subscriptionNameByCode }}</span>&nbsp;<span
+                class="wallet-plat-vol">({{ subscriptionVolByCode }})</span></div>
           </div>
-          <div v-if="false" class="flex w-[300px] justify-end pt-2 sm:w-[350px] md:w-[590px] md:pt-0">
-            <svg
-                width="107"
-                height="88"
-                viewBox="0 0 107 88"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-14 md:w-20 h-20 -mt-8"
-            >
-              <path
-                  d="M95.4463 61.5975C83.1573 64.6611 68.4838 65.2433 57.6839 57.506C50.782 52.5613 47.1171 42.5628 49.6964 34.4471C52.1324 26.7825 57.8212 20.0482 66.3457 20.2534C70.789 20.3604 74.6201 22.4047 75.429 27.084C76.6648 34.2329 69.5331 41.6308 63.8629 44.7405C46.1672 54.4452 21.1341 53.9052 4.27686 42.6407"
-                  stroke="#19cf86"
-                  stroke-width="3"
-                  stroke-linecap="round"
-              />
-              <path
-                  d="M11.7068 55.8447C9.64482 52.9634 5.14208 46.2418 3.62681 42.4054"
-                  stroke="#19cf86"
-                  stroke-width="3"
-                  stroke-linecap="round"
-              />
-              <path
-                  d="M3.62695 42.4055C7.1396 41.942 15.124 40.6363 18.9603 39.121"
-                  stroke="#19cf86"
-                  stroke-width="3"
-                  stroke-linecap="round"
-              />
-            </svg>
-            <span class="pr-2 pt-2 text-sm font-medium text-[#19cf86] md:text-lg">
-              Save 25%
-            </span>
-          </div>
-          <div class="flex h-full flex-col gap-6 px-5 lg:flex-row">
-            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'SMALL', 'bg-white dark:text-black': activeSubscription.plan_code !== 'SMALL'}">
-              <div class="flex h-full flex-col rounded-xl border border-gray-500 py-6 px-5 sm:px-10 lg:border-none">
-                <div class="flex flex-col text-left">
-                  <div class="flex flex-col gap-3">
-                    <span class="text-[22px]">Small</span>
-                    <span>Ideal for individuals who need small to store small amount of data.</span>
-                  </div>
-                  <div class="my-4 flex items-center gap-3">
-                    <span class="text-[56px] font-semibold">10 sc</span>
-                    <span class="font-normal">/ Month</span>
-                  </div>
-                  <button v-if="activeSubscription.plan_code !== 'SMALL'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('SMALL')">
-                    Get Started Now
-                  </button>
-                  <div class="mt-10 space-y-3">
-                    <div class="flex items-center gap-4">
-                      <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect width="32" height="32" rx="16" fill="#E8EDFB"/>
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M21.8162 12.207C22.0701 12.4737 22.0597 12.8957 21.793 13.1495L14.0893 20.4829C13.9577 20.6081 13.7808 20.6742 13.5993 20.666C13.4179 20.6577 13.2477 20.5758 13.128 20.4391L10.1651 17.0545C9.92254 16.7775 9.95052 16.3563 10.2276 16.1138C10.5046 15.8713 10.9258 15.8992 11.1683 16.1763L13.6734 19.0379L20.8737 12.1838C21.1404 11.9299 21.5624 11.9403 21.8162 12.207Z"
-                            fill="#19cf86"
-                        />
-                      </svg>
-                      <span class="text-base font-medium">500 Mb</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect width="32" height="32" rx="16" fill="#F7F8F9"/>
-                        <path
-                            d="M20.2421 20.2426C20.5025 19.9822 20.5025 19.5601 20.2421 19.2997L16.9428 16.0004L20.243 12.7001C20.5034 12.4397 20.5034 12.0176 20.243 11.7573C19.9827 11.4969 19.5606 11.4969 19.3002 11.7573L15.9999 15.0576L12.6997 11.7573C12.4393 11.4969 12.0172 11.4969 11.7568 11.7573C11.4965 12.0176 11.4965 12.4397 11.7568 12.7001L15.0571 16.0004L11.7578 19.2997C11.4974 19.5601 11.4974 19.9822 11.7578 20.2426C12.0181 20.5029 12.4402 20.5029 12.7006 20.2426L15.9999 16.9432L19.2993 20.2426C19.5597 20.5029 19.9818 20.5029 20.2421 20.2426Z"
-                            fill="#19cf86"
-                        />
-                      </svg>
-                      <span class="text-base font-medium">1 Gb</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect width="32" height="32" rx="16" fill="#F7F8F9"/>
-                        <path
-                            d="M20.2421 20.2426C20.5025 19.9822 20.5025 19.5601 20.2421 19.2997L16.9428 16.0004L20.243 12.7001C20.5034 12.4397 20.5034 12.0176 20.243 11.7573C19.9827 11.4969 19.5606 11.4969 19.3002 11.7573L15.9999 15.0576L12.6997 11.7573C12.4393 11.4969 12.0172 11.4969 11.7568 11.7573C11.4965 12.0176 11.4965 12.4397 11.7568 12.7001L15.0571 16.0004L11.7578 19.2997C11.4974 19.5601 11.4974 19.9822 11.7578 20.2426C12.0181 20.5029 12.4402 20.5029 12.7006 20.2426L15.9999 16.9432L19.2993 20.2426C19.5597 20.5029 19.9818 20.5029 20.2421 20.2426Z"
-                            fill="#19cf86"
-                        />
-                      </svg>
-                      <span class="text-base font-medium">2 Gb</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'MEDIUM', 'bg-white dark:text-black': activeSubscription.plan_code !== 'MEDIUM'}"
-                class="flex h-full max-w-[378px] flex-col rounded-xl py-6 px-5 sm:px-10 lg:w-auto xl:w-[378px]">
-              <div class="flex flex-col text-left">
-                <div class="flex flex-col gap-3">
-                  <span class="text-[22px]">Medium</span>
-                  <span>
-            Ideal for individuals who need small to store medium amount of data.
-          </span>
-                </div>
-                <div class="my-4 flex items-center gap-3">
-                  <span class="text-[56px] font-semibold">50 sc</span>
-                  <span class="font-normal">/ Month</span>
-                </div>
-                <button v-if="activeSubscription.plan_code !== 'MEDIUM'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('MEDIUM')">
-                  Get Started Now
-                </button>
-                <div class="mt-10 space-y-3">
-                  <div class="flex items-center gap-4">
-                    <svg
-                        width="32"
-                        height="32"
-                        viewBox="0 0 32 32"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect width="32" height="32" rx="16" fill="#E8EDFB"/>
-                      <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M21.8162 12.207C22.0701 12.4737 22.0597 12.8957 21.793 13.1495L14.0893 20.4829C13.9577 20.6081 13.7808 20.6742 13.5993 20.666C13.4179 20.6577 13.2477 20.5758 13.128 20.4391L10.1651 17.0545C9.92254 16.7775 9.95052 16.3563 10.2276 16.1138C10.5046 15.8713 10.9258 15.8992 11.1683 16.1763L13.6734 19.0379L20.8737 12.1838C21.1404 11.9299 21.5624 11.9403 21.8162 12.207Z"
-                          fill="#19cf86"
-                      />
-                    </svg>
-                    <span class="text-base font-medium">500 Mb</span>
-                  </div>
-                  <div class="flex items-center gap-4">
-                    <svg
-                        width="32"
-                        height="32"
-                        viewBox="0 0 32 32"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect width="32" height="32" rx="16" fill="#E8EDFB"/>
-                      <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M21.8162 12.207C22.0701 12.4737 22.0597 12.8957 21.793 13.1495L14.0893 20.4829C13.9577 20.6081 13.7808 20.6742 13.5993 20.666C13.4179 20.6577 13.2477 20.5758 13.128 20.4391L10.1651 17.0545C9.92254 16.7775 9.95052 16.3563 10.2276 16.1138C10.5046 15.8713 10.9258 15.8992 11.1683 16.1763L13.6734 19.0379L20.8737 12.1838C21.1404 11.9299 21.5624 11.9403 21.8162 12.207Z"
-                          fill="#19cf86"
-                      />
-                    </svg>
-                    <span class="text-base font-medium">1 Gb</span>
-                  </div>
-                  <div class="flex items-center gap-4">
-                    <svg
-                        width="32"
-                        height="32"
-                        viewBox="0 0 32 32"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect width="32" height="32" rx="16" fill="#F7F8F9"/>
-                      <path
-                          d="M20.2421 20.2426C20.5025 19.9822 20.5025 19.5601 20.2421 19.2997L16.9428 16.0004L20.243 12.7001C20.5034 12.4397 20.5034 12.0176 20.243 11.7573C19.9827 11.4969 19.5606 11.4969 19.3002 11.7573L15.9999 15.0576L12.6997 11.7573C12.4393 11.4969 12.0172 11.4969 11.7568 11.7573C11.4965 12.0176 11.4965 12.4397 11.7568 12.7001L15.0571 16.0004L11.7578 19.2997C11.4974 19.5601 11.4974 19.9822 11.7578 20.2426C12.0181 20.5029 12.4402 20.5029 12.7006 20.2426L15.9999 16.9432L19.2993 20.2426C19.5597 20.5029 19.9818 20.5029 20.2421 20.2426Z"
-                          fill="#19cf86"
-                      />
-                    </svg>
-                    <span class="text-base font-medium">2 Gb</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="h-full max-w-[378px] rounded-xl lg:w-auto xl:w-[378px]" :class="{'text-white dark:text-white bg-[#19cf86]': activeSubscription.plan_code === 'LARGE', 'bg-white dark:text-black': activeSubscription.plan_code !== 'LARGE'}">
-              <div class="flex h-full flex-col rounded-xl border border-gray-500 py-6 px-5 sm:px-10 lg:border-none">
-                <div class="flex flex-col text-left">
-                  <div class="flex flex-col gap-3">
-                    <span class="text-[22px]">Large</span>
-                    <span>
-              Ideal for individuals who need small to store large amount of data.
-            </span>
-                  </div>
-                  <div class="my-4 flex items-center gap-3">
-                    <span class="text-[56px] font-semibold">100 sc</span>
-                    <span class="font-normal">/ Month</span>
-                  </div>
-                  <button v-if="activeSubscription.plan_code !== 'LARGE'" class="w-full rounded border-[1px] border-[#19cf86] py-2.5 text-[#19cf86]" @click="paySubscription('LARGE')">
-                    Get Started Now
-                  </button>
-                  <div class="mt-10 space-y-3">
-                    <div class="flex items-center gap-4">
-                      <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect width="32" height="32" rx="16" fill="#E8EDFB"/>
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M21.8162 12.207C22.0701 12.4737 22.0597 12.8957 21.793 13.1495L14.0893 20.4829C13.9577 20.6081 13.7808 20.6742 13.5993 20.666C13.4179 20.6577 13.2477 20.5758 13.128 20.4391L10.1651 17.0545C9.92254 16.7775 9.95052 16.3563 10.2276 16.1138C10.5046 15.8713 10.9258 15.8992 11.1683 16.1763L13.6734 19.0379L20.8737 12.1838C21.1404 11.9299 21.5624 11.9403 21.8162 12.207Z"
-                            fill="#19cf86"
-                        />
-                      </svg>
-                      <span class="text-base font-medium">500 Mb</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect width="32" height="32" rx="16" fill="#E8EDFB"/>
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M21.8162 12.207C22.0701 12.4737 22.0597 12.8957 21.793 13.1495L14.0893 20.4829C13.9577 20.6081 13.7808 20.6742 13.5993 20.666C13.4179 20.6577 13.2477 20.5758 13.128 20.4391L10.1651 17.0545C9.92254 16.7775 9.95052 16.3563 10.2276 16.1138C10.5046 15.8713 10.9258 15.8992 11.1683 16.1763L13.6734 19.0379L20.8737 12.1838C21.1404 11.9299 21.5624 11.9403 21.8162 12.207Z"
-                            fill="#19cf86"
-                        />
-                      </svg>
-                      <span class="text-base font-medium">1 Gb</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect width="32" height="32" rx="16" fill="#E8EDFB"/>
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M21.8162 12.207C22.0701 12.4737 22.0597 12.8957 21.793 13.1495L14.0893 20.4829C13.9577 20.6081 13.7808 20.6742 13.5993 20.666C13.4179 20.6577 13.2477 20.5758 13.128 20.4391L10.1651 17.0545C9.92254 16.7775 9.95052 16.3563 10.2276 16.1138C10.5046 15.8713 10.9258 15.8992 11.1683 16.1763L13.6734 19.0379L20.8737 12.1838C21.1404 11.9299 21.5624 11.9403 21.8162 12.207Z"
-                            fill="#19cf86"
-                        />
-                      </svg>
-                      <span class="text-base font-medium">2 Gb</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        </div>
+      </div>
+
+
+      <div class="flex justify-center mt-4">
+        <div class="wallet-address-outer-c">
+          <div class="wallet-address-inner-c">
+            <div class="wallet-address-caption">{{ formatCurrentAddress }}</div>
+            <div style="width: 18px; height: 18px; position: relative; cursor: pointer;" @click="copyToClipboard">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <mask id="mask0_18_617" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="18"
+                      height="18">
+                  <rect width="18" height="18" fill="#D9D9D9"/>
+                </mask>
+                <g mask="url(#mask0_18_617)">
+                  <path
+                      d="M14.25 14.25H6C5.5875 14.25 5.23438 14.1031 4.94063 13.8094C4.64688 13.5156 4.5 13.1625 4.5 12.75V2.25C4.5 1.8375 4.64688 1.48438 4.94063 1.19063C5.23438 0.896875 5.5875 0.75 6 0.75H11.25L15.75 5.25V12.75C15.75 13.1625 15.6031 13.5156 15.3094 13.8094C15.0156 14.1031 14.6625 14.25 14.25 14.25ZM10.5 6V2.25H6V12.75H14.25V6H10.5ZM3 17.25C2.5875 17.25 2.23438 17.1031 1.94063 16.8094C1.64688 16.5156 1.5 16.1625 1.5 15.75V5.25H3V15.75H11.25V17.25H3Z"
+                      fill="#D0BCFF"/>
+                </g>
+              </svg>
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <div style="width: 521px; height: 37px; text-align: center"><span
+            style="color: #F5F5F5; font-size: 32px; font-family: Roboto; font-weight: 400; line-height: 52px; word-wrap: break-word">Powerful features when </span><span
+            style="color: #19CF86; font-size: 32px; font-family: Roboto; font-weight: 400; line-height: 52px; word-wrap: break-word">subscribed</span>
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <div
+            style="width: 531px; text-align: center; color: #CAC4D0; font-size: 14px; font-family: Roboto; font-weight: 400; line-height: 20px; letter-spacing: 0.25px; word-wrap: break-word">
+          Chose a plan that's right for you
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <div class="plan-c">
+
+          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code === 'SMALL'}">
+            <div class="plan-title">{{ getNameByCode('SMALL') }}</div>
+            <div class="plan-period">/month</div>
+            <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
+            <div class="plan-price" :class="{'active':activeSubscription.plan_code === 'SMALL'}">
+              {{ getPriceByCode('SMALL') }}
+            </div>
+            <div class="plan-btn-c" @click="paySubscription('SMALL')">
+              <div class="btn">Get started now</div>
+            </div>
+            <div
+                style="left: 32px; top: 230px; position: absolute; justify-content: flex-start; align-items: center; gap: 8px; display: inline-flex">
+              <div style="width: 18px; height: 18px; position: relative">
+                <div
+                    style="width: 18px; height: 18px; left: 0px; top: 0px; position: absolute; background: #D0BCFF; border-radius: 2px"></div>
+                <div style="width: 15px; height: 15px; left: 2px; top: 1px; position: absolute">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                    <path d="M6 12.4L2 8.4L3.4 7L6 9.6L12.6 3L14 4.4L6 12.4Z" fill="#381E72"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="plan-vol">{{ getVolByCode('SMALL') }}</div>
+            </div>
+          </div>
+
+          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code === 'MEDIUM'}">
+            <div class="plan-title">{{ getNameByCode('MEDIUM') }}</div>
+            <div class="plan-period">/month</div>
+            <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
+            <div class="plan-price" :class="{'active':activeSubscription.plan_code === 'MEDIUM'}">
+              {{ getPriceByCode('MEDIUM') }}
+            </div>
+            <div class="plan-btn-c" @click="paySubscription('MEDIUM')">
+              <div class="btn">Get started now</div>
+            </div>
+            <div
+                style="left: 47px; top: 230px; position: absolute; justify-content: flex-start; align-items: center; gap: 8px; display: inline-flex">
+              <div style="width: 18px; height: 18px; position: relative">
+                <div
+                    style="width: 18px; height: 18px; left: 0px; top: 0px; position: absolute; background: #D0BCFF; border-radius: 2px"></div>
+                <div style="width: 15px; height: 15px; left: 2px; top: 1px; position: absolute">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                    <path d="M6 12.4L2 8.4L3.4 7L6 9.6L12.6 3L14 4.4L6 12.4Z" fill="#381E72"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="plan-vol">{{ getVolByCode('MEDIUM') }}</div>
+            </div>
+
+          </div>
+
+          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code === 'LARGE'}">
+            <div class="plan-title">{{ getNameByCode('LARGE') }}</div>
+            <div class="plan-period">/month</div>
+            <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
+            <div class="plan-price" :class="{'active':activeSubscription.plan_code === 'LARGE'}">
+              {{ getPriceByCode('LARGE') }}
+            </div>
+            <div class="plan-btn-c" @click="paySubscription('LARGE')">
+              <div class="btn">Get started now</div>
+            </div>
+            <div
+                style="left: 47px; top: 230px; position: absolute; justify-content: flex-start; align-items: center; gap: 8px; display: inline-flex">
+              <div style="width: 18px; height: 18px; position: relative">
+                <div
+                    style="width: 18px; height: 18px; left: 0px; top: 0px; position: absolute; background: #D0BCFF; border-radius: 2px"></div>
+                <div style="width: 15px; height: 15px; left: 2px; top: 1px; position: absolute">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                    <path d="M6 12.4L2 8.4L3.4 7L6 9.6L12.6 3L14 4.4L6 12.4Z" fill="#381E72"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="plan-vol">{{ getVolByCode('LARGE') }}</div>
+            </div>
+          </div>
 
 
+        </div>
       </div>
 
       <div v-if="false" class="wallet-button-wrapper">
@@ -322,22 +172,7 @@
         </div>
       </div>
     </div>
-    <div class="wallet-transactions">
-      <table class="transactions-grid">
-        <tbody>
-        <template v-for="group in transactions" :key="group.date">
-          <tr class="group-date">
-            <td colspan="4">{{ group.date }}</td>
-          </tr>
-          <transaction-list-item v-for="(transaction, i) in group.transactions"
-                                 :key="`${group.date}-${i}`"
-                                 :transaction="transaction"
-                                 :wallet="wallet"
-                                 @click="onSelectTransaction(transaction.transaction_id)"/>
-        </template>
-        </tbody>
-      </table>
-    </div>
+
     <transition name="fade" mode="out-in" appear>
       <send-siacoin-modal v-if="modal === 'send'"
                           :wallet="wallet"
@@ -366,29 +201,59 @@ import {formatPriceString, formatSiafundString, formatExchangeRate} from '~/util
 import {defineProps, onMounted} from "vue";
 import Wallet from "~/types/wallet";
 import {useWalletsStore} from "~/store/wallet";
-import TransactionListItem from "~/components/wallet/transactions/TranscationListItem.vue";
+import {getLastWalletAddresses} from '~/store/db';
 import SelectWalletModal from "~/components/wallet/modals/SelectWalletModal.vue";
 import {CONFIG} from "~/env";
 
 import {useUserStore} from "~/store/user";
 import {storeToRefs} from "pinia";
+import useClipboard from "~/composables/useClipboard";
+
 const props = defineProps<{
   wallets: Wallet[],
   wallet: Wallet,
   active: string | null
 }>();
 
-const modal = ref(''), selectedTransaction = ref(null), showMore = ref(false), subscriptionName = ref('');
+const modal = ref(''), selectedTransaction = ref(null), showMore = ref(false), subscriptionName = ref(''),
+    addresses = ref([]), current = ref(0);
 
 const userStore = useUserStore();
-const { userSubscriptions, activeSubscription } = storeToRefs(userStore)
-const { loadSubscriptions } = userStore;
+const {userSubscriptions, activeSubscription} = storeToRefs(userStore)
+const {loadSubscriptions} = userStore;
+
+const {toClipboard} = useClipboard()
 
 const {exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet, pushNotification} = useWalletsStore()
 
+onBeforeMount(async () => {
+  const loadedAddresses = await loadWalletAddresses(0);
+
+  loadedAddresses.sort((a, b) => {
+    if (a.index > b.index)
+      return 1;
+
+    if (a.index < b.index)
+      return -1;
+
+    return 0;
+  });
+
+  addresses.value = loadedAddresses;
+})
+
 onMounted(async () => {
   loadSubscriptions(props.wallet.id)
+
+  console.log('Current address', currentAddress)
 })
+
+const currentAddress = computed(() => {
+  if (!Array.isArray(addresses.value) || addresses.value.length <= current.value || !addresses.value[current.value])
+    return '';
+
+  return addresses.value[current.value].address;
+});
 
 const walletQueued = computed(() => {
   return props.wallet.scanning === 'full' || scanQueue.filter(s => s.walletID === props.wallet.id && s.full).length !== 0;
@@ -434,66 +299,6 @@ const name = computed(() => {
   return props.wallet.title;
 });
 
-const walletTransactions = computed(() => {
-  const transactions = props.wallet ? props.wallet.transactions : null;
-
-  if (!Array.isArray(transactions))
-    return [];
-
-  return transactions.reduce((v, t) => {
-    v[t.transaction_id] = t;
-
-    return v;
-  }, {});
-});
-
-const transactions = computed(() => {
-  const transactions = props.wallet ? props.wallet.transactions : null,
-      groupedTxns = [];
-
-  if (!Array.isArray(transactions))
-    return [];
-
-  const days = transactions.reduce((m, t) => {
-    const d = new Date(t.timestamp).toLocaleDateString([], {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-
-    if (!m[d])
-      m[d] = [];
-
-    m[d].push({
-      ...t,
-      timestamp: new Date(t.timestamp)
-    });
-
-    return m;
-  }, {});
-
-  for (const date in days) {
-    groupedTxns.push({
-      date: date,
-      transactions: days[date]
-    });
-  }
-
-  groupedTxns.sort((a, b) => {
-    const ad = new Date(a.date),
-        bd = new Date(b.date);
-
-    if (ad > bd)
-      return -1;
-
-    if (ad < bd)
-      return 1;
-
-    return 0;
-  });
-
-  return groupedTxns;
-});
 
 const formatSiacoinString = (val) => {
   const format = formatPriceString(val, 2, props.wallet.currency, 1, props.wallet.precision());
@@ -514,7 +319,7 @@ const formatCurrencyString = (val) => {
 
   const format = formatPriceString(val, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
 
-  return `${format.value} <span class="currency-display">${format.label} @ ${formatExchangeRate(exchangeRate[settings?.currency], settings?.currency, 'never')}</span>`;
+  return ` ( ${format.value} <span class="currency-display">${format.label} @ ${formatExchangeRate(exchangeRate[settings?.currency], settings?.currency, 'never')}</span> )`;
 }
 
 const onQueueWallet = () => {
@@ -537,21 +342,6 @@ const onQueueWallet = () => {
   }
 }
 
-const onSelectTransaction = (id) => {
-  try {
-    if (!walletTransactions.value[id] || props.wallet.server_type === 'walrus')
-      return;
-
-    selectedTransaction.value = id;
-    modal.value = 'transaction';
-  } catch (ex) {
-    console.error(ex);
-    pushNotification({
-      severity: 'danger',
-      message: ex.message
-    });
-  }
-}
 
 const paySubscription = (subscription) => {
   subscriptionName.value = subscription;
@@ -559,9 +349,88 @@ const paySubscription = (subscription) => {
   modal.value = 'send';
 }
 
+const getNameByCode = (planCode) => {
+  switch (planCode) {
+    case 'SMALL':
+      return 'Small';
+    case 'MEDIUM':
+      return 'Medium';
+    case 'LARGE':
+      return 'Large';
+  }
+}
+
+const subscriptionNameByCode = computed(() => {
+  return getNameByCode(activeSubscription.value.plan_code);
+});
+
+const getVolByCode = (planCode) => {
+  switch (planCode) {
+    case 'SMALL':
+      return '500 Mb';
+    case 'MEDIUM':
+      return '1 GB';
+    case 'LARGE':
+      return '2 GB';
+  }
+}
+
+const getPriceByCode = (planCode) => {
+  switch (planCode) {
+    case 'SMALL':
+      return '10 sc';
+    case 'MEDIUM':
+      return '50 sc';
+    case 'LARGE':
+      return '100 sc';
+  }
+}
+
+
+const subscriptionVolByCode = computed(() => {
+  return getVolByCode(activeSubscription.value.plan_code);
+});
+
 const onClose = () => {
   modal.value = '';
   loadSubscriptions(props.wallet.id)
+}
+
+const loadWalletAddresses = (page) => {
+  if (!props.wallet || !props.wallet.id)
+    return;
+
+  const limit = 100;
+
+  return getLastWalletAddresses(props.wallet.id, limit, limit * page);
+}
+
+const formatCurrentAddress = computed(() => {
+  const maxLength = 43;
+  const inputString = currentAddress.value;
+  console.log(inputString)
+  if (inputString.length <= maxLength) {
+    return inputString; // No need to truncate
+  }
+
+  const ellipsis = '...';
+  const mid = Math.floor(maxLength / 2) - Math.floor(ellipsis.length / 2);
+
+  // Split the input string into two parts with the ellipsis in the middle
+  const firstPart = inputString.substring(0, mid);
+  const secondPart = inputString.substring(inputString.length - (maxLength - mid) + ellipsis.length);
+
+  // Combine and return the formatted string
+  return firstPart + ellipsis + secondPart;
+});
+
+const copyToClipboard = async () => {
+  try {
+    await toClipboard(currentAddress.value)
+    console.log('Copied to clipboard')
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 </script>
@@ -687,17 +556,110 @@ const onClose = () => {
   }
 }
 
+.wallet-balance-c {
+  width: 324px;
+  height: 80px;
+  padding: 16px;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
+  display: inline-flex;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px #49454F solid;
+}
+
 .wallet-siacoin-balance {
+  //color: primary;
+  //font-size: 2.5rem;
+  //text-align: center;
   color: primary;
-  font-size: 2.5rem;
-  text-align: center;
+  font-size: 16px;
+  font-family: Roboto;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.15px;
+  word-wrap: break-word;
 }
 
 .wallet-display-balance {
-  color: rgba(255, 255, 255, 0.54);
-  font-size: 1.8rem;
+  //color: rgba(255, 255, 255, 0.54);
+  //font-size: 1.8rem;
+  //text-align: center;
+  //margin-bottom: 15px;
+  color: #E6E0E9;
+  font-size: 16px;
+  font-family: Roboto;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.15px;
+  word-wrap: break-word;
+}
+
+.wallet-plan-caption {
+  color: #E6E0E9;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  word-wrap: break-word;
+}
+
+.wallet-plan-name {
+  color: #D0BCFF;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  word-wrap: break-word;
+}
+
+.wallet-plat-vol {
+  color: #F5F5F5;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  word-wrap: break-word;
+}
+
+.wallet-address-outer-c {
+  width: 404px;
+  height: 40px;
+  border-radius: 100px;
+  overflow: hidden;
+  border: 1px #D0BCFF solid;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+}
+
+.wallet-address-inner-c {
+  align-self: stretch;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 16px;
+  padding-right: 24px;
+  background: rgba(208, 188, 255, 0.12);
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  display: inline-flex;
+}
+
+.wallet-address-caption {
   text-align: center;
-  margin-bottom: 15px;
+  color: #D0BCFF;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.10px;
+  word-wrap: break-word;
 }
 
 .wallet-button-wrapper {
@@ -720,88 +682,130 @@ const onClose = () => {
   }
 }
 
-.wallet-transactions {
-  height: 100%;
-  border-top: 1px solid bg-dark-accent;
-  //overflow-x: hidden;
-  //overflow-y: auto;
+.plan-c {
+  width: 532px;
+  height: 333px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 12px;
+  display: inline-flex;
+}
 
-  .transactions-grid {
-    padding: 15px;
+.plan-col-c {
+  width: 169px;
+  height: 328px;
+  position: relative;
+  background: #2B2930;
+  border-radius: 28px;
+  overflow: hidden;
 
-    .group-date td {
-      position: sticky;
-      top: 0;
-      padding: 15px;
-      color: primary;
-      background: bg-dark;
-      text-align: left;
-      z-index: 5;
-    }
-
-    .transaction-received {
-      color: primary;
-    }
-
-    .transaction-confirms span {
-      display: none;
-      padding: 2px 4px;
-      background: dark-gray;
-      border-radius: 4px;
-      color: rgba(255, 255, 255, 0.54);
-      text-align: center;
-    }
-
-    .transaction-unconfirmed {
-      opacity: 0.45;
-
-      .transaction-confirms span {
-        display: inline-block;
-      }
-    }
-
-    tr {
-      color: rgba(255, 255, 255, 0.54);
-      background: bg-dark;
-
-      td {
-        border-bottom: 1px solid bg-dark-accent;
-        padding: 15px;
-      }
-
-      &:hover, &:focus, &:active {
-        background: bg-dark-accent;
-        cursor: pointer;
-      }
-    }
-
-    .transaction-amount, .transaction-currency, .transaction-type {
-      text-align: right;
-    }
-
-    .transaction-amount {
-      font-size: 1.3rem;
-    }
-
-    .transaction-currency {
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.54);
-    }
-
-    .transaction-spacer {
-      width: 100%;
-    }
-
-    .transaction-type {
-      text-align: left;
-    }
-
-    .group-date {
-      width: 100%;
-      grid-column: 1 / -1;
-      color: rgba(255, 255, 255, 0.54);
-      font-size: 1.1rem;
-    }
+  &.active {
+    background: #36343B;
+    box-shadow: 0px 3px 3px #171717;
   }
+}
+
+.plan-title {
+  width: 145px;
+  left: 12px;
+  top: 16px;
+  position: absolute;
+  text-align: center;
+  color: #E6E0E9;
+  font-size: 24px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 32px;
+  word-wrap: break-word;
+}
+
+.plan-period {
+  width: 47px;
+  height: 14px;
+  left: 61px;
+  top: 202px;
+  position: absolute;
+  text-align: center;
+  color: #E6E0E9;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 32px;
+  word-wrap: break-word;
+}
+
+.plan-descr {
+  width: 145px;
+  height: 70px;
+  left: 13px;
+  top: 64px;
+  position: absolute;
+  text-align: center;
+  color: #CAC4D0;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  word-wrap: break-word;
+}
+
+.plan-price {
+  left: 26px;
+  top: 150px;
+  position: absolute;
+  color: #F5F5F5;
+  font-size: 45px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 52px;
+  word-wrap: break-word;
+
+  &.active {
+    color: primary;
+  }
+}
+
+.plan-btn-c {
+  cursor: pointer;
+  width: 133px;
+  height: 39px;
+  left: 18px;
+  top: 276px;
+  position: absolute;
+  border-radius: 100px;
+  overflow: hidden;
+  border: 1px #938F99 solid;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+
+  .btn {
+    text-align: center;
+    color: #D0BCFF;
+    font-size: 14px;
+    font-family: Roboto;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0.10px;
+    word-wrap: break-word;
+  }
+}
+
+.active {
+  .plan-btn-c {
+    display: none;
+  }
+}
+
+.plan-vol {
+  text-align: center;
+  color: #E6E0E9;
+  font-size: 24px;
+  font-family: Roboto;
+  font-weight: 400;
+  line-height: 32px;
+  word-wrap: break-word;
 }
 </style>
