@@ -557,7 +557,7 @@ const copyToClipboard = async () => {
 }
 
 .wallet-balance-c {
-  width: 324px;
+  width: 400px;
   height: 80px;
   padding: 16px;
   justify-content: flex-start;
