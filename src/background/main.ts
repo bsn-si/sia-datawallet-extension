@@ -9,7 +9,7 @@ import {encoder, decoder, sigCodes, FILE_URL} from './config.js';
 import {decodeUrlSafeBase64ToArrayBuffer} from "~/utils/base64";
 import {isFetchError} from "~/services";
 
-let sodium: any, fileName: string, streamController, theKey, state, header, salt, encRx, encTx, decRx, decTx;
+let sodium: any, fileName: string, streamController: ReadableStreamDefaultController, theKey, state, header, salt, encRx, encTx, decRx, decTx;
 
 (async () => {
   await _sodium.ready;
@@ -309,7 +309,7 @@ onMessage('hat-sh', async (message) => {
 
 const doStreamFetch = async (url, token, fileId) => {
   const stream = new ReadableStream({
-    start(controller) {
+    start(controller: ReadableStreamDefaultController) {
       console.log('Start stream controller fileId', fileId)
       streamController = controller;
     },

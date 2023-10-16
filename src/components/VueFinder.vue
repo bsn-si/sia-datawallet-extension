@@ -328,6 +328,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         loadingState.value = false;
       }
       const uploadingFiles = getUploadingFiles() || [];
+      let path;
       if (!params.hasOwnProperty('uploadingFilename')) {
         emitter.emit('vf-modal-close');
       } else {
@@ -338,7 +339,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         if (!uploadingCurrentDir.endsWith('/')) {
           uploadingCurrentDir = uploadingCurrentDir + '/';
         }
-        const path = 'local://' + params.uploadingWalletId + uploadingCurrentDir + params.uploadingFilename;
+        path = 'local://' + params.uploadingWalletId + uploadingCurrentDir + params.uploadingFilename;
         if (!data.files.find(file => file.path === path) && !uploadingFiles.find(file => file.path === path)) {
           uploadingFiles.push({
             basename: params.uploadingFilename,
@@ -360,6 +361,10 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         if (idx !== -1) {
           uploadingFiles.splice(idx, 1);
         }
+      }
+      const idx = uploadingFiles.findIndex(file => file.path === path && params.status === 'limit_exceeded');
+      if (idx !== -1) {
+        uploadingFiles.splice(idx, 1);
       }
 
       setUploadingFiles(uploadingFiles);

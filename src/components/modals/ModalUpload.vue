@@ -255,6 +255,26 @@ onMessage('hat-sh-response', async (message) => {
     case "limitExceeded":
       emitter.emit('vf-modal-close');
       emitter.emit('vf-toast-push', {label: t('Limit exceeded.')});
+
+      const queueIdx = queue.value.findIndex((item) => item.id === params[0]);
+      if (queueIdx !== -1) {
+        const currentDir = getCurrentDir(props.currentWalletId, props.current.dirname);
+
+        emitter.emit('vf-fetch', {
+          params:
+              {
+                q: 'index',
+                adapter: props.current.adapter,
+                path: props.current.dirname,
+                uploadingWalletId: props.currentWalletId,
+                uploadingCurrentDir: currentDir,
+                uploadingFilename: queue.value[queueIdx].name,
+                status: 'limit_exceeded'
+              }
+        });
+
+        queue.value.splice(queueIdx, 1);
+      }
       break;
   }
 });
@@ -311,7 +331,8 @@ const kickOffEncryption = async () => {
             path: props.current.dirname,
             uploadingWalletId: props.currentWalletId,
             uploadingCurrentDir: currentDir,
-            uploadingFilename: file.name
+            uploadingFilename: file.name,
+            status: 'uploading'
           }
     });
 

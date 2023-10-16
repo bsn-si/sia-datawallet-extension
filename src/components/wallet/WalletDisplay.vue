@@ -367,22 +367,22 @@ const subscriptionNameByCode = computed(() => {
 const getVolByCode = (planCode) => {
   switch (planCode) {
     case 'SMALL':
-      return '500 Mb';
+      return CONFIG.SMALL_VOL_LABEL;
     case 'MEDIUM':
-      return '1 GB';
+      return CONFIG.MEDIUM_VOL_LABEL;
     case 'LARGE':
-      return '2 GB';
+      return CONFIG.LARGE_VOL_LABEL;
   }
 }
 
 const getPriceByCode = (planCode) => {
   switch (planCode) {
     case 'SMALL':
-      return '10 sc';
+      return CONFIG.SMALL_PRICE_LABEL;
     case 'MEDIUM':
-      return '50 sc';
+      return CONFIG.MEDIUM_PRICE_LABEL;
     case 'LARGE':
-      return '100 sc';
+      return CONFIG.LARGE_PRICE_LABEL;
   }
 }
 
