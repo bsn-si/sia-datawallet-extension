@@ -163,6 +163,7 @@ const ds = ref(null);
 const {t} = inject('i18n');
 const randId = Math.floor(Math.random() * 2**32);
 const fullScreen = ref(getStore('full-screen', false));
+const isMoveEnabled = ref(false);
 
 const vfLazyLoad = new LazyLoad();
 
@@ -295,10 +296,15 @@ const handleDragStart = (e, item) => {
     return false;
   }
 
-  e.dataTransfer.setDragImage(dragImage.value, 0, 15);
-  e.dataTransfer.effectAllowed = 'all';
-  e.dataTransfer.dropEffect = 'copy';
-  e.dataTransfer.setData('items', JSON.stringify(getSelectedItems()))
+  if (isMoveEnabled.value) {
+    e.dataTransfer.setDragImage(dragImage.value, 0, 15);
+    e.dataTransfer.effectAllowed = 'all';
+    e.dataTransfer.dropEffect = 'copy';
+    e.dataTransfer.setData('items', JSON.stringify(getSelectedItems()))
+  } else {
+    e.dataTransfer.dropEffect = 'none';
+    e.dataTransfer.effectAllowed = 'none';
+  }
 };
 
 const handleDropZone = (e, item) => {
@@ -318,7 +324,7 @@ const handleDragOver = (e, item) => {
   if (!item || item.type !== 'dir' || ds.value.getSelection().find(el => el == e.currentTarget)) {
     e.dataTransfer.dropEffect = 'none';
     e.dataTransfer.effectAllowed = 'none';
-  } else {
+  } else if (isMoveEnabled.value) {
     e.dataTransfer.dropEffect = 'copy';
   }
 };

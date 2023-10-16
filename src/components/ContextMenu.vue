@@ -148,10 +148,10 @@ emitter.on('vf-contextmenu-show', ({event, area, items,  target = null}) => {
     if (target.type == 'dir') {
       context.items.push(menuItems.open);
     } else {
-      context.items.push(menuItems.preview);
+      // context.items.push(menuItems.preview);
       context.items.push(menuItems.download);
     }
-    context.items.push(menuItems.rename);
+    // context.items.push(menuItems.rename);
 
     // if (target.mime_type == 'application/zip') {
     //   context.items.push(menuItems.unarchive);
@@ -180,7 +180,7 @@ const showContextMenu = (event, area) => {
     let menuWidth = contextmenu.value.offsetWidth;
 
     left = (container.right - event.pageX + window.scrollX) < menuWidth ? left - menuWidth : left;
-    left -= 75; // 75px is the width of the main nav panel
+    left -= 160; // 75px is the width of the main nav panel and 85px is the width of wallets panel which is hidden
     top = (container.bottom - event.pageY + window.scrollY) < menuHeight ? top - menuHeight : top;
 
     context.positions = {
