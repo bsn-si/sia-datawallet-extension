@@ -131,9 +131,9 @@ export const useWalletsStore = defineStore('walletsStore', () => {
             passwordHash = createUint8ArrayFromKeys(toRaw(user?.unlockPassword));
         }
 
-        updateUser({unlockPassword: passwordHash})
-
         const wallets = await dbLoadWallets(passwordHash);
+
+        updateUser({unlockPassword: passwordHash})
 
         setWalletsMutation(wallets);
 
