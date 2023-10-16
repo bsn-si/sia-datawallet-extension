@@ -330,7 +330,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
       const uploadingFiles = getUploadingFiles() || [];
       let path;
       if (!params.hasOwnProperty('uploadingFilename')) {
-        emitter.emit('vf-modal-close');
+        // emitter.emit('vf-modal-close');
       } else {
         let uploadingCurrentDir = params.uploadingCurrentDir;
         if (!uploadingCurrentDir.startsWith('/')) {

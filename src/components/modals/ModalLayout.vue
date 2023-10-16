@@ -6,13 +6,13 @@
 
     <div class="fixed z-10 inset-0 overflow-hidden">
       <div class="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0" @mousedown.self="emitter.emit('vf-modal-close')">
-        <div class="relative bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8  sm:max-w-4xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl w-full">
-          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="relative bg-white dark:bg-zinc-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8  sm:max-w-4xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl w-full">
+          <div class="bg-white dark:bg-zinc-800 ">
 
             <slot />
 
           </div>
-          <div class="bg-gray-50 dark:bg-gray-800 dark:border-t dark:border-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div class="bg-gray-50 dark:bg-zinc-800 dark:border-t dark:border-gray-700 px-4 sm:px-6 sm:flex sm:flex-row-reverse">
             <slot name="buttons"/>
           </div>
         </div>

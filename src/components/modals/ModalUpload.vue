@@ -1,44 +1,123 @@
 <template>
   <v-f-modal-layout>
-    <div class="sm:flex sm:items-start">
-      <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 dark:bg-gray-500 sm:mx-0 sm:h-10 sm:w-10">
-         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-blue-600 dark:stroke-blue-100" fill="none" viewBox="0 0 24 24" stroke="none" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-          </svg>
+    <div >
+
+      <div class="w-full h-[72px] px-4 py-[5px] bg-zinc-800 rounded-tl-[28px] rounded-tr-[28px] justify-start items-center gap-1 inline-flex" style="border-bottom: 1px #938F99 solid">
+        <div class="grow shrink basis-0 flex-col justify-center items-start inline-flex">
+          <div class="h-6 py-2.5 justify-start items-center gap-px inline-flex">
+            <div class="text-zinc-200 text-base font-normal font-['Roboto'] leading-normal tracking-wide">Upload files</div>
+          </div>
+        </div>
+        <div @click="emitter.emit('vf-modal-close')" class="w-12 h-12 flex-col justify-center items-center gap-2.5 inline-flex cursor-pointer">
+          <div class="rounded-[100px] justify-center items-center gap-2.5 inline-flex">
+            <div class="p-2 justify-center items-center gap-2.5 flex">
+              <div class="w-6 h-6 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="#CAC4D0"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400" id="modal-title">{{ t('Upload files') }}</h3>
+
+      <div class="my-6 w-full flex justify-center">
+
         <div class="mt-2">
-          <div class="text-gray-500 mb-1 py-2">
-            <div v-for="file in queue">
-              <div :id="file.id"> {{ file.name }} ( {{ file.size }}) <b>{{ humanFileStatus(file.status) }}</b></div>
+          <div class="text-gray-500 mb-1 py-2 overflow-auto" style="max-height: 250px;">
+            <div class="mt-2" v-for="file in queue">
+
+              <div :id="file.id" class="w-[475px] h-11 relative">
+                <div class="w-[470px] h-11 pl-[414px] pr-3 left-0 top-0 absolute bg-zinc-600 rounded-xl justify-end items-center inline-flex">
+                  <div @click.prevent="removeFile(file.id)" class="w-11 self-stretch px-3.5 py-[13px] justify-center items-center inline-flex cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 16 18" fill="none">
+                      <path d="M3 18C2.45 18 1.97917 17.8042 1.5875 17.4125C1.19583 17.0208 1 16.55 1 16V3H0V1H5V0H11V1H16V3H15V16C15 16.55 14.8042 17.0208 14.4125 17.4125C14.0208 17.8042 13.55 18 13 18H3ZM13 3H3V16H13V3ZM5 14H7V5H5V14ZM9 14H11V5H9V14Z" fill="#F2B8B5"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="left-[12px] top-[8px] absolute justify-start items-center gap-2 inline-flex">
+                  <div class="w-6 h-6 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <mask id="mask0_86_7521" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+                        <rect width="24" height="24" fill="#D9D9D9"/>
+                      </mask>
+                      <g mask="url(#mask0_86_7521)">
+                        <path d="M7 17H14V15H7V17ZM7 13H17V11H7V13ZM7 9H17V7H7V9ZM5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H19C19.55 3 20.0208 3.19583 20.4125 3.5875C20.8042 3.97917 21 4.45 21 5V19C21 19.55 20.8042 20.0208 20.4125 20.4125C20.0208 20.8042 19.55 21 19 21H5ZM5 19H19V5H5V19Z" fill="#BEA9EE"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="h-7 justify-start items-start flex">
+                    <div class="w-[326px] text-white text-sm font-normal font-['Roboto'] leading-7">{{ file.name }} ({{ file.size }}) <b>{{ humanFileStatus(file.status) }}</b></div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="py-2" v-if="!queue.length">{{ t('No files selected!') }}</div>
+            <div class="py-2" :style="queue.length ? ['position: absolute', 'left:-1000px;'] : ''">
+              <div ref="pickFiles1"  class="w-[143px] h-10 bg-purple-300 rounded-[100px] flex-col justify-center items-center inline-flex cursor-pointer">
+                <div class="self-stretch pl-4 pr-6 py-2.5 justify-center items-center gap-2 inline-flex">
+                  <div class="w-[18px] h-[18px] relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <path d="M15 9.75H9.75V15H8.25V9.75H3V8.25H8.25V3H9.75V8.25H15V9.75Z" fill="#381E72"/>
+                    </svg>
+                  </div>
+                  <div class="text-center text-violet-950 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">Select Files</div>
+                </div>
+              </div>
+
+            </div>
           </div>
           <div class="text-gray-500" ref="container">
-              <button ref="pickFiles"  type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                {{ t('Select Files') }}</button>
+
           </div>
           <message v-if="message.length" @hidden="message=''" error>{{ message }}</message>
         </div>
       </div>
     </div>
 
-    <template v-slot:buttons>
-      <button :disabled="disableUploadButton" @click.prevent="handleUpload" type="button"
-              :class="disableUploadButton ? 'bg-blue-200 hover:bg-blue-200 dark:bg-gray-700/50 dark:hover:bg-gray-700/50 dark:text-gray-500' : 'bg-blue-600 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-500'"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-        <span v-if="!isDownloading">{{ t('Upload') }}</span>
-        <div v-else role="status">
-          <svg aria-hidden="true" class="w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-green-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-          </svg>
-          <span class="sr-only">Loading...</span>
+    <template  v-slot:buttons>
+      <div :class="[!queue.length ? 'h-0' : 'py-3']">
+        <div ref="pickFiles2" class="w-[143px] h-10 bg-button1-100 rounded-[100px] flex-col justify-center items-center inline-flex mr-4 cursor-pointer" >
+          <div class="self-stretch pl-3 pr-4 py-2.5  bg-opacity-10 justify-center items-center gap-2 inline-flex">
+            <div class="w-[18px] h-[18px] relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18" fill="none">
+                <path d="M15.5 9.75H10.25V15H8.75V9.75H3.5V8.25H8.75V3H10.25V8.25H15.5V9.75Z" fill="#D0BCFF"/>
+              </svg>
+            </div>
+            <div class="text-center text-purple-300 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">Select More</div>
+          </div>
         </div>
-      </button>
-      <button type="button" @click="emitter.emit('vf-modal-close')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">{{ 'Close' }}</button>
+
+
+        <div @click.prevent="handleUpload"
+            class="w-[143px] h-10 bg-purple-300 rounded-[100px] flex-col justify-center items-center inline-flex cursor-pointer">
+          <div class="pl-5 pr-7 py-2.5 justify-start items-center gap-2 inline-flex">
+            <div class="w-6 h-6 relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <mask id="mask0_73_6018" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+                  <rect width="24" height="24" fill="#D9D9D9"/>
+                </mask>
+                <g mask="url(#mask0_73_6018)">
+                  <path d="M12 16L7 11L8.4 9.55L11 12.15V4H13V12.15L15.6 9.55L17 11L12 16ZM6 20C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V15H6V18H18V15H20V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20H6Z" fill="#381E72"/>
+                </g>
+              </svg>
+            </div>
+            <div class="text-center text-violet-950 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">
+              <span v-if="!isDownloading">{{ t('Upload') }}</span>
+              <div v-else role="status">
+                <svg aria-hidden="true" class="w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-green-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                  <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                </svg>
+                <span class="sr-only">Loading...</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+      </div>
     </template>
   </v-f-modal-layout>
 </template>
@@ -53,7 +132,7 @@ export default {
 <script setup>
 import plupload from 'plupload'
 import VFModalLayout from './ModalLayout.vue';
-import {inject, onMounted, ref} from 'vue';
+import {inject, onMounted, ref, watch} from 'vue';
 import {useApiUrl} from '../../composables/useApiUrl.js';
 import {CONFIG} from "~/env";
 import {userStorage, useUserStore} from "~/store/user";
@@ -77,7 +156,8 @@ const props = defineProps({
 
 const uploader = ref(null);
 const container = ref(null);
-const pickFiles = ref(null);
+const pickFiles1 = ref(null);
+const pickFiles2 = ref(null);
 const queue = ref([]);
 const message = ref('');
 
@@ -106,7 +186,7 @@ const postData = inject('postData');
 onMounted(() => {
   uploader.value = new plupload.Uploader({
     runtimes: 'html5',
-    browse_button: pickFiles.value,
+    browse_button: [pickFiles1.value, pickFiles2.value],
     container: container.value,
     max_file_size: maxFileSize,
     multiple_queues: true,
@@ -139,7 +219,7 @@ onMounted(() => {
 
         selectedFiles = Array.from(selectedFiles);
         if (files.value.length > 0) {
-          files.value = files.concat(selectedFiles);
+          files.value = files.value.concat(selectedFiles);
           files.value = files.value.filter(
               (thing, index, self) =>
                   index ===
@@ -378,5 +458,14 @@ const humanFileStatus = (status) => {
   if (status === 'encrypted') return 'Encrypted. Uploading...';
   if (status === 'uploaded') return 'Uploaded';
 }
+
+const removeFile = (fileId) => {
+  const idx = queue.value.findIndex((item) => item.id === fileId);
+  if (idx !== -1) {
+    queue.value.splice(idx, 1);
+    files.value.splice(idx, 1);
+  }
+}
+
 
 </script>
