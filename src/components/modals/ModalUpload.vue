@@ -77,14 +77,17 @@
 
     <template  v-slot:buttons>
       <div :class="[!queue.length ? 'h-0' : 'py-3']">
-        <div ref="pickFiles2" class="w-[143px] h-10 bg-button1-100 rounded-[100px] flex-col justify-center items-center inline-flex mr-4 cursor-pointer" >
+        <div ref="pickFiles2" :class="[notEnoughFunds ? 'bg-rose-400' : 'bg-button1-100']" class="w-[143px] h-10 rounded-[100px] flex-col justify-center items-center inline-flex mr-4 cursor-pointer" >
           <div class="self-stretch pl-3 pr-4 py-2.5  bg-opacity-10 justify-center items-center gap-2 inline-flex">
-            <div class="w-[18px] h-[18px] relative">
-              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18" fill="none">
+            <div :class="[notEnoughFunds ? 'w-0' : 'w-[18px]']" class="h-[18px] relative">
+              <svg v-if="!notEnoughFunds" xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18" fill="none">
                 <path d="M15.5 9.75H10.25V15H8.75V9.75H3.5V8.25H8.75V3H10.25V8.25H15.5V9.75Z" fill="#D0BCFF"/>
               </svg>
             </div>
-            <div class="text-center text-purple-300 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">Select More</div>
+            <div :class="[notEnoughFunds ? 'text-black' : 'text-purple-300']" class="text-center text-sm font-medium font-['Roboto'] leading-tight tracking-tight">
+              <span v-if="!notEnoughFunds">Select More</span>
+              <span v-else>Not Enough Funds</span>
+            </div>
           </div>
         </div>
 
@@ -143,7 +146,9 @@ import {CHUNK_SIZE} from "~/hat-sh-config/constants";
 import {encodeArrayBufferToUrlSafeBase64} from "~/utils/base64";
 import {subscriptionUsageEvent} from "~/services/backend";
 
-const { user } = storeToRefs(useUserStore())
+const userStore = useUserStore();
+const { loadUsage } = userStore;
+const { user, userUsage, activeSubscription } = storeToRefs(userStore)
 const emitter = inject('emitter');
 const {apiUrl} = useApiUrl();
 const {t} = inject('i18n');
@@ -160,6 +165,7 @@ const pickFiles1 = ref(null);
 const pickFiles2 = ref(null);
 const queue = ref([]);
 const message = ref('');
+const notEnoughFunds = ref(false);
 
 const files = ref([]);
 const currFile = ref(0);
@@ -175,6 +181,7 @@ let file,
 const disableUploadButton = ref(true);
 
 const handleUpload = () => {
+  if (notEnoughFunds.value) return;
   message.value = '';
   //TODO: remove plupload which was needed for uploading files without encryption
   // uploader.value.start();
@@ -184,6 +191,8 @@ const handleUpload = () => {
 const postData = inject('postData');
 
 onMounted(() => {
+  loadUsage(props.currentWalletId)
+
   uploader.value = new plupload.Uploader({
     runtimes: 'html5',
     browse_button: [pickFiles1.value, pickFiles2.value],
@@ -207,6 +216,9 @@ onMounted(() => {
       },
 
       FilesAdded: function (up, selectedFiles) {
+        console.log('userUsage', userUsage.value)
+
+        let totalFileSize = 0;
         disableUploadButton.value = false;
         plupload.each(selectedFiles, function (file) {
           queue.value.push({
@@ -215,6 +227,7 @@ onMounted(() => {
             size: plupload.formatSize(file.size),
             status: '',
           });
+          totalFileSize += file.size;
         });
 
         selectedFiles = Array.from(selectedFiles);
@@ -228,6 +241,20 @@ onMounted(() => {
         } else {
           files.value = selectedFiles;
         }
+
+        notEnoughFunds.value = false;
+        const planCode = activeSubscription.value.plan_code;
+        console.log('planCode', planCode)
+        if ((planCode === 'SMALL'
+                && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.SMALL_PLAN_LIMIT) * 1024 * 1024) ||
+            (planCode === 'MEDIUM'
+                && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.MEDIUM_PLAN_LIMIT) * 1024 * 1024) ||
+            (planCode === 'LARGE'
+                && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.LARGE_PLAN_LIMIT) * 1024 * 1024)
+        ) {
+          notEnoughFunds.value = true;
+        }
+
       },
 
       BeforeUpload: function (up, file) {
@@ -328,13 +355,14 @@ onMessage('hat-sh-response', async (message) => {
         if (totalUploaded === numberOfFiles) {
           isDownloading.value = false;
           disableUploadButton.value = true;
-          emitter.emit('vf-fetch', {params: {q: 'index', adapter: props.current.adapter, path: props.current.dirname}});
+          emitter.emit('vf-fetch', {params: {q: 'index', adapter: props.current.adapter, path: props.current.dirname, closeModal: true}});
         }
       }
       break;
     case "limitExceeded":
+    case "uploadError":
       emitter.emit('vf-modal-close');
-      emitter.emit('vf-toast-push', {label: t('Limit exceeded.')});
+      emitter.emit('vf-toast-push', {label: params[1]});
 
       const queueIdx = queue.value.findIndex((item) => item.id === params[0]);
       if (queueIdx !== -1) {
@@ -349,7 +377,7 @@ onMessage('hat-sh-response', async (message) => {
                 uploadingWalletId: props.currentWalletId,
                 uploadingCurrentDir: currentDir,
                 uploadingFilename: queue.value[queueIdx].name,
-                status: 'limit_exceeded'
+                status: action
               }
         });
 

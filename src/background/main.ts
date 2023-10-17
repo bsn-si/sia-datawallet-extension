@@ -360,7 +360,14 @@ const doStreamFetch = async (url, token, fileId) => {
         console.warn('Limit exceeded')
         await sendMessage(
             'hat-sh-response',
-            ['limitExceeded', fileId],
+            ['limitExceeded', fileId, 'Limit exceeded'],
+            'popup'
+        );
+        return;
+      } else if (r.status === 500) {
+        await sendMessage(
+            'hat-sh-response',
+            ['uploadError', fileId, 'Upload error'],
             'popup'
         );
         return;
@@ -373,6 +380,11 @@ const doStreamFetch = async (url, token, fileId) => {
       );
     } catch (e) {
       console.error(e)
+      await sendMessage(
+          'hat-sh-response',
+          ['uploadError', fileId, 'Upload error'],
+          'popup'
+      );
       if (isFetchError(e)) {
         const status = (e as Response).status
         const statusText = (e as Response).statusText

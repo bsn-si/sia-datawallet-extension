@@ -18,6 +18,9 @@ interface ImportMeta {
     VITE_MEDIUM_PRICE_LABEL: string,
     VITE_MEDIUM_VOL_LABEL: string,
     VITE_LARGE_PRICE_LABEL: string,
-    VITE_LARGE_VOL_LABEL: string
+    VITE_LARGE_VOL_LABEL: string,
+    VITE_SMALL_PLAN_LIMIT: string,
+    VITE_MEDIUM_PLAN_LIMIT: string,
+    VITE_LARGE_PLAN_LIMIT: string,
   }
 }

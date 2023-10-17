@@ -4,7 +4,7 @@ import Storage from '~/utils/storage'
 import { computed, ref } from 'vue'
 import {User} from "~/types/users";
 import setAuthorizationToken from "~/plugins/set-authorization-token";
-import {subscriptions} from "~/services/backend";
+import {subscriptions, usage} from "~/services/backend";
 
 
 export const userStorage = new Storage<User>('user')
@@ -15,7 +15,7 @@ export const useUserStore = defineStore('user', () => {
   const user = ref(userStorage.get())
   const isAuthorized = computed(() => user.value !== null)
   const userSubscriptions = ref(null);
-
+  const userUsage = ref(null);
 
 
   function updateUser (userData?: User | null) {
@@ -37,6 +37,11 @@ export const useUserStore = defineStore('user', () => {
     userSubscriptions.value = data;
   }
 
+  const loadUsage = async (walletId) => {
+    const {data} = await usage(walletId)
+    userUsage.value = data;
+  }
+
   const activeSubscription = computed(() => {
     if (!userSubscriptions.value || !userSubscriptions.value.subscriptions || userSubscriptions.value.subscriptions.length === 0)
       return {plan_code: '', active: false}
@@ -50,6 +55,8 @@ export const useUserStore = defineStore('user', () => {
     updateUser,
     userSubscriptions,
     activeSubscription,
-    loadSubscriptions
+    loadSubscriptions,
+    userUsage,
+    loadUsage
   }
 })

@@ -53,7 +53,9 @@ import {formatName} from "~/utils/formatName";
 const store = useWalletsStore();
 const { currentWallet, getCurrentWalletId } = storeToRefs(store)
 const { getUploadingFiles, setUploadingFiles } = store;
-const { user } = storeToRefs(useUserStore())
+const userStore = useUserStore();
+const { loadUsage, loadSubscriptions } = userStore;
+const { user } = storeToRefs(userStore)
 
 const props = defineProps({
   url: {
@@ -177,8 +179,9 @@ emitter.on('vf-fetch-abort', () => {
   loadingState.value = false;
 });
 
-onMounted(() => {
-
+onMounted(async () => {
+  loadUsage(getCurrentWalletId.value);
+  loadSubscriptions(getCurrentWalletId.value);
 })
 
 
@@ -329,8 +332,8 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
       }
       const uploadingFiles = getUploadingFiles() || [];
       let path;
-      if (!params.hasOwnProperty('uploadingFilename')) {
-        // emitter.emit('vf-modal-close');
+      if (params.hasOwnProperty('closeModal')) {
+        emitter.emit('vf-modal-close');
       } else {
         let uploadingCurrentDir = params.uploadingCurrentDir;
         if (!uploadingCurrentDir.startsWith('/')) {
@@ -362,7 +365,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
           uploadingFiles.splice(idx, 1);
         }
       }
-      const idx = uploadingFiles.findIndex(file => file.path === path && params.status === 'limit_exceeded');
+      const idx = uploadingFiles.findIndex(file => file.path === path && (params.status === 'limitExceeded' || params.status === 'uploadError'));
       if (idx !== -1) {
         uploadingFiles.splice(idx, 1);
       }

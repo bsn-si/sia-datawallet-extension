@@ -25,7 +25,7 @@ export type SubscriptionData = {
     }
 }
 
-export type SubscriptionListData = {
+export type SubscriptionReqData = {
     subscription: {
         external_customer_id: string
     }
@@ -607,9 +607,17 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
               // type: ContentType.Json,
               ...params,
           }),
-    subscriptionList: (data: SubscriptionListData, params: RequestParams = {}) =>
-      this.request<SubscriptionListData, {subscriptions: [{status: boolean, plan_code: string}] }>({
+    subscriptionList: (data: SubscriptionReqData, params: RequestParams = {}) =>
+      this.request<SubscriptionReqData, {subscriptions: [{status: boolean, plan_code: string}] }>({
           path: `/users/subscriptions`,
+          method: "POST",
+          body: data,
+          // type: ContentType.Json,
+          ...params,
+      }),
+    usage: (data: SubscriptionReqData, params: RequestParams = {}) =>
+      this.request<SubscriptionReqData, {customer_usage: {charges_usage: [{units: string}]} }>({
+          path: `/users/usage`,
           method: "POST",
           body: data,
           // type: ContentType.Json,
