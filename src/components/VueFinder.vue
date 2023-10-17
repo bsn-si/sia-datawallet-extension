@@ -336,27 +336,29 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         emitter.emit('vf-modal-close');
       } else {
         let uploadingCurrentDir = params.uploadingCurrentDir;
-        if (!uploadingCurrentDir.startsWith('/')) {
-          uploadingCurrentDir = '/' + uploadingCurrentDir;
-        }
-        if (!uploadingCurrentDir.endsWith('/')) {
-          uploadingCurrentDir = uploadingCurrentDir + '/';
-        }
-        path = 'local://' + params.uploadingWalletId + uploadingCurrentDir + params.uploadingFilename;
-        if (!data.files.find(file => file.path === path) && !uploadingFiles.find(file => file.path === path)) {
-          uploadingFiles.push({
-            basename: params.uploadingFilename,
-            path: path,
-            type: 'file',
-            visibility: 'public',
-            storage: storageName,
-            file_size: 0,
-            last_modified: '',
-            extra_metadata: [],
-            extension: '',
-            mime_type: '',
-            status: 'uploading',
-          })
+        if (uploadingCurrentDir) {
+          if (!uploadingCurrentDir.startsWith('/')) {
+            uploadingCurrentDir = '/' + uploadingCurrentDir;
+          }
+          if (!uploadingCurrentDir.endsWith('/')) {
+            uploadingCurrentDir = uploadingCurrentDir + '/';
+          }
+          path = 'local://' + params.uploadingWalletId + uploadingCurrentDir + params.uploadingFilename;
+          if (!data.files.find(file => file.path === path) && !uploadingFiles.find(file => file.path === path)) {
+            uploadingFiles.push({
+              basename: params.uploadingFilename,
+              path: path,
+              type: 'file',
+              visibility: 'public',
+              storage: storageName,
+              file_size: 0,
+              last_modified: '',
+              extra_metadata: [],
+              extension: '',
+              mime_type: '',
+              status: 'uploading',
+            })
+          }
         }
       }
       for (let i=0; i < data.files.length; i++) {
