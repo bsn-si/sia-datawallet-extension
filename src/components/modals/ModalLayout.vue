@@ -12,7 +12,7 @@
             <slot />
 
           </div>
-          <div class="bg-gray-50 dark:bg-zinc-800 dark:border-t dark:border-gray-700 px-4 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div class="bg-gray-50 dark:bg-zinc-800 px-4 sm:px-6 sm:flex sm:flex-row-reverse">
             <slot name="buttons"/>
           </div>
         </div>

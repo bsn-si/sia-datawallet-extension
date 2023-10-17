@@ -1,36 +1,85 @@
 <template>
   <v-f-modal-layout>
-    <div class="sm:flex sm:items-start">
-      <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-gray-500 sm:mx-0 sm:h-10 sm:w-10">
-        <svg xmlns="http://www.w3.org/2000/svg"
-                 class="h-6 w-6 stroke-red-600 dark:stroke-red-200" fill="none" viewBox="0 0 24 24" stroke="none" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-      </div>
-      <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400" id="modal-title">{{ t('Delete files') }}</h3>
-        <div class="mt-2">
-          <p class="text-sm text-gray-500">{{ t('Are you sure you want to delete these files?') }}</p>
-          <p v-for="item in items" class="flex text-sm text-gray-800 dark:text-gray-400">
-            <svg v-if="item.type == 'dir'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500 fill-sky-500 stroke-sky-500 dark:fill-slate-500 dark:stroke-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            <span class="ml-1.5">{{ item.basename }}</span>
-          </p>
-          <message v-if="message.length" @hidden="message=''" error>{{ message }}</message>
+    <div>
+      <div class="w-full h-[72px] px-4 py-[5px] bg-zinc-800 rounded-tl-[28px] rounded-tr-[28px] justify-start items-center gap-1 inline-flex" style="border-bottom: 1px #938F99 solid">
+        <div class="grow shrink basis-0 flex-col justify-center items-start inline-flex">
+          <div class="h-6 py-2.5 justify-start items-center gap-px inline-flex">
+            <div class="text-zinc-200 text-base font-normal font-['Roboto'] leading-normal tracking-wide">Delete files</div>
+          </div>
+        </div>
+        <div @click="emitter.emit('vf-modal-close')" class="w-12 h-12 flex-col justify-center items-center gap-2.5 inline-flex cursor-pointer">
+          <div class="rounded-[100px] justify-center items-center gap-2.5 inline-flex">
+            <div class="p-2 justify-center items-center gap-2.5 flex">
+              <div class="w-6 h-6 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="#CAC4D0"/>
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+
+      <div class="my-6 w-full flex justify-center">
+
+        <div class="mt-2">
+          <div class="text-gray-500 mb-1 py-2 overflow-auto" style="max-height: 250px;">
+            <div class="text-center text-white text-sm font-normal font-['Roboto'] leading-7">Are you sure to delete this file?</div>
+
+            <div class="mt-2" v-for="item in items">
+              <div class="w-[470px] h-11 justify-center items-center inline-flex">
+                <div class="grow shrink basis-0 self-stretch px-3 py-2 bg-zinc-600 rounded-xl flex-col justify-center items-center gap-2.5 inline-flex">
+                  <div class="justify-center items-center gap-2 inline-flex">
+                    <div class="w-6 h-6 relative">
+                      <svg v-if="item.type === 'dir'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500 fill-sky-500 stroke-sky-500 dark:fill-slate-500 dark:stroke-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      </svg>
+                      <svg v-else xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
+                        <mask id="mask0_86_9243" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="24">
+                          <rect x="0.5" width="24" height="24" fill="#D9D9D9"/>
+                        </mask>
+                        <g mask="url(#mask0_86_9243)">
+                          <path d="M7.5 17H14.5V15H7.5V17ZM7.5 13H17.5V11H7.5V13ZM7.5 9H17.5V7H7.5V9ZM5.5 21C4.95 21 4.47917 20.8042 4.0875 20.4125C3.69583 20.0208 3.5 19.55 3.5 19V5C3.5 4.45 3.69583 3.97917 4.0875 3.5875C4.47917 3.19583 4.95 3 5.5 3H19.5C20.05 3 20.5208 3.19583 20.9125 3.5875C21.3042 3.97917 21.5 4.45 21.5 5V19C21.5 19.55 21.3042 20.0208 20.9125 20.4125C20.5208 20.8042 20.05 21 19.5 21H5.5ZM5.5 19H19.5V5H5.5V19Z" fill="#BEA9EE"/>
+                        </g>
+                      </svg>
+                    </div>
+                    <div class="h-7 justify-start items-start flex">
+                      <div class="text-white text-sm font-normal font-['Roboto'] leading-7">{{ item.basename }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+          <message v-if="message.length" @hidden="message=''" error>{{ message }}</message>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="text-rose-300 text-sm font-normal font-['Roboto'] leading-7 text-center mb-4">This action cannot be undone!</div>
     </div>
 
     <template v-slot:buttons>
-      <button type="button" @click="remove" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-        {{ t('Yes, Delete!') }}</button>
-      <button type="button" @click="emitter.emit('vf-modal-close')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-        {{ t('Cancel') }}</button>
-      <div class="m-auto font-bold text-red-500 text-sm dark:text-red-200 text-center">{{ t('This action cannot be undone.') }}</div>
+      <div class="py-3">
+        <div @click="emitter.emit('vf-modal-close')" class="w-[143px] h-10 bg-button1-100 rounded-[100px] flex-col justify-center items-center inline-flex mr-4 cursor-pointer" >
+          <div class="self-stretch pl-3 pr-4 py-2.5  bg-opacity-10 justify-center items-center gap-2 inline-flex">
+            <div class="text-center text-purple-300 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">{{ t('Cancel') }}</div>
+          </div>
+        </div>
+
+        <div  @click="remove" class="w-[143px] h-10 bg-rose-400 rounded-[100px] flex-col justify-center items-center inline-flex cursor-pointer">
+          <div class="pl-5 pr-7 py-2.5 justify-start items-center gap-2 inline-flex">
+            <div class="text-center text-zinc-900 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">
+              <span>{{ t('Yes, Delete!') }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </template>
   </v-f-modal-layout>
 </template>
