@@ -1,6 +1,6 @@
 <template>
   <div class="wallet-display">
-    <div class="text-stone-300 font-normal font-['Roboto'] leading-tight tracking-tight pl-4 pt-3">History of your wallet. All transactions are displayed here.</div>
+    <div class="text-stone-300 font-normal font-['Roboto'] leading-tight tracking-tight pl-4 mt-4">History of your wallet. All transactions are displayed here.</div>
     <div class="wallet-transactions">
       <table class="transactions-grid">
         <tbody>
