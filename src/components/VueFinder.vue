@@ -336,7 +336,7 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         emitter.emit('vf-modal-close');
       } else {
         let uploadingCurrentDir = params.uploadingCurrentDir;
-        if (uploadingCurrentDir) {
+        if (uploadingCurrentDir !== undefined) {
           if (!uploadingCurrentDir.startsWith('/')) {
             uploadingCurrentDir = '/' + uploadingCurrentDir;
           }

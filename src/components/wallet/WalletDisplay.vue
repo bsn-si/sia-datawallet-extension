@@ -24,9 +24,9 @@
                 class="wallet-display-balance" v-html="formatCurrencyString(siacoinBalance)"></span></div>
             <siafund-balance :siafunds="siafundBalance" :claim="claimBalance" :wallet="wallet"
                              v-if="siafundBalance.gt(0)"/>
-            <div><span class="wallet-plan-caption">Plan: </span><span
-                class="wallet-plan-name">{{ subscriptionNameByCode }}</span>&nbsp;<span
-                class="wallet-plat-vol">({{ subscriptionVolByCode }})</span></div>
+            <div><span class="wallet-plan-caption">Plan: </span><span class="wallet-plan-name">{{ subscriptionNameByCode }}</span>&nbsp;<span
+                class="wallet-plat-vol">({{ subscriptionVolByCode }})</span><span class="wallet-plan-caption"> Till: </span><span class="wallet-plan-name">{{ nextPaymentDate}}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -70,15 +70,15 @@
       <div class="flex justify-center mt-4">
         <div class="plan-c">
 
-          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code === 'SMALL'}">
+          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code.startsWith('SMALL')}">
             <div class="plan-title">{{ getNameByCode('SMALL') }}</div>
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
-            <div class="plan-price" :class="{'active':activeSubscription.plan_code === 'SMALL'}">
+            <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('SMALL')}">
               {{ getPriceByCode('SMALL') }}
             </div>
             <div class="plan-btn-c" @click="paySubscription('SMALL')">
-              <div class="btn">Get started now</div>
+              <div class="btn">{{activeSubscription.plan_code.startsWith('SMALL') ? 'Renew' : 'Get started now'}}</div>
             </div>
             <div
                 style="left: 32px; top: 230px; position: absolute; justify-content: flex-start; align-items: center; gap: 8px; display: inline-flex">
@@ -95,15 +95,15 @@
             </div>
           </div>
 
-          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code === 'MEDIUM'}">
+          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code.startsWith('MEDIUM')}">
             <div class="plan-title">{{ getNameByCode('MEDIUM') }}</div>
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
-            <div class="plan-price" :class="{'active':activeSubscription.plan_code === 'MEDIUM'}">
+            <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('MEDIUM')}">
               {{ getPriceByCode('MEDIUM') }}
             </div>
             <div class="plan-btn-c" @click="paySubscription('MEDIUM')">
-              <div class="btn">Get started now</div>
+              <div class="btn">{{activeSubscription.plan_code.startsWith('MEDIUM') ? 'Renew' : 'Get started now'}}</div>
             </div>
             <div
                 style="left: 47px; top: 230px; position: absolute; justify-content: flex-start; align-items: center; gap: 8px; display: inline-flex">
@@ -121,15 +121,15 @@
 
           </div>
 
-          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code === 'LARGE'}">
+          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code.startsWith('LARGE')}">
             <div class="plan-title">{{ getNameByCode('LARGE') }}</div>
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
-            <div class="plan-price" :class="{'active':activeSubscription.plan_code === 'LARGE'}">
+            <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('LARGE')}">
               {{ getPriceByCode('LARGE') }}
             </div>
             <div class="plan-btn-c" @click="paySubscription('LARGE')">
-              <div class="btn">Get started now</div>
+              <div class="btn">{{activeSubscription.plan_code.startsWith('LARGE') ? 'Renew' : 'Get started now'}}</div>
             </div>
             <div
                 style="left: 47px; top: 230px; position: absolute; justify-content: flex-start; align-items: center; gap: 8px; display: inline-flex">
@@ -352,10 +352,13 @@ const paySubscription = (subscription) => {
 const getNameByCode = (planCode) => {
   switch (planCode) {
     case 'SMALL':
+    case 'SMALL-2':
       return 'Small';
     case 'MEDIUM':
+    case 'MEDIUM-2':
       return 'Medium';
     case 'LARGE':
+    case 'LARGE-2':
       return 'Large';
   }
 }
@@ -367,10 +370,13 @@ const subscriptionNameByCode = computed(() => {
 const getVolByCode = (planCode) => {
   switch (planCode) {
     case 'SMALL':
+    case 'SMALL-2':
       return CONFIG.SMALL_VOL_LABEL;
     case 'MEDIUM':
+    case 'MEDIUM-2':
       return CONFIG.MEDIUM_VOL_LABEL;
     case 'LARGE':
+    case 'LARGE-2':
       return CONFIG.LARGE_VOL_LABEL;
   }
 }
@@ -378,10 +384,13 @@ const getVolByCode = (planCode) => {
 const getPriceByCode = (planCode) => {
   switch (planCode) {
     case 'SMALL':
+    case 'SMALL-2':
       return CONFIG.SMALL_PRICE_LABEL;
     case 'MEDIUM':
+    case 'MEDIUM-2':
       return CONFIG.MEDIUM_PRICE_LABEL;
     case 'LARGE':
+    case 'LARGE-2':
       return CONFIG.LARGE_PRICE_LABEL;
   }
 }
@@ -389,6 +398,16 @@ const getPriceByCode = (planCode) => {
 
 const subscriptionVolByCode = computed(() => {
   return getVolByCode(activeSubscription.value.plan_code);
+});
+
+const nextPaymentDate = computed(() => {
+  if (!activeSubscription.value)
+    return '';
+
+  const date = new Date(activeSubscription.value.started_at);
+  date.setMonth(date.getMonth() + 1)
+
+  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 });
 
 const onClose = () => {
@@ -793,11 +812,11 @@ const copyToClipboard = async () => {
   }
 }
 
-.active {
-  .plan-btn-c {
-    display: none;
-  }
-}
+//.active {
+//  .plan-btn-c {
+//    display: none;
+//  }
+//}
 
 .plan-vol {
   text-align: center;

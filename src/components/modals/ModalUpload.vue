@@ -298,7 +298,7 @@ onMessage('hat-sh-response', async (message) => {
 
   const action = data[0];
 
-  let params = [];
+  let params = [], idx;
 
   if (data.length > 1)
     params = data.slice(1);
@@ -322,26 +322,30 @@ onMessage('hat-sh-response', async (message) => {
       break;
 
     case "encryptionFinished":
-      queue.value[queue.value.findIndex((item) => item.id === params[0])].status = 'encrypted';
-      if (numberOfFiles > 1) {
-        updateCurrFile();
-        file = null;
-        index = null;
-        if (currFile.value <= numberOfFiles - 1) {
-          setTimeout(function () {
-            prepareFile();
-          }, 1000);
+      idx = queue.value.findIndex((item) => item.id === params[0])
+      if (idx !== -1) {
+        queue.value[idx].status = 'encrypted';
+
+        if (numberOfFiles > 1) {
+          updateCurrFile();
+          file = null;
+          index = null;
+          if (currFile.value <= numberOfFiles - 1) {
+            setTimeout(function () {
+              prepareFile();
+            }, 1000);
+          } else {
+            // isDownloading.value = false;
+            // handleNext();
+          }
         } else {
           // isDownloading.value = false;
           // handleNext();
         }
-      } else {
-        // isDownloading.value = false;
-        // handleNext();
       }
       break;
     case "uploadingFinished":
-      const idx = queue.value.findIndex((item) => item.id === params[0]);
+      idx = queue.value.findIndex((item) => item.id === params[0]);
       if (idx !== -1) {
         queue.value[idx].status = 'uploaded';
 

@@ -59,6 +59,7 @@ export default {
   import {storeToRefs} from "pinia";
   import {CONFIG} from "~/env";
   import {api, isFetchError} from "~/services";
+  import {subscribeUser} from "~/services/backend";
 
   const props = defineProps({
     wallet: Wallet,
@@ -440,6 +441,12 @@ export default {
     sending.value = true;
 
     try {
+      const subscribeResult = await subscribeUser(props.wallet.id, props.subscription, recipientAddress.value, txtSiacoin.value.value)
+      console.log('subscribeResult', subscribeResult)
+      const parsed = parseSiacoinString(''+subscribeResult.data.user.total_to_pay, props.wallet.precision());
+
+      sendAmount.value = parsed;
+
       emit('built', buildTransaction());
     } catch (ex) {
       console.error('onSendTxn', ex);

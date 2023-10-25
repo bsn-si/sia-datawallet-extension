@@ -54,7 +54,7 @@ async function registerUser(walletId, password) {
     return errors;
 }
 
-export async function subscribeUser(walletId, subscriptionCode, transaction) {
+export async function subscribeUser(walletId, subscriptionCode, subscriptionAddress, subscriptionPrice) {
     walletId = walletId.replace(/\//g, '$');
     let errors = {}
     try {
@@ -63,13 +63,72 @@ export async function subscribeUser(walletId, subscriptionCode, transaction) {
                 subscription: {
                     wallet: walletId,
                         subscriptionCode: subscriptionCode,
-                        subscriptionAddress: transaction.subscription_address,
-                        subscriptionPrice: transaction.subscription_price,
+                        subscriptionAddress: subscriptionAddress,
+                        subscriptionPrice: subscriptionPrice,
                     }
                 }
         )
         console.log(result)
         console.log('%cSubscribe successful', 'background: #222; color: #bada55')
+        return result;
+    } catch (e) {
+        if (isFetchError(e)) {
+            const status = (e as Response).status
+
+            errors = {
+                error: ['Error, something went wrong'],
+            }
+            console.error(e)
+        }
+    }
+    return errors;
+}
+
+export async function finalizeSubscribeUser(walletId, subscriptionCode, transaction) {
+    walletId = walletId.replace(/\//g, '$');
+    let errors = {}
+    try {
+        const result = await api.service.finalizeSubscribe(
+            {
+                subscription: {
+                    wallet: walletId,
+                    subscriptionCode: subscriptionCode,
+                    subscriptionAddress: transaction.subscription_address,
+                    subscriptionPrice: transaction.subscription_price,
+                }
+            }
+        )
+        console.log(result)
+        console.log('%cFinalize subscribe successful', 'background: #222; color: #bada55')
+    } catch (e) {
+        if (isFetchError(e)) {
+            const status = (e as Response).status
+
+            errors = {
+                error: ['Error, something went wrong'],
+            }
+            console.error(e)
+        }
+    }
+    return errors;
+}
+
+export async function cancelSubscribeUser(walletId, subscriptionCode, transaction) {
+    walletId = walletId.replace(/\//g, '$');
+    let errors = {}
+    try {
+        const result = await api.service.cancelSubscribe(
+            {
+                subscription: {
+                    wallet: walletId,
+                    subscriptionCode: subscriptionCode,
+                    subscriptionAddress: transaction.subscription_address,
+                    subscriptionPrice: transaction.subscription_price,
+                }
+            }
+        )
+        console.log(result)
+        console.log('%Cancel subscribe successful', 'background: #222; color: #bada55')
     } catch (e) {
         if (isFetchError(e)) {
             const status = (e as Response).status

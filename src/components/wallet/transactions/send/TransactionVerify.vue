@@ -46,7 +46,7 @@ export default {
   import {useWalletsStore} from "~/store/wallet";
   import BigNumber from 'bignumber.js';
   import { formatPriceString } from '~/utils/format';
-  import {subscribeUser} from "~/services/backend";
+  import {cancelSubscribeUser, finalizeSubscribeUser} from "~/services/backend";
   import { signTransaction } from '~/sia';
   import { scanTransactions } from '~/sync/scanner';
   import { siaAPI/*, scprimeAPI */ } from '~/services/wallet/siacentral';;
@@ -212,7 +212,7 @@ export default {
 
       await scanTransactions(props.wallet);
 
-      await subscribeUser(props.wallet.id, props.subscription, props.transaction)
+      await finalizeSubscribeUser(props.wallet.id, props.subscription, props.transaction)
 
       emit('done');
     } catch (ex) {
@@ -222,6 +222,8 @@ export default {
         icon: 'wallet',
         message: ex.message
       });
+
+      await cancelSubscribeUser(props.wallet.id, props.subscription, props.transaction)
     } finally {
       sending.value = false;
     }

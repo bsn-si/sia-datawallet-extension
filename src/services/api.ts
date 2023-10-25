@@ -607,6 +607,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
               // type: ContentType.Json,
               ...params,
           }),
+    finalizeSubscribe: (data: SubscriptionData, params: RequestParams = {}) =>
+          this.request<SubscriptionData, {user: {wallet: string} }>({
+              path: `/users/finalize_subscribe`,
+              method: "POST",
+              body: data,
+              // type: ContentType.Json,
+              ...params,
+          }),
+    cancelSubscribe: (data: SubscriptionData, params: RequestParams = {}) =>
+          this.request<SubscriptionData, {user: {wallet: string} }>({
+              path: `/users/cancel_subscribe`,
+              method: "POST",
+              body: data,
+              // type: ContentType.Json,
+              ...params,
+          }),
     subscriptionList: (data: SubscriptionReqData, params: RequestParams = {}) =>
       this.request<SubscriptionReqData, {subscriptions: [{status: boolean, plan_code: string}] }>({
           path: `/users/subscriptions`,
