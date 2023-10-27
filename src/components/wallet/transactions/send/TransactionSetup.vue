@@ -59,7 +59,7 @@ export default {
   import {storeToRefs} from "pinia";
   import {CONFIG} from "~/env";
   import {api, isFetchError} from "~/services";
-  import {subscribeUser} from "~/services/backend";
+  import {cancelSubscribeUser, subscribeUser} from "~/services/backend";
 
   const props = defineProps({
     wallet: Wallet,
@@ -324,7 +324,7 @@ export default {
     apiFee.value = api;
   }
 
-  const buildTransaction = () => {
+  const buildTransaction = (fullSubscriptionPrice) => {
     const added = inputs.value.reduce((v, i) => v.plus(i.value), new BigNumber(0)),
         txn = {
           change_index: 0,
@@ -332,7 +332,7 @@ export default {
           siacoin_inputs: inputs.value,
           siacoin_outputs: [],
           subscription_address: recipientAddress.value,
-          subscription_price: txtSiacoin.value.value,
+          subscription_price: fullSubscriptionPrice,
           subscription_code: props.subscription
         },
         feeAddress = networkFees.value.api.address,
@@ -442,18 +442,23 @@ export default {
 
     try {
       const subscribeResult = await subscribeUser(props.wallet.id, props.subscription, recipientAddress.value, txtSiacoin.value.value)
-      console.log('subscribeResult', subscribeResult)
-      const parsed = parseSiacoinString(''+subscribeResult.data.user.total_to_pay, props.wallet.precision());
+      const fullSubscriptionPrice = txtSiacoin.value.value;
 
-      sendAmount.value = parsed;
+      console.log('subscribeResult', subscribeResult, 'fullSubscriptionPrice', fullSubscriptionPrice)
+      // const parsed = parseSiacoinString(''+subscribeResult.data.user.total_to_pay, props.wallet.precision());
+      txtSiacoin.value.value = ''+subscribeResult.data.user.total_to_pay;
 
-      emit('built', buildTransaction());
+      onChangeSiacoin();
+
+      emit('built', buildTransaction(fullSubscriptionPrice));
     } catch (ex) {
       console.error('onSendTxn', ex);
       pushNotification({
         severity: 'danger',
         message: ex.message
       });
+
+      await cancelSubscribeUser(props.wallet.id, props.subscription, recipientAddress.value, txtSiacoin.value.value)
     } finally {
       sending.value = false;
     }

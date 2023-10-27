@@ -24,8 +24,10 @@
                 class="wallet-display-balance" v-html="formatCurrencyString(siacoinBalance)"></span></div>
             <siafund-balance :siafunds="siafundBalance" :claim="claimBalance" :wallet="wallet"
                              v-if="siafundBalance.gt(0)"/>
-            <div><span class="wallet-plan-caption">Plan: </span><span class="wallet-plan-name">{{ subscriptionNameByCode }}</span>&nbsp;<span
-                class="wallet-plat-vol">({{ subscriptionVolByCode }})</span><span class="wallet-plan-caption"> Till: </span><span class="wallet-plan-name">{{ nextPaymentDate}}</span>
+            <div v-if="subscriptionNameByCode"><span class="wallet-plan-caption">Plan: </span><span class="wallet-plan-name">{{ subscriptionNameByCode }}</span>&nbsp;<span
+                class="wallet-plat-vol">({{ subscriptionVolByCode }})</span>
+              <span v-if="nextPaymentDate" class="wallet-plan-caption"> Till: </span><span class="wallet-plan-name">{{ nextPaymentDate}}</span>
+              <span v-if="downgradeDate" class="wallet-plan-caption"> Downgrade: </span><span v-if="downgradeDate" class="wallet-plan-name">{{ downgradeDate}}</span>
             </div>
           </div>
         </div>
@@ -77,7 +79,7 @@
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('SMALL')}">
               {{ getPriceByCode('SMALL') }}
             </div>
-            <div class="plan-btn-c" @click="paySubscription('SMALL')">
+            <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('SMALL')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('SMALL') ? 'Renew' : 'Get started now'}}</div>
             </div>
             <div
@@ -102,7 +104,7 @@
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('MEDIUM')}">
               {{ getPriceByCode('MEDIUM') }}
             </div>
-            <div class="plan-btn-c" @click="paySubscription('MEDIUM')">
+            <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('MEDIUM')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('MEDIUM') ? 'Renew' : 'Get started now'}}</div>
             </div>
             <div
@@ -128,7 +130,7 @@
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('LARGE')}">
               {{ getPriceByCode('LARGE') }}
             </div>
-            <div class="plan-btn-c" @click="paySubscription('LARGE')">
+            <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('LARGE')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('LARGE') ? 'Renew' : 'Get started now'}}</div>
             </div>
             <div
@@ -361,6 +363,7 @@ const getNameByCode = (planCode) => {
     case 'LARGE-2':
       return 'Large';
   }
+  return '';
 }
 
 const subscriptionNameByCode = computed(() => {
@@ -379,6 +382,7 @@ const getVolByCode = (planCode) => {
     case 'LARGE-2':
       return CONFIG.LARGE_VOL_LABEL;
   }
+  return '';
 }
 
 const getPriceByCode = (planCode) => {
@@ -393,6 +397,7 @@ const getPriceByCode = (planCode) => {
     case 'LARGE-2':
       return CONFIG.LARGE_PRICE_LABEL;
   }
+  return '';
 }
 
 
@@ -401,13 +406,22 @@ const subscriptionVolByCode = computed(() => {
 });
 
 const nextPaymentDate = computed(() => {
-  if (!activeSubscription.value)
+  if (!activeSubscription.value.plan_code)
     return '';
 
   const date = new Date(activeSubscription.value.started_at);
   date.setMonth(date.getMonth() + 1)
 
   return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+});
+
+const downgradeDate = computed(() => {
+  if (!activeSubscription.value.plan_code || !activeSubscription.value.downgrade_plan_date)
+    return '';
+
+  const date = new Date(activeSubscription.value.downgrade_plan_date);
+
+  return `${date.toLocaleDateString()}`;
 });
 
 const onClose = () => {

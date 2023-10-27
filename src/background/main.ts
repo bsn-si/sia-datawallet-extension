@@ -9,7 +9,7 @@ import {encoder, decoder, sigCodes, FILE_URL} from './config.js';
 import {decodeUrlSafeBase64ToArrayBuffer} from "~/utils/base64";
 import {isFetchError} from "~/services";
 
-let sodium: any, fileName: string, streamController: ReadableStreamDefaultController, theKey, state, header, salt, encRx, encTx, decRx, decTx;
+let sodium: any, fileName: string, streamController: ReadableStreamDefaultController | null, theKey, state, header, salt, encRx, encTx, decRx, decTx;
 
 (async () => {
   await _sodium.ready;
@@ -358,13 +358,17 @@ const doStreamFetch = async (url, token, fileId) => {
       console.log('doStreamFetch response', r)
       if (r.status === 403) {
         console.warn('Limit exceeded')
+        streamController?.close();
+        streamController = null;
         await sendMessage(
             'hat-sh-response',
             ['limitExceeded', fileId, 'Limit exceeded'],
             'popup'
         );
         return;
-      } else if (r.status === 500) {
+      } else if (r.status === 500 || r.status === 503) {
+        streamController?.close();
+        streamController = null;
         await sendMessage(
             'hat-sh-response',
             ['uploadError', fileId, 'Upload error'],
@@ -380,6 +384,8 @@ const doStreamFetch = async (url, token, fileId) => {
       );
     } catch (e) {
       console.error(e)
+      streamController?.close();
+      streamController = null;
       await sendMessage(
           'hat-sh-response',
           ['uploadError', fileId, 'Upload error'],
@@ -388,7 +394,7 @@ const doStreamFetch = async (url, token, fileId) => {
       if (isFetchError(e)) {
         const status = (e as Response).status
         const statusText = (e as Response).statusText
-        if (status === 500) {
+        if (status === 500 || status === 503) {
           console.error('500 error. ' + statusText, e.data)
         }
       }
@@ -553,6 +559,7 @@ const asymmetricEncryptFirstChunk = async (chunk, last, fileId) => {
   setTimeout(async function () {
     if (!streamController) {
       console.log("stream does not exist");
+      return;
     }
     const SIGNATURE = new Uint8Array(
         encoder.encode(sigCodes["v2_asymmetric"])
@@ -597,6 +604,7 @@ const asymmetricEncryptFirstChunk = async (chunk, last, fileId) => {
 const encryptFirstChunk = async (chunk, last, fileId) => {
   if (!streamController) {
     console.log("stream does not exist");
+    return;
   }
   const SIGNATURE = new Uint8Array(
       encoder.encode(sigCodes["v2_symmetric"])
@@ -640,6 +648,10 @@ const encryptFirstChunk = async (chunk, last, fileId) => {
 };
 
 const encryptRestOfChunks = async (chunk, last, fileId) => {
+  if (!streamController) {
+    console.log("stream does not exist");
+    return;
+  }
 
   let tag = last
       ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL

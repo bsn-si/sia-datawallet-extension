@@ -223,7 +223,7 @@ export default {
         message: ex.message
       });
 
-      await cancelSubscribeUser(props.wallet.id, props.subscription, props.transaction)
+      await cancelSubscribeUser(props.wallet.id, props.subscription, props.transaction.subscription_address, props.transaction.subscription_price)
     } finally {
       sending.value = false;
     }

@@ -113,7 +113,7 @@ export async function finalizeSubscribeUser(walletId, subscriptionCode, transact
     return errors;
 }
 
-export async function cancelSubscribeUser(walletId, subscriptionCode, transaction) {
+export async function cancelSubscribeUser(walletId, subscriptionCode, subscriptionAddress, subscriptionPrice) {
     walletId = walletId.replace(/\//g, '$');
     let errors = {}
     try {
@@ -122,8 +122,8 @@ export async function cancelSubscribeUser(walletId, subscriptionCode, transactio
                 subscription: {
                     wallet: walletId,
                     subscriptionCode: subscriptionCode,
-                    subscriptionAddress: transaction.subscription_address,
-                    subscriptionPrice: transaction.subscription_price,
+                    subscriptionAddress: subscriptionAddress,
+                    subscriptionPrice: subscriptionPrice,
                 }
             }
         )
