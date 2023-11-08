@@ -144,7 +144,7 @@ let wallet = reactive({
   server_url: null
 })
 
-const {pushNotification} = useWalletsStore()
+const {pushNotification, getSetupStep} = useWalletsStore()
 
 let addresses = []
 
@@ -230,19 +230,21 @@ const onCreateWallet = async () => {
 
   try {
     const seed = await generateWalletSeed();
-    wallet = {
-      seed: unref(seed),
-      title: unref(walletName),
-      currency: unref(currencyType),
-      type: 'default',
-      server_type: unref(serverType),
-      server_url: null
-    };
-    console.log(wallet);
+    if (getSetupStep() !== 'error') {
+      wallet = {
+        seed: unref(seed),
+        title: unref(walletName),
+        currency: unref(currencyType),
+        type: 'default',
+        server_type: unref(serverType),
+        server_url: null
+      };
+      console.log(wallet);
 
-    await saveWallet()
+      await saveWallet()
 
-    step.value = 'review';
+      step.value = 'review';
+    }
   } catch (ex) {
     console.error('onCreateWallet', ex);
     pushNotification({
@@ -268,13 +270,14 @@ const saveWallet = async () => {
 
     addresses = await generateAddresses(wallet.seed, wallet.currency, 0, 10);
 
+    if (addresses) {
+      await saveAddresses(addresses.map(a => ({
+        ...a,
+        wallet_id: walletID
+      })));
 
-    await saveAddresses(addresses.map(a => ({
-      ...a,
-      wallet_id: walletID
-    })));
-
-    queueWallet(wallet.id, true);
+      queueWallet(wallet.id, true);
+    }
   } catch (ex) {
     console.error('saveWallet', ex);
     pushNotification({

@@ -1,4 +1,6 @@
 import { onMessage, sendMessage } from "webext-bridge/popup";
+import {useWalletsStore} from "~/store/wallet";
+
 // async function spawnWorker(params, timeout, progress) {
 // 	let worker = new Worker('/sia/sia.worker.js', { type: 'module' });
 //
@@ -54,6 +56,8 @@ import { onMessage, sendMessage } from "webext-bridge/popup";
 onMessage('spawn-worker-response', async (message) => {
 	const {data, sender} = message;
 
+	const {pushNotification, setSetupStep} = useWalletsStore()
+
 	//console.log('spawn-worker-response', data, 'sender', sender);
 
 	if (data === 'ready') {
@@ -84,12 +88,20 @@ onMessage('spawn-worker-response', async (message) => {
 			//TODO:
 			// resolve(data[1]);
 			// console.warn('resolve callback is not implemented', data[1])
+			setSetupStep('next');
 			return {value: data[1]};
 		default:
 			//TODO:
 			// reject(new Error(data[0]));
 			// console.warn('reject callback is not implemented', data[0])
 			console.error(data[0]);
+
+			setSetupStep('error');
+			pushNotification({
+				message: data[0],
+				severity: 'danger'
+			});
+
 			return {error: data[0]}
 	}
 });
