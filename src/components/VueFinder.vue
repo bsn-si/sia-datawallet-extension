@@ -83,7 +83,7 @@ const props = defineProps({
   },
   maxFileSize: {
     type: String,
-    default: '10mb'
+    default: '2000mb'
   },
   postData: {
     type: Object,
