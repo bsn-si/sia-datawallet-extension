@@ -6,9 +6,9 @@
         touch-action: manipulation;
     }
 
-    .vf-explorer-selected {
-        @apply bg-neutral-100 border border-neutral-300 dark:bg-slate-700 dark:border-gray-900 dark:border-slate-800 !important;
-    }
+    /*.vf-explorer-selected {*/
+    /*    @apply bg-neutral-100 border border-neutral-300 dark:bg-slate-700 dark:border-gray-900 dark:border-slate-800 !important;*/
+    /*}*/
 
     .vf-explorer-selector {
         @apply border border-slate-500 bg-slate-300 opacity-50 !important;
