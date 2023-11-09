@@ -5,7 +5,7 @@
       <div class="w-[150px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex mr-2 cursor-pointer"
            :aria-label="t('Upload')" data-microtip-position="bottom" role="tooltip"
            @click="emitter.emit('vf-modal-show', {type:'upload', items: selectedItems})">
-        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex">
+        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex rounded-[100px]">
           <div class="relative">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none">
               <mask id="mask0_22_2548" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
@@ -23,7 +23,7 @@
       <div class="w-[150px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex mr-2 cursor-pointer"
            :aria-label="t('New Folder')" data-microtip-position="bottom-right" role="tooltip"
            @click="emitter.emit('vf-modal-show', {type:'new-folder', items: selectedItems})">
-        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex">
+        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex rounded-[100px]">
           <div class="relative">
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
               <mask id="mask0_22_2648" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
@@ -61,7 +61,7 @@
            :class="(selectedItems.length) ? 'cursor-pointer ' : ''"
            :aria-label="t('Delete')" data-microtip-position="bottom" role="tooltip"
            @click="(!selectedItems.length) || emitter.emit('vf-modal-show', {type:'delete', items: selectedItems})">
-        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex">
+        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex rounded-[100px]">
           <div class="relative">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none">
               <mask id="mask0_22_2716" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
