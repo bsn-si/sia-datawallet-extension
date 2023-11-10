@@ -22,7 +22,7 @@
       </svg>
     </span>
 
-    <div v-if="!searchMode" class="group flex bg-white dark:bg-zinc-800 items-center rounded p-1 ml-2 w-full min-h-[32px]" @click.self="enterSearchMode">
+    <div v-if="!searchMode" class="group flex bg-white dark:bg-zinc-800 items-center rounded p-1 ml-2 w-full min-h-[32px] rounded-[28px] pl-3" @click.self="enterSearchMode">
       <svg @click="emitter.emit('vf-fetch', {params:{q: 'index', adapter: data.adapter}})"
            class="h-6 w-6 p-1 rounded text-slate-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-gray-800 cursor-pointer"
            xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 20 20" fill="currentColor">
@@ -46,11 +46,9 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
     </div>
-    <div v-else class="relative flex bg-white dark:bg-gray-700 items-center rounded p-1 ml-2 w-full  min-h-[32px]">
-      <svg
-           class="h-6 w-6 p-1 m-auto stroke-gray-400 fill-gray-100 dark:stroke-gray-400 dark:fill-gray-400/20"
-           xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 20 20" fill="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+    <div v-else class="relative flex bg-white dark:bg-zinc-800 items-center rounded p-1 ml-2 w-full min-h-[32px] rounded-[28px] pl-3 pr-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="h-6 w-6 p-1 m-auto">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.7238 8.87193L14 12.1481L13.1481 13L9.87193 9.72384C9.26015 10.1641 8.52258 10.4328 7.71641 10.4328C5.66381 10.4328 4 8.76901 4 6.71641C4 4.66381 5.66381 3 7.71641 3C9.76901 3 11.4328 4.66381 11.4328 6.71641C11.4328 7.52258 11.1641 8.26015 10.7238 8.87193ZM7.71641 4.14351C6.29274 4.14351 5.14351 5.29274 5.14351 6.71641C5.14351 8.14008 6.29274 9.28931 7.71641 9.28931C9.14008 9.28931 10.2893 8.14008 10.2893 6.71641C10.2893 5.29274 9.14008 4.14351 7.71641 4.14351Z" fill="#CAC4D0"/>
       </svg>
       <div class="w-full"></div>
       <input
@@ -59,7 +57,7 @@
           @blur="handleBlur"
           v-model="query"
           :placeholder="t('Search anything..')"
-          class="absolute ml-4 pt-1 pb-0 px-2 border-0 ring-0 outline-0 text-gray-600 focus:ring-transparent focus:border-transparent dark:focus:ring-transparent dark:focus:border-transparent dark:text-gray-300 bg-transparent"
+          class="absolute ml-4  pb-0 px-2 border-0 ring-0 outline-0 text-gray-600 focus:ring-transparent focus:border-transparent dark:focus:ring-transparent dark:focus:border-transparent dark:text-gray-300 bg-transparent"
           type="text">
       <svg
           class="w-6 h-6 cursor-pointer"

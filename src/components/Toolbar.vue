@@ -1,5 +1,5 @@
 <template>
-  <div class="border-neutral-300 flex justify-between items-center py-1 text-sm">
+  <div class="border-neutral-300 flex justify-between items-center py-1 text-sm pl-4">
     <div class="flex text-center" v-if="!searchQuery.length">
 
       <div class="w-[150px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex mr-2 cursor-pointer"

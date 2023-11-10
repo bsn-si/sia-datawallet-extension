@@ -20,7 +20,7 @@
       <div class="w-[180px] h-14 pl-4 pr-6 py-4 justify-start items-center gap-3 inline-flex">
         <div class="w-[140px] h-[23px] relative">
           <div class="w-[140px] h-1 left-0 top-[19px] absolute bg-neutral-700 rounded justify-start items-center inline-flex" :style="{'padding-right': currentUserUsagePercentageToPaggingRight+'%'}">
-            <div class="w-full h-1 relative bg-green-300 rounded"></div>
+            <div class="w-full h-1 relative rounded" :class="stageColor"></div>
           </div>
           <div class="w-[50px] h-3.5 left-[90px] top-0 absolute text-right text-neutral-100 text-xs font-normal font-['Roboto'] leading-tight tracking-tight">{{planLimit}}</div>
           <div class="w-[50px] h-3.5 left-0 top-0 absolute text-neutral-100 text-xs font-normal font-['Roboto'] leading-tight tracking-tight">{{currentUserUsage}}</div>
@@ -129,6 +129,16 @@ const currentUserUsagePercentageToPaggingRight = computed(() => {
   }
   return 100;
 });
+
+const stageColor = computed(() => {
+  const percentageUsage = 100 - currentUserUsagePercentageToPaggingRight.value;
+  if (percentageUsage < 33)
+    return 'bg-green-300';
+  else if (percentageUsage < 66)
+    return 'bg-yellow-100';
+  else
+    return 'bg-rose-300';
+})
 
 const planLimit = computed(() => {
   const planCode = activeSubscription.value.plan_code;
