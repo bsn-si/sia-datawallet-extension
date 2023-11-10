@@ -16,6 +16,17 @@
       <transition name="fade" mode="out-in" appear>
         <div v-if="offline" class="connect-status">Offline</div>
       </transition>
+
+      <div class="w-[180px] h-14 pl-4 pr-6 py-4 justify-start items-center gap-3 inline-flex">
+        <div class="w-[140px] h-[23px] relative">
+          <div class="w-[140px] h-1 left-0 top-[19px] absolute bg-neutral-700 rounded justify-start items-center inline-flex" :style="{'padding-right': currentUserUsagePercentageToPaggingRight+'%'}">
+            <div class="w-full h-1 relative bg-green-300 rounded"></div>
+          </div>
+          <div class="w-[50px] h-3.5 left-[90px] top-0 absolute text-right text-neutral-100 text-xs font-normal font-['Roboto'] leading-tight tracking-tight">{{planLimit}}</div>
+          <div class="w-[50px] h-3.5 left-0 top-0 absolute text-neutral-100 text-xs font-normal font-['Roboto'] leading-tight tracking-tight">{{currentUserUsage}}</div>
+        </div>
+      </div>
+
       <router-link :to="{ name: 'wallets' }" class="menu-item">
         <menu-item :is-active="path==='/wallets'">
           <div class="svg-c">
@@ -88,8 +99,12 @@ import {storeToRefs} from "pinia";
 import {useWalletsStore} from "~/store/wallet";
 import {useUserStore} from "~/store/user";
 import {useRoute} from "vue-router";
+import {CONFIG} from "~/env";
+import filesize from "~/utils/filesize";
 
-const { updateUser } = useUserStore()
+const userStore = useUserStore();
+const { userUsage, activeSubscription } = storeToRefs(userStore)
+const { updateUser } = userStore
 const walletsStore = useWalletsStore()
 const { offline } = storeToRefs(walletsStore)
 const { lockWallets } = walletsStore
@@ -97,6 +112,35 @@ const { lockWallets } = walletsStore
 const route=useRoute();
 const path = computed(() =>route.path)
 console.log(path.value)
+
+const currentUserUsage = computed(() => {
+  return userUsage && userUsage.value ? filesize(userUsage.value.customer_usage.charges_usage[0].units) : '';
+});
+
+const currentUserUsagePercentageToPaggingRight = computed(() => {
+  const planCode = activeSubscription.value.plan_code;
+  if (userUsage && userUsage.value) {
+    if (planCode.startsWith('SMALL'))
+      return 100 - parseInt(userUsage.value.customer_usage.charges_usage[0].units) / (parseFloat(CONFIG.SMALL_PLAN_LIMIT) * 1024 * 1024) * 100;
+    if (planCode.startsWith('MEDIUM'))
+      return 100 - parseInt(userUsage.value.customer_usage.charges_usage[0].units) / (parseFloat(CONFIG.MEDIUM_PLAN_LIMIT) * 1024 * 1024) * 100;
+    if (planCode.startsWith('LARGE'))
+      return 100 - parseInt(userUsage.value.customer_usage.charges_usage[0].units) / (parseFloat(CONFIG.LARGE_PLAN_LIMIT) * 1024 * 1024) * 100;
+  }
+  return 100;
+});
+
+const planLimit = computed(() => {
+  const planCode = activeSubscription.value.plan_code;
+  if (planCode.startsWith('SMALL')) {
+    return filesize(CONFIG.SMALL_PLAN_LIMIT * 1024 * 1024);
+  } else if (planCode.startsWith('MEDIUM')) {
+    return filesize(CONFIG.MEDIUM_PLAN_LIMIT * 1024 * 1024);
+  } else if (planCode.startsWith('LARGE')) {
+    return filesize(CONFIG.LARGE_PLAN_LIMIT * 1024 * 1024);
+  }
+  return '';
+});
 
 const logout = async () => {
   updateUser(null)

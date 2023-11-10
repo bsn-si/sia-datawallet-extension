@@ -147,7 +147,7 @@ import {encodeArrayBufferToUrlSafeBase64} from "~/utils/base64";
 import {subscriptionUsageEvent} from "~/services/backend";
 
 const userStore = useUserStore();
-const { loadUsage } = userStore;
+const { loadUsage, loadSubscriptions } = userStore;
 const { user, userUsage, activeSubscription } = storeToRefs(userStore)
 const emitter = inject('emitter');
 const {apiUrl} = useApiUrl();
@@ -245,11 +245,11 @@ onMounted(() => {
         notEnoughFunds.value = false;
         const planCode = activeSubscription.value.plan_code;
         console.log('planCode', planCode)
-        if ((planCode === 'SMALL'
+        if ((planCode.startsWith('SMALL')
                 && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.SMALL_PLAN_LIMIT) * 1024 * 1024) ||
-            (planCode === 'MEDIUM'
+            (planCode.startsWith('MEDIUM')
                 && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.MEDIUM_PLAN_LIMIT) * 1024 * 1024) ||
-            (planCode === 'LARGE'
+            (planCode.startsWith('LARGE')
                 && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.LARGE_PLAN_LIMIT) * 1024 * 1024)
         ) {
           notEnoughFunds.value = true;
@@ -345,6 +345,7 @@ onMessage('hat-sh-response', async (message) => {
       }
       break;
     case "uploadingFinished":
+      console.log('uploadingFinished (modalUpload)')
       idx = queue.value.findIndex((item) => item.id === params[0]);
       if (idx !== -1) {
         queue.value[idx].status = 'uploaded';
@@ -362,6 +363,11 @@ onMessage('hat-sh-response', async (message) => {
           emitter.emit('vf-fetch', {params: {q: 'index', adapter: props.current.adapter, path: props.current.dirname, closeModal: true}});
         }
       }
+      setTimeout(()=> {
+        loadUsage(props.currentWalletId)
+        loadSubscriptions(props.currentWalletId)
+      }, 3000)
+
       break;
     case "limitExceeded":
     case "uploadError":

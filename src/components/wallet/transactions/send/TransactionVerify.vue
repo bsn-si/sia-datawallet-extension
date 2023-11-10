@@ -49,7 +49,12 @@ export default {
   import {cancelSubscribeUser, finalizeSubscribeUser} from "~/services/backend";
   import { signTransaction } from '~/sia';
   import { scanTransactions } from '~/sync/scanner';
-  import { siaAPI/*, scprimeAPI */ } from '~/services/wallet/siacentral';;
+  import { siaAPI/*, scprimeAPI */ } from '~/services/wallet/siacentral';
+  import {useUserStore} from "~/store/user";
+
+
+  const userStore = useUserStore();
+  const { loadUsage, loadSubscriptions } = userStore;
 
   const props = defineProps({
     wallet: Wallet,
@@ -213,6 +218,11 @@ export default {
       await scanTransactions(props.wallet);
 
       await finalizeSubscribeUser(props.wallet.id, props.subscription, props.transaction)
+
+      setTimeout(()=> {
+        loadUsage(props.wallet.id)
+        loadSubscriptions(props.wallet.id)
+      }, 3000)
 
       emit('done');
     } catch (ex) {
