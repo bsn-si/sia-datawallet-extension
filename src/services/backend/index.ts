@@ -2,6 +2,22 @@ import {api, isFetchError} from "~/services";
 import {createUint8ArrayFromKeys} from "~/utils";
 import {useUserStore} from "~/store/user";
 
+export async function canCreateUser(walletId, password) {
+    try {
+        walletId = walletId.replace(/\//g, '$');
+        const result = await api.service.canCreateUser({user: {wallet: walletId, password: JSON.stringify(password)}})
+        return true;
+    } catch (e) {
+        if (isFetchError(e)) {
+            const status = (e as Response).status
+
+            console.error(e)
+
+        }
+        return false
+    }
+}
+
 export async function loginOrRegisterUser(walletId, password, register = false) {
     const { updateUser } = useUserStore()
     let errors = {}

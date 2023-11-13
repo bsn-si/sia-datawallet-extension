@@ -112,7 +112,8 @@ import {generateSeed, generateAddresses} from '~/sia/index.js';
 import {hash} from 'tweetnacl';
 import {encode as encodeUTF8} from '@stablelib/utf8';
 import {saveAddresses} from '~/store/db.js';
-
+import {storeToRefs} from "pinia";
+import {canCreateUser} from "~/services/backend";
 interface LoginUser {
   confirmPassword: string;
   passwordsMatch: boolean;
@@ -144,7 +145,12 @@ let wallet = reactive({
   server_url: null
 })
 
-const {pushNotification, getSetupStep} = useWalletsStore()
+const userStore = useUserStore();
+
+const {pushNotification, getSetupStep, lockWallets, createWallet, deleteWallet, queueWallet, setSetup} = useWalletsStore()
+
+const {user} = storeToRefs(userStore)
+const {updateUser} = userStore;
 
 let addresses = []
 
@@ -161,9 +167,6 @@ const doneDisabled = computed(() => {
   // disable the done button if the wallet is being saved, or has not been exported
   return saving.value || (!exported.value && walletType.value === 'default');
 })
-
-const {updateUser} = useUserStore()
-const {createWallet, queueWallet, setSetup} = useWalletsStore()
 
 
 const onCheckPassword = () => {
@@ -241,9 +244,9 @@ const onCreateWallet = async () => {
       };
       console.log(wallet);
 
-      await saveWallet()
-
-      step.value = 'review';
+      if (await saveWallet()) {
+        step.value = 'review';
+      }
     }
   } catch (ex) {
     console.error('onCreateWallet', ex);
@@ -268,16 +271,32 @@ const saveWallet = async () => {
 
     wallet.id = walletID;
 
-    addresses = await generateAddresses(wallet.seed, wallet.currency, 0, 10);
+    const canCreate = await canCreateUser(walletID, user?.unlockPassword)
 
-    if (addresses) {
-      await saveAddresses(addresses.map(a => ({
-        ...a,
-        wallet_id: walletID
-      })));
+    if (canCreate) {
+      addresses = await generateAddresses(wallet.seed, wallet.currency, 0, 10);
 
-      queueWallet(wallet.id, true);
+      if (addresses) {
+        await saveAddresses(addresses.map(a => ({
+          ...a,
+          wallet_id: walletID
+        })));
+
+        queueWallet(wallet.id, true);
+      }
+    } else {
+      await deleteWallet(walletID);
+      logout();
+      form.confirmPassword = '';
+      form.unlockPassword = '';
+      step.value = 'password';
+      pushNotification({
+        message: 'Cannot create wallet, please make sure you have the correct password',
+        severity: 'danger'
+      });
+      return false;
     }
+    return true;
   } catch (ex) {
     console.error('saveWallet', ex);
     pushNotification({
@@ -302,6 +321,11 @@ const onWalletCreated = async () => {
       message: ex.message
     });
   }
+}
+
+const logout = async () => {
+  updateUser(null)
+  lockWallets()
 }
 
 </script>

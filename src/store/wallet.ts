@@ -98,6 +98,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         getSelectedWallet,
         saveWallet,
         createWallet,
+        deleteWallet,
         queueWallet,
         offline,
         setOffline,
@@ -183,6 +184,10 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         await saveWalletMutation({...wallet, id});
 
         return id;
+    }
+
+    async function deleteWallet(walletId: string) {
+        await dbDeleteWallet(walletId);
     }
 
     async function queueWallet(walletId, full) {

@@ -576,6 +576,14 @@ export class HttpClient<SecurityDataType = unknown> {
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   service = {
+    canCreateUser: (data: LoginData, params: RequestParams = {}) =>
+        this.request<LoginData, {result: boolean}>({
+          path: `/users/validate`,
+          method: "POST",
+          body: data,
+          // type: ContentType.Json,
+          ...params,
+    }),
     login: (data: LoginData, params: RequestParams = {}) =>
         this.request<LoginData, {wallet: string, token: string}>({
           path: `/users/login`,
