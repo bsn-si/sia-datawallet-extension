@@ -187,15 +187,22 @@ onMounted(async () => {
 
 
 
-const getObjects = async (path, params = {}) => {
+const getObjects = async (path, isSearch = false, params = {}) => {
   const currentDir = getCurrentDir(getCurrentWalletId.value, path);
   const pathType = currentDir.endsWith('/') ? 'dir' : 'file';
   console.log('%cGet objects: ' + currentDir, 'background: #222; color: #bada55')
-  let data = await api.objects.objectsDetail(getCurrentWalletId.value, {...params,
-    query: {
-      pathType: pathType,
-      path: currentDir
-  }}).then(res => res.data);
+  let data = { entries: [] };
+  if (isSearch) {
+    data.entries = await api.search.objectsList({key: params.key}).then(res => res.data);
+  } else {
+    data = await api.objects.objectsDetail(getCurrentWalletId.value, {
+      ...params,
+      query: {
+        pathType: pathType,
+        path: currentDir
+      }
+    }).then(res => res.data);
+  }
   console.log('%cdata: ', 'background: #222; color: #bada55', data)
   if (data.status === 404) {
     return data;
@@ -220,6 +227,7 @@ const getObjects = async (path, params = {}) => {
     }
     entry.basename = filename;
     entry.path = storageName + '://' + path;
+    entry.visible_path = entry.path.replace(storageName + '://', '').replace(getCurrentWalletId.value, '');
     entry.extension = extension;
     entry.file_size = entry.size;
     entry.visibility = 'public'
@@ -324,8 +332,8 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         onError(e.error);
       }
     })
-  } else if (params.q === 'index') {
-    getObjects(params.path, { signal }).then(data => {
+  } else if (params.q === 'index' || params.q === 'search') {
+    getObjects(params.path, params.q === 'search', { signal, key: params.filter }).then(data => {
       adapter.value = data.adapter;
       if (['index', 'search'].includes(params.q)) {
         loadingState.value = false;

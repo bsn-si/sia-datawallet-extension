@@ -1,5 +1,6 @@
 <template>
   <div class="relative flex-auto flex flex-col overflow-hidden">
+
     <div v-if="view=='list' || searchQuery.length" class="grid grid-cols-12 border-b border-neutral-300 border-gray-200 dark:border-gray-700 text-xs select-none">
         <div @click="sortBy('basename')" class="col-span-7 py-1 leading-6 hover:bg-neutral-100 bg-neutral-50 dark:bg-gray-800 dark:hover:bg-gray-700/10 flex items-center pl-1">
           {{ t('Name') }}
@@ -14,7 +15,7 @@
           <v-f-sort-icon :direction="sort.order=='asc'? 'down': 'up'"  v-show="sort.active && sort.column=='last_modified'" />
         </div>
         <div v-if="searchQuery.length" @click="sortBy('path')" class="col-span-5 py-1 leading-6 hover:bg-neutral-100 bg-neutral-50 dark:bg-gray-800 dark:hover:bg-gray-700/10 flex items-center justify-center border-l dark:border-gray-700">
-          {{ t('Filepath') }}
+          {{ t('Path') }}
             <v-f-sort-icon :direction="sort.order=='asc'? 'down': 'up'"  v-show="sort.active && sort.column=='path'" />
         </div>
       </div>
@@ -29,11 +30,21 @@
     </div>
 
     <div class="flex flex-row h-full">
+      <transition name="fade" mode="out-in">
+      <div v-if="uploadingFiles.length" class="w-[555px] h-6 absolute rounded-[28px] border border-neutral-800 ml-3.5">
+        <div class="w-44 h-6 p-1 left-0 top-0 absolute justify-start items-center gap-1 inline-flex">
+          <div class="grow shrink basis-0 h-6 px-2 justify-start items-center gap-2 flex">
+            <div class="w-4 h-4 rounded-full animate-spin border-2 border-solid border-spinner-500 border-t-transparent"></div>
+            <div class="text-neutral-400 text-xs font-normal font-['Roboto'] leading-normal tracking-wide">Uploading {{uploadingFiles.length}} files</div>
+          </div>
+        </div>
+      </div>
+      </transition>
       <div
           @touchstart="handleTouchStart"
           @contextmenu.self.prevent="emitter.emit('vf-contextmenu-show',{event: $event, area: selectorArea, items: getSelectedItems()})"
           :class="[showFileInfo ? 'w-[300px]' : 'w-full']"
-          class="h-full text-xs vf-selector-area min-h-[150px] overflow-auto p-1 z-0"
+          class="h-full text-xs vf-selector-area min-h-[150px] overflow-auto p-1 pt-3 z-0"
           ref="selectorArea">
 
         <div
@@ -59,7 +70,7 @@
                 </svg>
                 <span class="overflow-ellipsis overflow-hidden whitespace-nowrap">{{item.basename }}</span>
               </div>
-              <div class="col-span-5 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ item.path }}</div>
+              <div class="col-span-5 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ item.visible_path }}</div>
             </div>
         </div>
 
@@ -224,7 +235,7 @@ const props = defineProps({
 });
 
 const store = useWalletsStore();
-const { getCurrentWalletId } = storeToRefs(store)
+const { getCurrentWalletId, uploadingFiles } = storeToRefs(store)
 const emitter = inject('emitter');
 const { setStore, getStore } = inject('storage');
 const adapter = inject('adapter');
@@ -319,7 +330,7 @@ const openItem = (item) => {
     emitter.emit('vf-search-exit');
     emitter.emit('vf-fetch', {params:{q: 'index', adapter: props.data.adapter, path:item.path}});
   } else {
-    emitter.emit('vf-modal-show', {type: 'preview', adapter: props.data.adapter, item});
+    // emitter.emit('vf-modal-show', {type: 'preview', adapter: props.data.adapter, item});
   }
 };
 
@@ -519,6 +530,12 @@ const getSelectedItemHealth = () => {
     return '';
   }
 };
+
+emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
+  if (params.q === 'index' && params.hasOwnProperty('gotoFolder')) {
+    hideFileInfo();
+  }
+})
 
 onMounted(setDragSelect)
 

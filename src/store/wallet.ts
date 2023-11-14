@@ -51,6 +51,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     const dbType = ref('memory');
     const notifications = ref([]);
     const step = ref('password');
+    const uploadingFiles = ref(uploadingFileStorage.get())
 
     updateMetadata();
     setInterval(updateMetadata, 300000);
@@ -119,6 +120,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         clearNotification,
         pushNotification,
         dbType,
+        uploadingFiles,
         getUploadingFiles,
         setUploadingFiles,
         getSetupStep,
@@ -257,6 +259,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
     function setUploadingFiles(files: UploadingFile[]) {
         uploadingFileStorage.set(files);
+        uploadingFiles.value = getUploadingFiles()
     }
 
     function setSetupStep(value: string) {

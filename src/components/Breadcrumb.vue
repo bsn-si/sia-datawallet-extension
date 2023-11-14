@@ -23,7 +23,7 @@
     </span>
 
     <div v-if="!searchMode" class="group flex bg-white dark:bg-zinc-800 items-center rounded p-1 ml-2 w-full min-h-[32px] rounded-[28px] pl-3" @click.self="enterSearchMode">
-      <svg @click="emitter.emit('vf-fetch', {params:{q: 'index', adapter: data.adapter}})"
+      <svg @click="emitter.emit('vf-fetch', {params:{q: 'index', adapter: data.adapter, gotoFolder: true}})"
            class="h-6 w-6 p-1 rounded text-slate-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-gray-800 cursor-pointer"
            xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 20 20" fill="currentColor">
         <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
@@ -36,7 +36,7 @@
               <path d="M6 11.6875H15.8881L11.3463 7.14562L12.5 6L19 12.5L12.5 19L11.3544 17.8544L15.8881 13.3125H6V11.6875Z" fill="#49454F"/>
             </svg>
           </span>
-          <span class="px-1.5 py-1 text-slate-700 dark:text-slate-200 hover:bg-neutral-100 dark:hover:bg-gray-800 rounded cursor-pointer" :title="item.basename" @click="emitter.emit('vf-fetch', {params:{q: 'index', adapter: data.adapter, path:item.path}})">{{ item.name }}</span>
+          <span class="px-1.5 py-1 text-slate-700 dark:text-slate-200 hover:bg-neutral-100 dark:hover:bg-gray-800 rounded cursor-pointer" :title="item.basename" @click="emitter.emit('vf-fetch', {params:{q: 'index', adapter: data.adapter, path:item.path, gotoFolder: true}})">{{ item.name }}</span>
         </div>
       </div>
 
