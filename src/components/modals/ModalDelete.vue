@@ -45,7 +45,7 @@
                       </svg>
                     </div>
                     <div class="h-7 justify-start items-start flex">
-                      <div class="text-white text-sm font-normal font-['Roboto'] leading-7">{{ item.basename }}</div>
+                      <div class="text-white text-sm font-normal font-['Roboto'] leading-7">{{ formatFilename(item.basename, 40) }}</div>
                     </div>
                   </div>
                 </div>
@@ -95,7 +95,7 @@ export default {
 import VFModalLayout from './ModalLayout.vue';
 import {inject, ref} from 'vue';
 import Message from '../Message.vue';
-
+import {formatFilename} from "~/utils/formatFilename";
 const emitter = inject('emitter');
 const {getStore} = inject('storage');
 const adapter = inject('adapter');

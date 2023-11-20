@@ -2,39 +2,41 @@
   <div class="border-neutral-300 flex justify-between items-center py-1 text-sm pl-4">
     <div class="flex text-center" v-if="!searchQuery.length">
 
-      <div class="w-[150px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex mr-2 cursor-pointer"
+      <div class="w-[150px] h-[35px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex mr-2 cursor-pointer"
            :aria-label="t('Upload')" data-microtip-position="bottom" role="tooltip"
            @click="emitter.emit('vf-modal-show', {type:'upload', items: selectedItems})">
-        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex rounded-[100px]">
+        <div class="self-stretch h-[35px] pl-4 pr-6 py-1 hover:text-[#D0BCFF] text-[#E6E0E9] hover:bg-[#D0BCFF] hover:bg-opacity-10 hover:fill-[#D0BCFF] fill-[#FFFEFE] justify-center items-center gap-2 inline-flex rounded-[100px] ">
           <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25">
               <mask id="mask0_22_2548" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">
                 <rect y="0.5" width="24" height="24" fill="#D9D9D9"/>
               </mask>
               <g mask="url(#mask0_22_2548)">
-                <path d="M12 16.5L7 11.5L8.4 10.05L11 12.65V4.5H13V12.65L15.6 10.05L17 11.5L12 16.5ZM6 20.5C5.45 20.5 4.97917 20.3042 4.5875 19.9125C4.19583 19.5208 4 19.05 4 18.5V15.5H6V18.5H18V15.5H20V18.5C20 19.05 19.8042 19.5208 19.4125 19.9125C19.0208 20.3042 18.55 20.5 18 20.5H6Z" fill="#D0BCFF"/>
+                <path d="M12 16.5L7 11.5L8.4 10.05L11 12.65V4.5H13V12.65L15.6 10.05L17 11.5L12 16.5ZM6 20.5C5.45 20.5 4.97917 20.3042 4.5875 19.9125C4.19583 19.5208 4 19.05 4 18.5V15.5H6V18.5H18V15.5H20V18.5C20 19.05 19.8042 19.5208 19.4125 19.9125C19.0208 20.3042 18.55 20.5 18 20.5H6Z" fill="currentFill"/>
               </g>
             </svg>
           </div>
-          <div class="text-center text-purple-300 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">Upload file</div>
+          <div class="text-center text-sm font-medium font-['Roboto'] leading-tight tracking-tight">Upload file</div>
         </div>
       </div>
 
-      <div class="w-[150px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex mr-2 cursor-pointer"
+
+
+      <div class="w-[150px] h-[35px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex mr-2 cursor-pointer"
            :aria-label="t('New Folder')" data-microtip-position="bottom-right" role="tooltip"
            @click="emitter.emit('vf-modal-show', {type:'new-folder', items: selectedItems})">
-        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex rounded-[100px]">
+        <div class="self-stretch h-[35px] pl-4 pr-6 py-1 hover:text-[#D0BCFF] text-[#E6E0E9] hover:bg-[#D0BCFF] hover:bg-opacity-10 hover:fill-[#D0BCFF] fill-[#FFFEFE] justify-center items-center gap-2 inline-flex rounded-[100px]">
           <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
               <mask id="mask0_22_2648" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
                 <rect x="0.5" y="0.5" width="24" height="24" fill="#D9D9D9"/>
               </mask>
               <g mask="url(#mask0_22_2648)">
-                <path d="M14.5 16.5H16.5V14.5H18.5V12.5H16.5V10.5H14.5V12.5H12.5V14.5H14.5V16.5ZM4.5 20.5C3.95 20.5 3.47917 20.3042 3.0875 19.9125C2.69583 19.5208 2.5 19.05 2.5 18.5V6.5C2.5 5.95 2.69583 5.47917 3.0875 5.0875C3.47917 4.69583 3.95 4.5 4.5 4.5H10.5L12.5 6.5H20.5C21.05 6.5 21.5208 6.69583 21.9125 7.0875C22.3042 7.47917 22.5 7.95 22.5 8.5V18.5C22.5 19.05 22.3042 19.5208 21.9125 19.9125C21.5208 20.3042 21.05 20.5 20.5 20.5H4.5ZM4.5 18.5H20.5V8.5H11.675L9.675 6.5H4.5V18.5Z" fill="#FFFEFE"/>
+                <path d="M14.5 16.5H16.5V14.5H18.5V12.5H16.5V10.5H14.5V12.5H12.5V14.5H14.5V16.5ZM4.5 20.5C3.95 20.5 3.47917 20.3042 3.0875 19.9125C2.69583 19.5208 2.5 19.05 2.5 18.5V6.5C2.5 5.95 2.69583 5.47917 3.0875 5.0875C3.47917 4.69583 3.95 4.5 4.5 4.5H10.5L12.5 6.5H20.5C21.05 6.5 21.5208 6.69583 21.9125 7.0875C22.3042 7.47917 22.5 7.95 22.5 8.5V18.5C22.5 19.05 22.3042 19.5208 21.9125 19.9125C21.5208 20.3042 21.05 20.5 20.5 20.5H4.5ZM4.5 18.5H20.5V8.5H11.675L9.675 6.5H4.5V18.5Z" fill="currentFill"/>
               </g>
             </svg>
           </div>
-          <div class="text-center  text-sm font-medium font-['Roboto'] leading-tight tracking-tight">Create folder</div>
+          <div class="text-center text-sm font-medium font-['Roboto'] leading-tight tracking-tight">Create folder</div>
         </div>
       </div>
 
@@ -57,11 +59,11 @@
           </svg>
         </div>
 
-      <div class="w-[150px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex"
+      <div v-if="selectedItems.length > 1" class="w-[150px] h-[35px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex"
            :class="(selectedItems.length) ? 'cursor-pointer ' : ''"
            :aria-label="t('Delete')" data-microtip-position="bottom" role="tooltip"
            @click="(!selectedItems.length) || emitter.emit('vf-modal-show', {type:'delete', items: selectedItems})">
-        <div class="self-stretch pl-4 pr-6 py-1 bg-purple-300 bg-opacity-10 justify-center items-center gap-2 inline-flex rounded-[100px]">
+        <div class="self-stretch h-[35px] pl-4 pr-6 py-1 hover:bg-[#D0BCFF] hover:bg-opacity-10 justify-center items-center gap-2 inline-flex rounded-[100px]">
           <div class="relative">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" fill="none">
               <mask id="mask0_22_2716" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="25">

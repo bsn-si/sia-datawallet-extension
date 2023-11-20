@@ -242,6 +242,22 @@ const getObjects = async (path, isSearch = false, params = {}) => {
     return entry;
   });
   delete data.entries;
+
+  data.files.sort((a, b) => {
+    // Compare the "type" property of objects a and b
+    const typeA = a.type;
+    const typeB = b.type;
+
+    if (typeA === "dir" && typeB !== "dir") {
+      return -1; // Directories should come before files
+    } else if (typeA !== "dir" && typeB === "dir") {
+      return 1; // Files should come after directories
+    } else {
+      // If both have the same type or if neither is a directory, maintain the original order
+      return 0;
+    }
+  });
+
   console.log(data)
   return data;
 };

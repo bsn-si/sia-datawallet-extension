@@ -117,7 +117,7 @@
              @mouseleave="handleMouseLeave($event,item)"
              @drop="handleDropZone($event,item)"
              :class="'vf-item-' + randId"
-             class="border border-transparent m-1 mt-4 inline-flex w-[5.5rem] h-20 md:w-24 text-center justify-center select-none"
+             class="border border-transparent m-1 mt-4 inline-flex w-[5.5rem] h-20 md:w-24 text-center justify-center select-none cursor-pointer"
              v-for="(item, index) in getItems(false)" :data-type="item.type" :data-item="JSON.stringify(item)" :data-index="index">
             <div>
               <div class="relative mb-2">
@@ -150,7 +150,7 @@
                 <div v-if="item.status==='uploading'" class="vf-item-spinner-small w-4 h-4 rounded-full animate-spin border-2 border-solid border-spinner-500 border-t-transparent"></div>
                 <div class="absolute hidden md:block top-1/2 w-full text-center text-neutral-500" v-if="!(item.mime_type ?? '').startsWith('image') && item.type != 'dir'">{{ ext(item.extension) }}</div>
               </div>
-              <span class="break-all vf-item-caption" :style="{color: item.hover ? '#77FF85' : (item.selected ? '#BEA9EE' : '#938F99')}">{{ title_shorten(item.basename) }}</span>
+              <span class="break-all vf-item-caption uppercase" :style="{color: item.hover ? '#77FF85' : (item.selected ? '#BEA9EE' : '#938F99')}">{{ title_shorten(item.basename) }}</span>
             </div>
         </div>
 
@@ -163,15 +163,15 @@
               <path d="M0 5.6875H9.88812L5.34625 1.14562L6.5 0L13 6.5L6.5 13L5.35437 11.8544L9.88812 7.3125H0V5.6875Z" fill="currentFill"/>
             </svg>
           </div>
-          <div class="h-[95px] flex-col justify-start items-start gap-[5px] flex">
+          <div class="flex-col justify-start items-start gap-[5px] flex">
             <div class="justify-start items-start gap-[5px] inline-flex">
               <div class="text-violet-900 text-sm font-semibold font-['Roboto'] uppercase leading-tight tracking-tight">{{getSelectedItemFilename()}}</div>
             </div>
-            <div class="w-[173px] text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">Path: {{getSelectedItemPath()}}</div>
+            <div class="text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">Path: {{getSelectedItemPath()}}</div>
             <div class="text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">Size: {{getSelectedItemSize()}}</div>
             <div><span class="text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">Health: </span><span class="text-emerald-500 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">{{getSelectedItemHealth()}}</span></div>
           </div>
-          <div class="w-[241px] h-[22px] justify-center items-center inline-flex">
+          <div class="w-[241px] justify-center items-center inline-flex">
             <div class="grow shrink basis-0 self-stretch flex-col justify-center items-start inline-flex">
               <div class="self-stretch h-[0px] border border-zinc-700"></div>
             </div>

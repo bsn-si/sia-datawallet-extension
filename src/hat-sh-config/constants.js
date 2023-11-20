@@ -1,7 +1,7 @@
 import {CONFIG} from "~/env";
 
 export const MAX_FILE_SIZE = 1024 * 1024 * 1024;
-export const CHUNK_SIZE = 64 * 1024 * 1024;
+export const CHUNK_SIZE = 32 * 1024 * 1024;
 export const crypto_secretstream_xchacha20poly1305_ABYTES = 17;
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();

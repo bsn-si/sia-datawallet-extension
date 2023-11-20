@@ -47,7 +47,7 @@
                     </svg>
                   </div>
                   <div class="h-7 justify-start items-start flex">
-                    <div class="w-[326px] text-white text-sm font-normal font-['Roboto'] leading-7">{{ file.name }} ({{ file.size }}) <b>{{ humanFileStatus(file.status) }}</b></div>
+                    <div class="w-[326px] text-white text-sm font-normal font-['Roboto'] leading-7">{{ formatFilename(file.name, 20) }} ({{ file.size }}) <b>{{ humanFileStatus(file.status) }}</b></div>
                   </div>
                 </div>
               </div>
@@ -144,6 +144,7 @@ import {storeToRefs} from "pinia";
 import { onMessage, sendMessage } from "webext-bridge/popup";
 import {CHUNK_SIZE} from "~/hat-sh-config/constants";
 import {encodeArrayBufferToUrlSafeBase64} from "~/utils/base64";
+import {formatFilename} from "~/utils/formatFilename";
 import {subscriptionUsageEvent} from "~/services/backend";
 
 const userStore = useUserStore();
@@ -504,6 +505,8 @@ const removeFile = (fileId) => {
     files.value.splice(idx, 1);
   }
 }
+
+
 
 
 </script>
