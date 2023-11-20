@@ -521,6 +521,7 @@ const copyToClipboard = async () => {
 
 .wallet-balance {
   padding: 15px;
+  overflow: hidden;
 }
 
 .wallet-btn {
@@ -732,15 +733,51 @@ const copyToClipboard = async () => {
   border-radius: 28px;
   overflow: hidden;
 
+  &:hover {
+    background-color: #171717;
+    .plan-btn-c {
+      border: 1px #BEA9EE solid !important;
+      background-color: #BEA9EE !important;
+    }
+    .btn {
+      background-color: #BEA9EE !important;
+      color: #381E72 !important;
+    }
+  }
+
   &.active {
-    background: #36343B;
+    background: #171717;
     box-shadow: 0px 3px 3px #171717;
+    .plan-btn-c {
+      border: 1px solid #938F99;
+      color: #D0BCFF;
+    }
+    .btn {
+      background-color: #171717;
+    }
+
+    &:hover{
+      background-color: #F5F5F5 !important;
+      .plan-title, .plan-descr, .plan-period, .plan-vol{
+        color: #49454F;
+      }
+      .plan-price {
+        color: #36343B;
+      }
+      .plan-btn-c {
+        border: 1px #4F378B solid;
+        background-color: #4F378B;
+      }
+      .btn {
+        color: #F5F5F5;
+      }
+    }
   }
 }
 
 .plan-title {
-  width: 145px;
-  left: 12px;
+  width: 100%;
+  left: 0;
   top: 16px;
   position: absolute;
   text-align: center;
@@ -753,9 +790,9 @@ const copyToClipboard = async () => {
 }
 
 .plan-period {
-  width: 47px;
+  width: 100%;
   height: 14px;
-  left: 61px;
+  left: 0;
   top: 202px;
   position: absolute;
   text-align: center;
@@ -768,9 +805,9 @@ const copyToClipboard = async () => {
 }
 
 .plan-descr {
-  width: 145px;
+  left: 10px;
+  width: calc(100% - 20px);
   height: 70px;
-  left: 13px;
   top: 64px;
   position: absolute;
   text-align: center;
@@ -784,7 +821,9 @@ const copyToClipboard = async () => {
 }
 
 .plan-price {
-  left: 26px;
+  left: 0;
+  width: 100%;
+  text-align: center;
   top: 150px;
   position: absolute;
   color: #F5F5F5;
@@ -794,9 +833,9 @@ const copyToClipboard = async () => {
   line-height: 52px;
   word-wrap: break-word;
 
-  &.active {
-    color: primary;
-  }
+  //&.active {
+  //  color: primary;
+  //}
 }
 
 .plan-btn-c {
@@ -823,6 +862,7 @@ const copyToClipboard = async () => {
     line-height: 20px;
     letter-spacing: 0.10px;
     word-wrap: break-word;
+    transition: none;
   }
 }
 
