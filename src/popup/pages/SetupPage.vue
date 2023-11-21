@@ -7,7 +7,7 @@
       <h2>{{ 'Get Started' }}</h2>
       <div class="setup-content">
         <p>{{
-            "Set a secure password to encrypt your wallets with. This password will be required to unlock, create, and recover your wallets. All wallet seeds are encrypted, stored locally and never leave the device."
+            "Set a secure password that will be used to provide access to the Tiri browser extension. This password is stored locally and will be reset in case of clearing browser data."
           }}</p>
         <div class="control">
           <label>{{ "Unlock Password" }}</label>
@@ -68,8 +68,9 @@
       <p v-if="createType === 'recover'">Your wallet has been successfully recovered. The blockchain is now being
         scanned for balance and transactions. Backup your recovery seed to a safe location, without your seed your funds
         cannot be recovered.</p>
-      <p v-else>A new wallet has been created. Backup your recovery seed to a safe location, without your seed your
-        funds cannot be recovered.</p>
+      <p v-else>A new wallet has been created. Backup your recovery seed to a safe location.
+        This seed will be used to recover access to your wallet if you forget your password, delete browser data or a new device connection.
+        If you loose your seed you will be unable to recover your wallet and all files stored in it.</p>
       <template v-if="walletType === 'default'">
         <div class="control">
           <label>{{ "Recovery Seed" }}</label>

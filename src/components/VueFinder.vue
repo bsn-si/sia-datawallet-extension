@@ -273,7 +273,7 @@ watchEffect(async () => {
     }
     emitter.emit('vf-fetch', {params: {q: 'index', path:'/', adapter: (adapter.value)}});
   } else {
-    await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword, false);
+    await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword, true);
   }
 
 })

@@ -320,8 +320,8 @@ const formatCurrencyString = (val) => {
   //   exchangeRate = exchangeRateSCP;
 
   const format = formatPriceString(val, 2, settings?.currency, exchangeRate[settings?.currency], props.wallet.precision());
-  const exchangeRateStr = formatExchangeRate(exchangeRate[settings?.currency], settings?.currency, 'never');
-  return ` ( ${format.value} <span class="currency-display">${format.label} ${exchangeRate !== 'NaN' ? '@' + exchangeRateStr : ''}</span> )`;
+  const exchangeRateStr = formatExchangeRate(exchangeRate[settings?.currency], settings?.currency, 'never').toUpperCase();
+  return ` ( ${format.value} <span class="currency-display">${format.label} ${!exchangeRateStr.endsWith('NAN') ? '@' + exchangeRateStr : ''}</span> )`;
 }
 
 const onQueueWallet = () => {

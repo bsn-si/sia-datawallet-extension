@@ -71,6 +71,7 @@ const emitter = inject('emitter');
 const {getStore} = inject('storage');
 const adapter = inject('adapter');
 import Message from '../Message.vue';
+import {formatFilename} from "~/utils/formatFilename";
 const {t} = inject('i18n');
 
 const props = defineProps({
@@ -91,7 +92,7 @@ const createFolder = () => {
         name: name.value
       },
       onSuccess: () => {
-        emitter.emit('vf-toast-push', {label: t('%s is created.', name.value)});
+        emitter.emit('vf-toast-push', {label: t('%s is created.', formatFilename(name.value, 20))});
       },
       onError: (e) => {
         message.value = t(e.message);

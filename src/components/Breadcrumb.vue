@@ -29,14 +29,14 @@
         <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
       </svg>
 
-      <div class="flex leading-5">
+      <div class="flex leading-5 max-w-[530px] overflow-auto">
         <div v-for="(item, index) in breadcrumb" :key="index" class="flex">
-          <span class="inline-flex mx-0.5">
+          <span class="inline-flex mx-0.5 items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M6 11.6875H15.8881L11.3463 7.14562L12.5 6L19 12.5L12.5 19L11.3544 17.8544L15.8881 13.3125H6V11.6875Z" fill="#49454F"/>
             </svg>
           </span>
-          <span class="px-1.5 py-1 text-slate-700 dark:text-slate-200 hover:bg-neutral-100 dark:hover:bg-gray-800 rounded cursor-pointer" :title="item.basename" @click="emitter.emit('vf-fetch', {params:{q: 'index', adapter: data.adapter, path:item.path, gotoFolder: true}})">{{ item.name }}</span>
+          <span class="px-1.5 py-1 text-slate-700 dark:text-slate-200 hover:bg-neutral-100 dark:hover:bg-gray-800 rounded min-w-[90px] cursor-pointer" :title="formatFilename(item.basename, 20)" @click="emitter.emit('vf-fetch', {params:{q: 'index', adapter: data.adapter, path:item.path, gotoFolder: true}})">{{ formatFilename(item.basename, 20) }}</span>
         </div>
       </div>
 
@@ -80,6 +80,7 @@ export default {
 
 import {inject, nextTick, ref, watch} from 'vue';
 import useDebouncedRef from '../composables/useDebouncedRef.js';
+import {formatFilename} from "~/utils/formatFilename";
 
 const emitter = inject('emitter');
 const { getStore } = inject('storage');

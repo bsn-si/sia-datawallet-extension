@@ -31,7 +31,7 @@
 
     <div class="flex flex-row h-full">
       <transition name="fade" mode="out-in">
-      <div v-if="uploadingFiles.length" class="w-[555px] h-6 absolute rounded-[28px] border border-neutral-800 ml-3.5">
+      <div v-if="uploadingFiles && uploadingFiles.length" class="w-[555px] h-6 absolute rounded-[28px] border border-neutral-800 ml-3.5">
         <div class="w-44 h-6 p-1 left-0 top-0 absolute justify-start items-center gap-1 inline-flex">
           <div class="grow shrink basis-0 h-6 px-2 justify-start items-center gap-2 flex">
             <div class="w-4 h-4 rounded-full animate-spin border-2 border-solid border-spinner-500 border-t-transparent"></div>
@@ -167,7 +167,7 @@
             <div class="justify-start items-start gap-[5px] inline-flex">
               <div class="text-violet-900 text-sm font-semibold font-['Roboto'] uppercase leading-tight tracking-tight">{{getSelectedItemFilename()}}</div>
             </div>
-            <div class="text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">Path: {{getSelectedItemPath()}}</div>
+            <div class="text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight max-w-[230px] break-all">Path: {{getSelectedItemPath()}}</div>
             <div class="text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">Size: {{getSelectedItemSize()}}</div>
             <div><span class="text-zinc-300 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">Health: </span><span class="text-emerald-500 text-sm font-normal font-['Roboto'] leading-tight tracking-tight">{{getSelectedItemHealth()}}</span></div>
           </div>
@@ -227,6 +227,7 @@ import {getImageUrl} from '../utils/getImageUrl.js';
 import LazyLoad from 'vanilla-lazyload';
 import {useWalletsStore} from "~/store/wallet";
 import {storeToRefs} from "pinia";
+import {formatFilename} from "~/utils/formatFilename";
 
 const props = defineProps({
   view: String,
@@ -240,7 +241,7 @@ const emitter = inject('emitter');
 const { setStore, getStore } = inject('storage');
 const adapter = inject('adapter');
 const ext = (item) => item?.substring(0, 3)
-const title_shorten = (title) => title.replace(/((?=([\w\W]{0,14}))([\w\W]{8,})([\w\W]{8,}))/, '$2..$4');
+const title_shorten = (title) => title.replace(/((?=([\w\W]{0,10}))([\w\W]{8,})([\w\W]{8,}))/, '$2..$4');
 const selectorArea = ref(null);
 const dragImage = ref(null);
 const selectedCount = ref(0)
@@ -509,7 +510,7 @@ const getSelectedItemFilename = () => {
 
 const getSelectedItemPath = () => {
   if (getSelectedItems().length === 1) {
-    return getSelectedItems()[0].path.replace('local://', '').replace(getCurrentWalletId.value, '');
+    return formatFilename(getSelectedItems()[0].path.replace('local://', '').replace(getCurrentWalletId.value, ''), 200);
   } else {
     return '';
   }

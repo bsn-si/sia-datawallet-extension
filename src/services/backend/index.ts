@@ -18,7 +18,13 @@ export async function canCreateUser(walletId, password) {
     }
 }
 
+let loginInProgress = false;
+
 export async function loginOrRegisterUser(walletId, password, register = false) {
+    if (loginInProgress) {
+        return;
+    }
+    loginInProgress = true;
     const { updateUser } = useUserStore()
     let errors = {}
     try {
@@ -41,6 +47,8 @@ export async function loginOrRegisterUser(walletId, password, register = false) 
                 console.error(e)
             }
         }
+    } finally {
+        loginInProgress = false;
     }
     return errors;
 }

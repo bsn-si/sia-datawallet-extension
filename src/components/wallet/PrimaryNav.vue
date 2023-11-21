@@ -114,7 +114,7 @@ const path = computed(() =>route.path)
 console.log(path.value)
 
 const currentUserUsage = computed(() => {
-  return userUsage && userUsage.value ? filesize(userUsage.value.customer_usage.charges_usage[0].units) : '';
+  return userUsage && userUsage.value && userUsage.value.customer_usage ? filesize(userUsage.value.customer_usage.charges_usage[0].units) : '';
 });
 
 const currentUserUsagePercentageToPaggingRight = computed(() => {

@@ -59,7 +59,7 @@
           </svg>
         </div>
 
-      <div v-if="selectedItems.length > 1" class="w-[150px] h-[35px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex"
+      <div class="w-[150px] h-[35px] rounded-[100px] border border-neutral-400 flex-col justify-center items-center inline-flex"
            :class="(selectedItems.length) ? 'cursor-pointer ' : ''"
            :aria-label="t('Delete')" data-microtip-position="bottom" role="tooltip"
            @click="(!selectedItems.length) || emitter.emit('vf-modal-show', {type:'delete', items: selectedItems})">
