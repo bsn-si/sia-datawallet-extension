@@ -134,11 +134,27 @@
              :aria-label="t('Change View')" data-microtip-position="bottom-left" role="tooltip"
              @click="searchQuery.length || emitter.emit('vf-view-toggle', view == 'list' ? 'grid' : 'list')">
 
-          <svg xmlns="http://www.w3.org/2000/svg"
-               :class="(!searchQuery.length) ? 'cursor-pointer stroke-gray-500 hover:stroke-cyan-700 dark:stroke-gray-400 dark:hover:stroke-gray-300' : 'stroke-gray-200  dark:stroke-gray-700'"
-               class="h-6 w-6 md:h-8 md:w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="none" stroke-width="1.5">
-              <path v-if="view == 'grid'" stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-              <path v-if="view == 'list'"  stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+          <svg v-if="view == 'list'" xmlns="http://www.w3.org/2000/svg"
+               :class="(!searchQuery.length) ? 'cursor-pointer stroke-[#938F99] fill-[#938F99] hover:fill-[#77FF85] hover:stroke-[#77FF85]' : ''"
+               class="w-6 h-6 p-[3px] justify-center items-center inline-flex"
+               width="18" height="18" viewBox="0 0 18 18" >
+            <rect x="1" y="1" width="16" height="16" rx="1" stroke="currentStroke" stroke-width="2" fill="none"/>
+            <path d="M7 12C7 11.4477 7.44772 11 8 11H13C13.5523 11 14 11.4477 14 12C14 12.5523 13.5523 13 13 13H8C7.44772 13 7 12.5523 7 12Z" fill="currentFill" stroke="none"/>
+            <path d="M7 9C7 8.44772 7.44772 8 8 8H13C13.5523 8 14 8.44772 14 9C14 9.55228 13.5523 10 13 10H8C7.44772 10 7 9.55228 7 9Z" fill="currentFill" stroke="none"/>
+            <path d="M7 6C7 5.44772 7.44772 5 8 5H13C13.5523 5 14 5.44772 14 6C14 6.55228 13.5523 7 13 7H8C7.44772 7 7 6.55228 7 6Z" fill="currentFill" stroke="none"/>
+            <path d="M4 12C4 11.4477 4.44772 11 5 11C5.55228 11 6 11.4477 6 12C6 12.5523 5.55228 13 5 13C4.44772 13 4 12.5523 4 12Z" fill="currentFill" stroke="none"/>
+            <path d="M4 9C4 8.44772 4.44772 8 5 8C5.55228 8 6 8.44772 6 9C6 9.55228 5.55228 10 5 10C4.44772 10 4 9.55228 4 9Z" fill="currentFill" stroke="none"/>
+            <path d="M4 6C4 5.44772 4.44772 5 5 5C5.55228 5 6 5.44772 6 6C6 6.55228 5.55228 7 5 7C4.44772 7 4 6.55228 4 6Z" fill="currentFill" stroke="none"/>
+          </svg>
+          <svg v-if="view == 'grid'" xmlns="http://www.w3.org/2000/svg"
+               :class="(!searchQuery.length) ? 'cursor-pointer stroke-[#938F99] fill-[#938F99] hover:fill-[#77FF85] hover:stroke-[#77FF85]' : ''"
+               class="w-6 h-6 p-[3px] justify-center items-center inline-flex"
+               width="18" height="18" viewBox="0 0 18 18">
+            <rect x="1" y="1" width="16" height="16" rx="1" stroke="currentStroke" stroke-width="2" fill="none"/>
+            <path d="M4 5C4 4.44772 4.44772 4 5 4H7C7.55228 4 8 4.44772 8 5V7C8 7.55228 7.55228 8 7 8H5C4.44772 8 4 7.55228 4 7V5Z" fill="currentFill" stroke="none"/>
+            <path d="M4 11C4 10.4477 4.44772 10 5 10H7C7.55228 10 8 10.4477 8 11V13C8 13.5523 7.55228 14 7 14H5C4.44772 14 4 13.5523 4 13V11Z" fill="currentFill" stroke="none"/>
+            <path d="M10 5C10 4.44772 10.4477 4 11 4H13C13.5523 4 14 4.44772 14 5V7C14 7.55228 13.5523 8 13 8H11C10.4477 8 10 7.55228 10 7V5Z" fill="currentFill" stroke="none"/>
+            <path d="M10 11C10 10.4477 10.4477 10 11 10H13C13.5523 10 14 10.4477 14 11V13C14 13.5523 13.5523 14 13 14H11C10.4477 14 10 13.5523 10 13V11Z" fill="currentFill" stroke="none"/>
           </svg>
         </div>
     </div>

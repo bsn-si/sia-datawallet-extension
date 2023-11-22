@@ -460,6 +460,12 @@ const formatCurrentAddress = computed(() => {
 const copyToClipboard = async () => {
   try {
     await toClipboard(currentAddress.value)
+
+    pushNotification({
+      message: 'Wallet address copied',
+      icon: 'clipboard'
+    })
+
     console.log('Copied to clipboard')
   } catch (e) {
     console.error(e)

@@ -1,20 +1,20 @@
 <template>
   <div class="relative flex-auto flex flex-col overflow-hidden">
 
-    <div v-if="view=='list' || searchQuery.length" class="grid grid-cols-12 border-b border-neutral-300 border-gray-200 dark:border-gray-700 text-xs select-none">
-        <div @click="sortBy('basename')" class="col-span-7 py-1 leading-6 hover:bg-neutral-100 bg-neutral-50 dark:bg-gray-800 dark:hover:bg-gray-700/10 flex items-center pl-1">
+    <div v-if="view=='list' || searchQuery.length" class="grid grid-cols-12 bg-[#D0BCFF1F] text-neutral-400 rounded-[5px] ml-4 mr-2 text-sm select-none">
+        <div @click="sortBy('basename')" :class="searchQuery.length ? 'col-span-7' : 'col-span-9'" class="py-1 leading-6 hover:bg-neutral-100  dark:hover:bg-gray-700/10 flex items-center pl-1">
           {{ t('Name') }}
             <v-f-sort-icon :direction="sort.order=='asc'? 'down': 'up'" v-show="sort.active && sort.column=='basename'" />
         </div>
-        <div v-if="!searchQuery.length" @click="sortBy('file_size')" class="col-span-2 py-1 leading-6 hover:bg-neutral-100 bg-neutral-50 dark:bg-gray-800 dark:hover:bg-gray-700/10 flex items-center justify-center border-l border-r dark:border-gray-700">
+        <div v-if="!searchQuery.length" @click="sortBy('file_size')" class="col-span-2 py-1 leading-6 hover:bg-neutral-100 dark:hover:bg-gray-700/10 flex items-center justify-center border-l border-r dark:border-gray-700">
           {{ t('Size') }}
           <v-f-sort-icon :direction="sort.order=='asc'? 'down': 'up'"  v-show="sort.active && sort.column=='file_size'" />
         </div>
-        <div v-if="!searchQuery.length" @click="sortBy('last_modified')" class="col-span-3 py-1 leading-6 hover:bg-neutral-100 bg-neutral-50 dark:bg-gray-800 dark:hover:bg-gray-700/10 flex items-center justify-center">
-          {{ t('Date') }}
-          <v-f-sort-icon :direction="sort.order=='asc'? 'down': 'up'"  v-show="sort.active && sort.column=='last_modified'" />
+        <div v-if="!searchQuery.length" @click="sortBy('health')" class="col-span-1 py-1 leading-6 hover:bg-neutral-100 dark:hover:bg-gray-700/10 flex items-center justify-center">
+          {{ t('Health') }}
+          <v-f-sort-icon :direction="sort.order=='asc'? 'down': 'up'"  v-show="sort.active && sort.column=='health'" />
         </div>
-        <div v-if="searchQuery.length" @click="sortBy('path')" class="col-span-5 py-1 leading-6 hover:bg-neutral-100 bg-neutral-50 dark:bg-gray-800 dark:hover:bg-gray-700/10 flex items-center justify-center border-l dark:border-gray-700">
+        <div v-if="searchQuery.length" @click="sortBy('path')" class="col-span-5 py-1 leading-6 hover:bg-neutral-100  dark:hover:bg-gray-700/10 flex items-center justify-center border-l dark:border-gray-700">
           {{ t('Path') }}
             <v-f-sort-icon :direction="sort.order=='asc'? 'down': 'up'"  v-show="sort.active && sort.column=='path'" />
         </div>
@@ -43,8 +43,8 @@
       <div
           @touchstart="handleTouchStart"
           @contextmenu.self.prevent="emitter.emit('vf-contextmenu-show',{event: $event, area: selectorArea, items: getSelectedItems()})"
-          :class="[showFileInfo ? 'w-[300px]' : 'w-full']"
-          class="h-full text-xs vf-selector-area min-h-[150px] overflow-auto p-1 pt-3 z-0"
+          :class="[showFileInfo ? 'w-[300px]' : 'w-full', searchQuery.length || view ==='list' ? 'ml-[10px]' : '']"
+          class="h-full text-xs vf-selector-area min-h-[150px] overflow-auto p-1 pt-3 z-0 "
           ref="selectorArea">
 
         <div
@@ -52,25 +52,89 @@
              @dblclick="openItem(item)"
              @touchstart="delayedOpenItem($event)"
              @touchend="clearTimeOut()"
+             @mouseenter="handleMouseEnter($event,item)"
+             @mouseleave="handleMouseLeave($event,item)"
              @contextmenu.prevent="emitter.emit('vf-contextmenu-show', {event: $event, area: selectorArea, items: getSelectedItems(), target: item })"
              :class="'vf-item-' + randId"
-             class="grid grid-cols-1 border hover:bg-neutral-50 dark:hover:bg-gray-700 border-transparent my-0.5 w-full select-none"
+             class="grid grid-cols-1 border text-[#CAC4D0] fill-[#4F378B] hover:text-[#77FF85] hover:fill-[#77FF85] border-transparent w-full select-none "
              v-for="(item, index) in getItems()" :data-type="item.type" :data-item="JSON.stringify(item)" :data-index="index">
             <div class="grid grid-cols-12 items-center">
-              <div class="flex col-span-7 items-center">
-                <svg v-if="item.type == 'dir'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500 fill-sky-500 stroke-sky-500 dark:fill-slate-500 dark:stroke-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                <svg v-if="item.status==='uploading'" aria-hidden="true" class="vf-item-spinner w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-green-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                  <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                </svg>
-                <span class="overflow-ellipsis overflow-hidden whitespace-nowrap">{{item.basename }}</span>
+              <div class="flex col-span-7 items-center border-b border-[#49454F] h-[26px] mt-[2px] mb-[2px]">
+                <div class="w-5 mr-1">
+                  <svg v-if="item.type === 'dir' && item.hover"  xmlns="http://www.w3.org/2000/svg"
+                       class="fill-[#77FF85]"
+                       width="16" height="16" viewBox="0 0 16 16">
+                    <g clip-path="url(#clip0_496_2843)">
+                      <path d="M13.1786 2.50895H8.17859L6.92859 0.678589H3.17859C2.49109 0.678589 1.92859 1.50225 1.92859 2.50895V13.4911C1.92859 14.4978 2.49109 15.3214 3.17859 15.3214H13.1786C13.8661 15.3214 14.4286 14.4978 14.4286 13.4911V4.3393C14.4286 3.33261 13.8661 2.50895 13.1786 2.50895Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2843">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'dir' && (item.selected || setSelectedIcon(item))"  xmlns="http://www.w3.org/2000/svg"
+                       class="fill-[#BEA9EE]"
+                       width="16" height="16" viewBox="0 0 16 16">
+                    <g clip-path="url(#clip0_496_2843)">
+                      <path d="M13.1786 2.50895H8.17859L6.92859 0.678589H3.17859C2.49109 0.678589 1.92859 1.50225 1.92859 2.50895V13.4911C1.92859 14.4978 2.49109 15.3214 3.17859 15.3214H13.1786C13.8661 15.3214 14.4286 14.4978 14.4286 13.4911V4.3393C14.4286 3.33261 13.8661 2.50895 13.1786 2.50895Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2843">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'dir'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" >
+                    <g clip-path="url(#clip0_496_2843)">
+                      <path d="M13.1786 2.50895H8.17859L6.92859 0.678589H3.17859C2.49109 0.678589 1.92859 1.50225 1.92859 2.50895V13.4911C1.92859 14.4978 2.49109 15.3214 3.17859 15.3214H13.1786C13.8661 15.3214 14.4286 14.4978 14.4286 13.4911V4.3393C14.4286 3.33261 13.8661 2.50895 13.1786 2.50895Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2843">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'file' && item.hover" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <g clip-path="url(#clip0_496_2862)">
+                      <path d="M10.9285 1.0122L11.2857 0.646341L11.1428 0.5H10.9285V1.0122ZM13.8571 4.0122H14.3571V3.79268L14.2143 3.64634L13.8571 4.0122ZM12.8928 14.5122H3.10711V15.5H12.8571V14.5122H12.8928ZM2.64282 14V2H1.64282V14H2.64282ZM3.10711 1.4878H10.9285V0.5H3.10711V1.4878ZM13.3571 4.0122V14H14.3214V4.0122H13.3571ZM10.5714 1.34146L13.5 4.34146L14.1785 3.64634L11.25 0.646341L10.5714 1.34146ZM3.10711 14.5122C2.96425 14.5122 2.85711 14.4756 2.74997 14.3659C2.64282 14.2561 2.60711 14.1463 2.60711 14H1.64282C1.64282 14.4024 1.78568 14.7683 2.07139 15.061C2.35711 15.3537 2.71425 15.5 3.10711 15.5V14.5122ZM12.8928 15.5C13.2857 15.5 13.6428 15.3537 13.9285 15.061C14.2142 14.7683 14.3571 14.4024 14.3571 14H13.3571C13.3571 14.1463 13.3214 14.2561 13.2142 14.3659C13.1071 14.4756 13 14.5122 12.8571 14.5122V15.5H12.8928ZM2.64282 2C2.64282 1.85366 2.67854 1.7439 2.78568 1.63415C2.89282 1.52439 2.99996 1.4878 3.14282 1.4878V0.5C2.71425 0.5 2.35711 0.646341 2.07139 0.939024C1.82139 1.23171 1.64282 1.59756 1.64282 2H2.64282Z" fill="#77FF85"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2862">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'file' && (item.selected || setSelectedIcon(item))" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <g clip-path="url(#clip0_496_2862)">
+                      <path d="M10.9285 1.0122L11.2857 0.646341L11.1428 0.5H10.9285V1.0122ZM13.8571 4.0122H14.3571V3.79268L14.2143 3.64634L13.8571 4.0122ZM12.8928 14.5122H3.10711V15.5H12.8571V14.5122H12.8928ZM2.64282 14V2H1.64282V14H2.64282ZM3.10711 1.4878H10.9285V0.5H3.10711V1.4878ZM13.3571 4.0122V14H14.3214V4.0122H13.3571ZM10.5714 1.34146L13.5 4.34146L14.1785 3.64634L11.25 0.646341L10.5714 1.34146ZM3.10711 14.5122C2.96425 14.5122 2.85711 14.4756 2.74997 14.3659C2.64282 14.2561 2.60711 14.1463 2.60711 14H1.64282C1.64282 14.4024 1.78568 14.7683 2.07139 15.061C2.35711 15.3537 2.71425 15.5 3.10711 15.5V14.5122ZM12.8928 15.5C13.2857 15.5 13.6428 15.3537 13.9285 15.061C14.2142 14.7683 14.3571 14.4024 14.3571 14H13.3571C13.3571 14.1463 13.3214 14.2561 13.2142 14.3659C13.1071 14.4756 13 14.5122 12.8571 14.5122V15.5H12.8928ZM2.64282 2C2.64282 1.85366 2.67854 1.7439 2.78568 1.63415C2.89282 1.52439 2.99996 1.4878 3.14282 1.4878V0.5C2.71425 0.5 2.35711 0.646341 2.07139 0.939024C1.82139 1.23171 1.64282 1.59756 1.64282 2H2.64282Z" fill="#BEA9EE"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2862">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                    <g clip-path="url(#clip0_496_2862)">
+                      <path d="M10.9285 1.0122L11.2857 0.646341L11.1428 0.5H10.9285V1.0122ZM13.8571 4.0122H14.3571V3.79268L14.2143 3.64634L13.8571 4.0122ZM12.8928 14.5122H3.10711V15.5H12.8571V14.5122H12.8928ZM2.64282 14V2H1.64282V14H2.64282ZM3.10711 1.4878H10.9285V0.5H3.10711V1.4878ZM13.3571 4.0122V14H14.3214V4.0122H13.3571ZM10.5714 1.34146L13.5 4.34146L14.1785 3.64634L11.25 0.646341L10.5714 1.34146ZM3.10711 14.5122C2.96425 14.5122 2.85711 14.4756 2.74997 14.3659C2.64282 14.2561 2.60711 14.1463 2.60711 14H1.64282C1.64282 14.4024 1.78568 14.7683 2.07139 15.061C2.35711 15.3537 2.71425 15.5 3.10711 15.5V14.5122ZM12.8928 15.5C13.2857 15.5 13.6428 15.3537 13.9285 15.061C14.2142 14.7683 14.3571 14.4024 14.3571 14H13.3571C13.3571 14.1463 13.3214 14.2561 13.2142 14.3659C13.1071 14.4756 13 14.5122 12.8571 14.5122V15.5H12.8928ZM2.64282 2C2.64282 1.85366 2.67854 1.7439 2.78568 1.63415C2.89282 1.52439 2.99996 1.4878 3.14282 1.4878V0.5C2.71425 0.5 2.35711 0.646341 2.07139 0.939024C1.82139 1.23171 1.64282 1.59756 1.64282 2H2.64282Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2862">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-if="item.status==='uploading'" aria-hidden="true" class="vf-item-spinner w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-green-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                  </svg>
+                </div>
+                <span class="overflow-ellipsis overflow-hidden whitespace-nowrap uppercase leading-[24px] text-[14px] font-['Roboto'] hover:text-[#77FF85]"
+                      :class="{'text-[#BEA9EE]': item.selected || setSelectedIcon(item) }">
+                  {{item.basename }}</span>
               </div>
-              <div class="col-span-5 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ item.visible_path }}</div>
+              <div class="col-span-5 overflow-ellipsis overflow-hidden whitespace-nowrap uppercase text-[#CAC4D0] leading-[24px] text-[14px] font-['Roboto']">{{ item.visible_path }}</div>
             </div>
         </div>
 
@@ -83,25 +147,89 @@
              @dragstart="handleDragStart($event,item)"
              @dragover="handleDragOver($event,item)"
              @drop="handleDropZone($event,item)"
+             @mouseenter="handleMouseEnter($event,item)"
+             @mouseleave="handleMouseLeave($event,item)"
              :class="'vf-item-' + randId"
-             class="grid grid-cols-1 border hover:bg-neutral-50 dark:hover:bg-gray-700 border-transparent my-0.5 w-full select-none"
+             class="grid grid-cols-1 border text-[#CAC4D0] fill-[#4F378B] hover:text-[#77FF85] hover:fill-[#77FF85] border-transparent w-full select-none"
              v-for="(item, index) in getItems()" :data-type="item.type" :data-item="JSON.stringify(item)" :data-index="index">
             <div class="grid grid-cols-12 items-center">
-              <div class="flex col-span-7 items-center">
-                <svg v-if="item.type == 'dir'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500 fill-sky-500 stroke-sky-500 dark:fill-slate-500 dark:stroke-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                </svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                <svg v-if="item.status==='uploading'" aria-hidden="true" class="vf-item-spinner w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-green-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                  <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                </svg>
-                <span class="overflow-ellipsis overflow-hidden whitespace-nowrap">{{item.basename }}</span>
+              <div class="flex col-span-9 items-center border-b border-[#49454F] h-[26px] mt-[2px] mb-[2px]">
+                <div class="w-5 mr-1">
+                  <svg v-if="item.type === 'dir' && item.hover"  xmlns="http://www.w3.org/2000/svg"
+                       class="fill-[#77FF85]"
+                       width="16" height="16" viewBox="0 0 16 16">
+                    <g clip-path="url(#clip0_496_2843)">
+                      <path d="M13.1786 2.50895H8.17859L6.92859 0.678589H3.17859C2.49109 0.678589 1.92859 1.50225 1.92859 2.50895V13.4911C1.92859 14.4978 2.49109 15.3214 3.17859 15.3214H13.1786C13.8661 15.3214 14.4286 14.4978 14.4286 13.4911V4.3393C14.4286 3.33261 13.8661 2.50895 13.1786 2.50895Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2843">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'dir' && (item.selected || setSelectedIcon(item))"  xmlns="http://www.w3.org/2000/svg"
+                       class="fill-[#BEA9EE]"
+                       width="16" height="16" viewBox="0 0 16 16">
+                    <g clip-path="url(#clip0_496_2843)">
+                      <path d="M13.1786 2.50895H8.17859L6.92859 0.678589H3.17859C2.49109 0.678589 1.92859 1.50225 1.92859 2.50895V13.4911C1.92859 14.4978 2.49109 15.3214 3.17859 15.3214H13.1786C13.8661 15.3214 14.4286 14.4978 14.4286 13.4911V4.3393C14.4286 3.33261 13.8661 2.50895 13.1786 2.50895Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2843">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'dir'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" >
+                    <g clip-path="url(#clip0_496_2843)">
+                      <path d="M13.1786 2.50895H8.17859L6.92859 0.678589H3.17859C2.49109 0.678589 1.92859 1.50225 1.92859 2.50895V13.4911C1.92859 14.4978 2.49109 15.3214 3.17859 15.3214H13.1786C13.8661 15.3214 14.4286 14.4978 14.4286 13.4911V4.3393C14.4286 3.33261 13.8661 2.50895 13.1786 2.50895Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2843">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'file' && item.hover" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <g clip-path="url(#clip0_496_2862)">
+                      <path d="M10.9285 1.0122L11.2857 0.646341L11.1428 0.5H10.9285V1.0122ZM13.8571 4.0122H14.3571V3.79268L14.2143 3.64634L13.8571 4.0122ZM12.8928 14.5122H3.10711V15.5H12.8571V14.5122H12.8928ZM2.64282 14V2H1.64282V14H2.64282ZM3.10711 1.4878H10.9285V0.5H3.10711V1.4878ZM13.3571 4.0122V14H14.3214V4.0122H13.3571ZM10.5714 1.34146L13.5 4.34146L14.1785 3.64634L11.25 0.646341L10.5714 1.34146ZM3.10711 14.5122C2.96425 14.5122 2.85711 14.4756 2.74997 14.3659C2.64282 14.2561 2.60711 14.1463 2.60711 14H1.64282C1.64282 14.4024 1.78568 14.7683 2.07139 15.061C2.35711 15.3537 2.71425 15.5 3.10711 15.5V14.5122ZM12.8928 15.5C13.2857 15.5 13.6428 15.3537 13.9285 15.061C14.2142 14.7683 14.3571 14.4024 14.3571 14H13.3571C13.3571 14.1463 13.3214 14.2561 13.2142 14.3659C13.1071 14.4756 13 14.5122 12.8571 14.5122V15.5H12.8928ZM2.64282 2C2.64282 1.85366 2.67854 1.7439 2.78568 1.63415C2.89282 1.52439 2.99996 1.4878 3.14282 1.4878V0.5C2.71425 0.5 2.35711 0.646341 2.07139 0.939024C1.82139 1.23171 1.64282 1.59756 1.64282 2H2.64282Z" fill="#77FF85"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2862">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else-if="item.type === 'file' && (item.selected || setSelectedIcon(item))" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <g clip-path="url(#clip0_496_2862)">
+                      <path d="M10.9285 1.0122L11.2857 0.646341L11.1428 0.5H10.9285V1.0122ZM13.8571 4.0122H14.3571V3.79268L14.2143 3.64634L13.8571 4.0122ZM12.8928 14.5122H3.10711V15.5H12.8571V14.5122H12.8928ZM2.64282 14V2H1.64282V14H2.64282ZM3.10711 1.4878H10.9285V0.5H3.10711V1.4878ZM13.3571 4.0122V14H14.3214V4.0122H13.3571ZM10.5714 1.34146L13.5 4.34146L14.1785 3.64634L11.25 0.646341L10.5714 1.34146ZM3.10711 14.5122C2.96425 14.5122 2.85711 14.4756 2.74997 14.3659C2.64282 14.2561 2.60711 14.1463 2.60711 14H1.64282C1.64282 14.4024 1.78568 14.7683 2.07139 15.061C2.35711 15.3537 2.71425 15.5 3.10711 15.5V14.5122ZM12.8928 15.5C13.2857 15.5 13.6428 15.3537 13.9285 15.061C14.2142 14.7683 14.3571 14.4024 14.3571 14H13.3571C13.3571 14.1463 13.3214 14.2561 13.2142 14.3659C13.1071 14.4756 13 14.5122 12.8571 14.5122V15.5H12.8928ZM2.64282 2C2.64282 1.85366 2.67854 1.7439 2.78568 1.63415C2.89282 1.52439 2.99996 1.4878 3.14282 1.4878V0.5C2.71425 0.5 2.35711 0.646341 2.07139 0.939024C1.82139 1.23171 1.64282 1.59756 1.64282 2H2.64282Z" fill="#BEA9EE"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2862">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                    <g clip-path="url(#clip0_496_2862)">
+                      <path d="M10.9285 1.0122L11.2857 0.646341L11.1428 0.5H10.9285V1.0122ZM13.8571 4.0122H14.3571V3.79268L14.2143 3.64634L13.8571 4.0122ZM12.8928 14.5122H3.10711V15.5H12.8571V14.5122H12.8928ZM2.64282 14V2H1.64282V14H2.64282ZM3.10711 1.4878H10.9285V0.5H3.10711V1.4878ZM13.3571 4.0122V14H14.3214V4.0122H13.3571ZM10.5714 1.34146L13.5 4.34146L14.1785 3.64634L11.25 0.646341L10.5714 1.34146ZM3.10711 14.5122C2.96425 14.5122 2.85711 14.4756 2.74997 14.3659C2.64282 14.2561 2.60711 14.1463 2.60711 14H1.64282C1.64282 14.4024 1.78568 14.7683 2.07139 15.061C2.35711 15.3537 2.71425 15.5 3.10711 15.5V14.5122ZM12.8928 15.5C13.2857 15.5 13.6428 15.3537 13.9285 15.061C14.2142 14.7683 14.3571 14.4024 14.3571 14H13.3571C13.3571 14.1463 13.3214 14.2561 13.2142 14.3659C13.1071 14.4756 13 14.5122 12.8571 14.5122V15.5H12.8928ZM2.64282 2C2.64282 1.85366 2.67854 1.7439 2.78568 1.63415C2.89282 1.52439 2.99996 1.4878 3.14282 1.4878V0.5C2.71425 0.5 2.35711 0.646341 2.07139 0.939024C1.82139 1.23171 1.64282 1.59756 1.64282 2H2.64282Z" fill="currentFill"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_496_2862">
+                        <rect width="15" height="15" fill="white" transform="translate(0.5 0.5)"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                  <svg v-if="item.status==='uploading'" aria-hidden="true" class="vf-item-spinner w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-green-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                  </svg>
+                </div>
+                <span class="overflow-ellipsis overflow-hidden whitespace-nowrap uppercase leading-[24px] text-[14px] font-['Roboto'] hover:text-[#77FF85]"
+                      :class="{'text-[#BEA9EE]': item.selected || setSelectedIcon(item) }">
+                  {{item.basename }}</span>
               </div>
-              <div class="col-span-2 text-center">{{ item.file_size ? filesize(item.file_size) : '' }}</div>
-              <div class="col-span-3 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ datetimestring(item.last_modified) }}</div>
+              <div class="col-span-2 text-center uppercase text-[#CAC4D0] leading-[24px] text-[14px] font-['Roboto'] border-b border-[#49454F] h-[26px] mt-[2px] mb-[2px]">{{ item.file_size ? filesize(item.file_size) : '' }}</div>
+              <div class="col-span-1 overflow-ellipsis overflow-hidden whitespace-nowrap uppercase text-[#CAC4D0] leading-[24px] text-[14px] font-['Roboto'] border-b border-[#49454F] h-[26px] mt-[2px] mb-[2px]">{{ item.health > 0.5 ? 'Good' : 'Bad' }}</div>
             </div>
         </div>
 
@@ -121,9 +249,6 @@
              v-for="(item, index) in getItems(false)" :data-type="item.type" :data-item="JSON.stringify(item)" :data-index="index">
             <div>
               <div class="relative mb-2">
-                <svg v-if="false && item.type === 'dir'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12 m-auto fill-sky-500 stroke-sky-500 dark:fill-slate-500 dark:stroke-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                </svg>
                 <svg v-if="item.type === 'dir' && item.hover"  xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12 m-auto" viewBox="0 0 42 42" fill="none">
                   <path d="M35.5 5.625H21.5L18 0.5H7.5C5.575 0.5 4 2.80625 4 5.625V36.375C4 39.1937 5.575 41.5 7.5 41.5H35.5C37.425 41.5 39 39.1937 39 36.375V10.75C39 7.93125 37.425 5.625 35.5 5.625Z" fill="#77FF85"/>
                 </svg>
@@ -143,10 +268,6 @@
                 <svg v-else-if="item.type === 'file'" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12 m-auto text-neutral-500" fill="none" viewBox="0 0 42 42" >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M29.2002 1.43415L30.2002 0.409756L29.8002 0H29.2002V1.43415ZM37.4002 9.83415H38.8002V9.21951L38.4002 8.80976L37.4002 9.83415ZM34.7002 39.2341H7.3002V42H34.6002V39.2341H34.7002ZM6.0002 37.8V4.2H3.2002V37.8H6.0002ZM7.3002 2.76585H29.2002V0H7.3002V2.76585ZM36.0002 9.83415V37.8H38.7002V9.83415H36.0002ZM28.2002 2.3561L36.4002 10.7561L38.3002 8.80976L30.1002 0.409756L28.2002 2.3561ZM7.3002 39.2341C6.9002 39.2341 6.6002 39.1317 6.3002 38.8244C6.0002 38.5171 5.9002 38.2098 5.9002 37.8H3.2002C3.2002 38.9268 3.6002 39.9512 4.4002 40.7707C5.2002 41.5902 6.2002 42 7.3002 42V39.2341ZM34.7002 42C35.8002 42 36.8002 41.5902 37.6002 40.7707C38.4002 39.9512 38.8002 38.9268 38.8002 37.8H36.0002C36.0002 38.2098 35.9002 38.5171 35.6002 38.8244C35.3002 39.1317 35.0002 39.2341 34.6002 39.2341V42H34.7002ZM6.0002 4.2C6.0002 3.79024 6.1002 3.48293 6.4002 3.17561C6.7002 2.86829 7.0002 2.76585 7.4002 2.76585V0C6.2002 0 5.2002 0.409756 4.4002 1.22927C3.7002 2.04878 3.2002 3.07317 3.2002 4.2H6.0002Z" fill="#4F378B"/>
                 </svg>
-                <svg v-if="false" aria-hidden="true" class="vf-item-spinner w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-zinc-900 fill-spinner-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                  <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                </svg>
                 <div v-if="item.status==='uploading'" class="vf-item-spinner-small w-4 h-4 rounded-full animate-spin border-2 border-solid border-spinner-500 border-t-transparent"></div>
                 <div class="absolute hidden md:block top-1/2 w-full text-center text-neutral-500" v-if="!(item.mime_type ?? '').startsWith('image') && item.type != 'dir'">{{ ext(item.extension) }}</div>
               </div>
@@ -155,7 +276,9 @@
         </div>
 
       </div>
-      <div v-if="showFileInfo === true" class="absolute h-full bg-zinc-900 right-0 w-[272px] p-1 pl-[24px] pr-[24px] mt-2">
+      <div v-if="showFileInfo === true"
+           :class="[searchQuery.length || view ==='list' ? 'w-[262px] pl-[14px]' : 'w-[272px] pl-[24px]']"
+           class="absolute h-full bg-zinc-900 right-0  p-1 pr-[24px] mt-2">
         <div class="w-[241px] h-[202px] flex-col justify-start items-start gap-2.5 inline-flex">
           <div class="justify-start items-start gap-[116px] inline-flex">
             <div class="w-28 text-zinc-700 text-sm font-semibold font-['Roboto'] leading-tight tracking-tight">File info</div>
