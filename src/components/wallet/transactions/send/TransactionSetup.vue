@@ -74,7 +74,8 @@ export default {
   }
 
   interface Emits {
-    (e: 'built', txn: Txn): void
+    (e: 'built', txn: Txn): void;
+    (e: 'done'): void;
   }
   const emit = defineEmits<Emits>()
 
@@ -459,6 +460,8 @@ export default {
       });
 
       await cancelSubscribeUser(props.wallet.id, props.subscription, recipientAddress.value, txtSiacoin.value.value)
+
+      emit('done');
     } finally {
       sending.value = false;
     }
