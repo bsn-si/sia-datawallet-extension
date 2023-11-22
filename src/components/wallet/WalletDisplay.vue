@@ -463,7 +463,7 @@ const copyToClipboard = async () => {
 
     pushNotification({
       message: 'Wallet address copied',
-      icon: 'clipboard'
+      icon: 'wallet'
     })
 
     console.log('Copied to clipboard')
