@@ -4,11 +4,9 @@
       <div class="setup-icon">
         <img src="/assets/siacentral.svg"/>
       </div>
-      <h2>{{ 'Get Started' }}</h2>
+      <h2>{{ caption }}</h2>
       <div class="setup-content">
-        <p>{{
-            "Set a secure password that will be used to provide access to the Tiri browser extension. This password is stored locally and will be reset in case of clearing browser data."
-          }}</p>
+        <p>{{ description }}</p>
         <div class="control">
           <label>{{ "Unlock Password" }}</label>
           <input type="password" v-model="form.unlockPassword" autocomplete="new-password" @input="onCheckPassword"
@@ -47,7 +45,7 @@
       </div>
     </div>
     <div class="setup-step" v-if="step ==='create'">
-      <div class="control">
+      <div v-if="false" class="control">
         <label>{{ "Wallet Name" }}</label>
         <input type="text" placeholder="Wallet" v-model="walletName"/>
       </div>
@@ -147,10 +145,11 @@ let wallet = reactive({
 })
 
 const userStore = useUserStore();
-
-const {pushNotification, getSetupStep, lockWallets, createWallet, deleteWallet, queueWallet, setSetup} = useWalletsStore()
+const store = useWalletsStore()
+const {pushNotification, getSetupStep, lockWallets, createWallet, deleteWallet, queueWallet, setSetup} = store
 
 const {user} = storeToRefs(userStore)
+const {setupMode} = storeToRefs(store)
 const {updateUser, userLogout} = userStore;
 
 let addresses = []
@@ -185,7 +184,13 @@ const onSetPassword = () => {
 
     updateUser({unlockPassword: hash(encodeUTF8(form.unlockPassword))})
     // this.step = 1;
-    step.value = 'choose';
+    if (setupMode.value === 'forgot-password') {
+      onClickWalletType('recover')
+    } else if (setupMode.value === 'create-new') {
+      onClickWalletType('create')
+    } else {
+      step.value = 'choose';
+    }
   } catch (ex) {
     console.error('onSetPassword', ex);
     pushNotification({
@@ -198,7 +203,17 @@ const onSetPassword = () => {
 
 const onClickWalletType = (type: string) => {
   try {
-    step.value = 'create';
+    if (setupMode.value === 'create-new') {
+      createType.value = type;
+      onCreateWallet();
+    } else if (setupMode.value === 'forgot-password') {
+      step.value = 'create';
+    } else if (type === 'recover') {
+      step.value = 'create';
+    } else {
+      createType.value = type;
+      onCreateWallet();
+    }
     createType.value = type;
   } catch (ex) {
     console.error('onClickWalletType', ex);
@@ -246,7 +261,11 @@ const onCreateWallet = async () => {
       console.log(wallet);
 
       if (await saveWallet()) {
-        step.value = 'review';
+        if (setupMode.value === 'forgot-password') {
+          onWalletCreated();
+        } else {
+          step.value = 'review';
+        }
       }
     }
   } catch (ex) {
@@ -323,6 +342,30 @@ const onWalletCreated = async () => {
     });
   }
 }
+
+const caption = computed(() => {
+  switch (setupMode.value) {
+    case 'default':
+    case 'create-new':
+      return 'Get Started';
+    case 'forgot-password':
+      return 'Setting new password';
+    default:
+      return '';
+  }
+})
+
+const description = computed(() => {
+  switch (setupMode.value) {
+    case 'default':
+    case 'create-new':
+      return 'Set a secure password that will be used to provide access to your Tiri data wallet. Tiri doesn\'t hold your password, it is stored locally in the extension and could be reset by clearing browser data. In this case you will need to use your wallet seed to set a new password and restore access to your data wallet.';
+    case 'forgot-password':
+      return 'Set a new secure password to encrypt your wallets with. This password will be required to unlock, create, and recover your wallets. All wallet seeds are encrypted, stored locally and never leave the device.';
+    default:
+      return '';
+  }
+})
 
 const logout = async () => {
   await userLogout();

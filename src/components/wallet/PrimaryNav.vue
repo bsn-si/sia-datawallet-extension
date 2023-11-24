@@ -17,7 +17,7 @@
         <div v-if="offline" class="connect-status">Offline</div>
       </transition>
 
-      <div class="w-[180px] h-14 pl-4 pr-6 py-4 justify-start items-center gap-3 inline-flex">
+      <div :class="[!activeSubscription.plan_code ? 'invisible' : '']" class="w-[180px] h-14 pl-4 pr-6 py-4 justify-start items-center gap-3 inline-flex">
         <div class="w-[140px] h-[23px] relative">
           <div class="w-[140px] h-1 left-0 top-[19px] absolute bg-neutral-700 rounded justify-start items-center inline-flex" :style="{'padding-right': currentUserUsagePercentageToPaggingRight+'%'}">
             <div class="w-full h-1 relative rounded" :class="stageColor"></div>
@@ -119,7 +119,7 @@ const currentUserUsage = computed(() => {
 
 const currentUserUsagePercentageToPaggingRight = computed(() => {
   const planCode = activeSubscription.value.plan_code;
-  if (userUsage && userUsage.value) {
+  if (userUsage && userUsage.value && userUsage.value.customer_usage) {
     if (planCode.startsWith('SMALL'))
       return 100 - parseInt(userUsage.value.customer_usage.charges_usage[0].units) / (parseFloat(CONFIG.SMALL_PLAN_LIMIT) * 1024 * 1024) * 100;
     if (planCode.startsWith('MEDIUM'))

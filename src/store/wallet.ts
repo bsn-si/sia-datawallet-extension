@@ -5,7 +5,7 @@ import UploadingFile from '~/types/uploadingFile';
 import { hash } from 'tweetnacl';
 import { encode as encodeB64 } from '@stablelib/base64';
 import { encode as encodeUTF8 } from '@stablelib/utf8';
-import { saveWallet as dbSaveWallet, loadWallets as dbLoadWallets, deleteWallet as dbDeleteWallet } from './db';
+import { saveWallet as dbSaveWallet, loadWallets as dbLoadWallets, deleteWallet as dbDeleteWallet, reset as dbDeleleAllWallets } from './db';
 import Storage from "~/utils/storage";
 import {computed, ref} from "vue";
 import { scanner, stopScanner } from '~/sync/scanner';
@@ -42,6 +42,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
     const settings = ref(walletSettingsStorage.get())
     const offline = ref(false);
     const setup = ref(false);
+    const setupMode = ref('default');
     const siaNetworkFees = ref({});
     const exchangeRateSC = ref({});
     const exchangeRateSF = ref({});
@@ -100,6 +101,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         saveWallet,
         createWallet,
         deleteWallet,
+        deleteAllWallets,
         queueWallet,
         offline,
         setOffline,
@@ -109,6 +111,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         setDBType,
         setup,
         setSetup,
+        setupMode,
+        setSetupMode,
         exchangeRateSC,
         exchangeRateSF,
         scanQueue,
@@ -139,7 +143,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
         if (!passwordHash) {
             console.error('Unable to unlock wallets, password is not set')
-            return;
+            return false;
         }
 
         const wallets = await dbLoadWallets(passwordHash);
@@ -149,6 +153,8 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         await setWalletsMutation(wallets);
 
         wallets.forEach(w => queueWallet(w.id, false));
+
+        return true;
     }
 
     async function lockWallets() {
@@ -204,6 +210,10 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         await dbDeleteWallet(walletId);
     }
 
+    async function deleteAllWallets() {
+        await dbDeleleAllWallets();
+    }
+
     async function queueWallet(walletId, full) {
         await queueWalletMutation(walletId, full);
         setTimeout(scanner, 0);
@@ -221,6 +231,10 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
     async function setSetup(value) {
         setup.value = value;
+    }
+
+    async function setSetupMode(value) {
+        setupMode.value = value;
     }
 
     async function setDBType(value) {
