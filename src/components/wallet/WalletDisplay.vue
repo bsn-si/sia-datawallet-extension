@@ -222,7 +222,7 @@ const modal = ref(''), selectedTransaction = ref(null), showMore = ref(false), s
 
 const userStore = useUserStore();
 const {userSubscriptions, activeSubscription} = storeToRefs(userStore)
-const {loadSubscriptions} = userStore;
+const {loadSubscriptions, loadUsage} = userStore;
 
 const {toClipboard} = useClipboard()
 
@@ -245,6 +245,7 @@ onBeforeMount(async () => {
 })
 
 onMounted(async () => {
+  loadUsage(props.wallet.id);
   loadSubscriptions(props.wallet.id)
 
   console.log('Current address', currentAddress)

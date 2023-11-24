@@ -25,11 +25,12 @@ export async function loginOrRegisterUser(walletId, password) {
         return;
     }
     loginInProgress = true;
-    const { updateUser, user, wasLogout } = useUserStore()
+    const { updateUser, getWasLogout } = useUserStore()
     let errors = {}
     try {
         const result = await api.service.login({user: {wallet: walletId, password: JSON.stringify(password)}})
-        if (wasLogout) {
+        console.log('getWasLogout', getWasLogout())
+        if (getWasLogout()) {
             return;
         }
         const {token} = result.data.user

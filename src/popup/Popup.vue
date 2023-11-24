@@ -4,7 +4,7 @@
       <unavailable-page v-if="typeof unavailable === 'string'" />
       <router-view v-if="setup && unlocked" />
       <setup-page v-else-if="!setup" />
-      <unlock-wallet v-else-if="!isAuthorized" />
+      <unlock-wallet v-else-if="!unlocked && !isAuthorized" />
   </div>
   <notification-queue />
 </template>

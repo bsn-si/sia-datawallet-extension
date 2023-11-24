@@ -133,8 +133,13 @@ export const useWalletsStore = defineStore('walletsStore', () => {
         let passwordHash;
         if (password) {
             passwordHash = hash(encodeUTF8(password));
-        } else {
+        } else if (user?.unlockPassword) {
             passwordHash = createUint8ArrayFromKeys(toRaw(user?.unlockPassword));
+        }
+
+        if (!passwordHash) {
+            console.error('Unable to unlock wallets, password is not set')
+            return;
         }
 
         const wallets = await dbLoadWallets(passwordHash);

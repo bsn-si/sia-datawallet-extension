@@ -32,8 +32,17 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  function getWasLogout() {
+    return wasLogout.value;
+  }
+
   function setWasLogout(val: boolean) {
     wasLogout.value = val;
+    if (val) {
+      console.log('Logout');
+    } else {
+      console.log('Login');
+    }
   }
 
   const userLogout = async () => {
@@ -41,7 +50,6 @@ export const useUserStore = defineStore('user', () => {
     const { lockWallets } = useWalletsStore()
     updateUser(null)
     await lockWallets()
-    console.log('Logout');
   }
 
   const loadSubscriptions = async (walletId) => {
@@ -72,6 +80,7 @@ export const useUserStore = defineStore('user', () => {
     loadUsage,
     userLogout,
     wasLogout,
-    setWasLogout
+    setWasLogout,
+    getWasLogout
   }
 })
