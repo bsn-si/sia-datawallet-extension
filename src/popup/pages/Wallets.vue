@@ -27,7 +27,7 @@ import {useUserStore} from "~/store/user";
 import {storeToRefs} from "pinia";
 
 const store = useWalletsStore(), userStore = useUserStore();
-const { updateUser } = userStore;
+const { updateUser, userLogout } = userStore;
 const {allWallets, pushNotification, getSelectedWallet, lockWallets} = store;
 const { currentWallet, getCurrentWalletId } = storeToRefs(useWalletsStore())
 const {user} = storeToRefs(userStore)
@@ -43,8 +43,8 @@ watchEffect(async () => {
   if (!currentWallet.value)
     return;
 
-  if (!user?.value.token) {
-    const errors = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword, true);
+  if (user.value && !user.value.token) {
+    const errors = await loginOrRegisterUser(getCurrentWalletId.value, user.value.unlockPassword);
     if (errors && errors.error && errors.error.length > 0) {
       pushNotification({
         severity: 'danger',
@@ -69,8 +69,7 @@ const onWalletSelected = async (id) => {
 }
 
 const logout = async () => {
-  updateUser(null)
-  lockWallets()
+  await userLogout()
 }
 
 </script>

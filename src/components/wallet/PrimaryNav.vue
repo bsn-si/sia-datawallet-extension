@@ -104,7 +104,7 @@ import filesize from "~/utils/filesize";
 
 const userStore = useUserStore();
 const { userUsage, activeSubscription } = storeToRefs(userStore)
-const { updateUser } = userStore
+const { updateUser, userLogout } = userStore
 const walletsStore = useWalletsStore()
 const { offline } = storeToRefs(walletsStore)
 const { lockWallets } = walletsStore
@@ -153,9 +153,7 @@ const planLimit = computed(() => {
 });
 
 const logout = async () => {
-  updateUser(null)
-  lockWallets()
-
+  await userLogout();
 }
 </script>
 

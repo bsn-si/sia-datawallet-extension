@@ -5,13 +5,13 @@ import {useUserStore} from "~/store/user";
 
 
 
-const rescanTimeouts = {};
+const rescanTimeouts = [];
 
 let scanning = false;
 
 export async function scanner() {
 	const { wallets, saveWallet, queueWallet, setOffline, shiftWallet } = useWalletsStore()
-	const { user } = useUserStore()
+	const { user, wasLogout } = useUserStore()
 
 	if (scanning)
 		return;
@@ -23,6 +23,11 @@ export async function scanner() {
 
 		if (!scan)
 			return;
+
+		if (!user?.unlockPassword || wasLogout) {
+			console.error('Unable to scan, user is not logged in')
+			return;
+		}
 
 		saveWallet( {
 			id: scan.walletID,
@@ -83,4 +88,8 @@ export async function scanWallet(walletID, full) {
 
 export async function scanTransactions(wallet) {
 	return defaultScanner.scanTransactions(wallet);
+}
+
+export function stopScanner() {
+	rescanTimeouts.forEach(t => clearTimeout(t));
 }

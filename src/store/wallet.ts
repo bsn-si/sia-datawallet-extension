@@ -8,7 +8,7 @@ import { encode as encodeUTF8 } from '@stablelib/utf8';
 import { saveWallet as dbSaveWallet, loadWallets as dbLoadWallets, deleteWallet as dbDeleteWallet } from './db';
 import Storage from "~/utils/storage";
 import {computed, ref} from "vue";
-import { scanner } from '~/sync/scanner';
+import { scanner, stopScanner } from '~/sync/scanner';
 import { siaAPI } from '~/services/wallet/siacentral';
 import {useUserStore} from "~/store/user";
 import { createUint8ArrayFromKeys } from '~/utils/index.js';
@@ -141,7 +141,7 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
         updateUser({unlockPassword: passwordHash})
 
-        setWalletsMutation(wallets);
+        await setWalletsMutation(wallets);
 
         wallets.forEach(w => queueWallet(w.id, false));
     }
@@ -151,11 +151,18 @@ export const useWalletsStore = defineStore('walletsStore', () => {
 
         wallets.value = [];
         scanQueue.value = [];
+        stopScanner();
         updateUser(null)
     }
 
 
     async function saveWallet(wallet: Wallet, password: string) {
+        const { user, wasLogout } = useUserStore()
+        if (!password || wasLogout) {
+            console.error('Unable to save wallet, user is not logged in')
+            return;
+        }
+
         const existing = wallets.value.find(w => w.id === wallet.id);
 
         if (!existing)

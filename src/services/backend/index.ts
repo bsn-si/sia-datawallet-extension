@@ -20,15 +20,18 @@ export async function canCreateUser(walletId, password) {
 
 let loginInProgress = false;
 
-export async function loginOrRegisterUser(walletId, password, register = false) {
+export async function loginOrRegisterUser(walletId, password) {
     if (loginInProgress) {
         return;
     }
     loginInProgress = true;
-    const { updateUser } = useUserStore()
+    const { updateUser, user, wasLogout } = useUserStore()
     let errors = {}
     try {
         const result = await api.service.login({user: {wallet: walletId, password: JSON.stringify(password)}})
+        if (wasLogout) {
+            return;
+        }
         const {token} = result.data.user
         updateUser({unlockPassword: createUint8ArrayFromKeys(password), token: token as string})
         console.log('%cLogin to backend successful', 'background: #222; color: #bada55')
@@ -37,9 +40,7 @@ export async function loginOrRegisterUser(walletId, password, register = false) 
             const status = (e as Response).status
 
             if (status === 401) {
-                if (register) {
-                    errors = await registerUser(walletId, password)
-                }
+                errors = await registerUser(walletId, password)
             } else {
                 errors = {
                     error: ['Error, something went wrong'],

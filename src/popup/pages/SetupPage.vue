@@ -151,7 +151,7 @@ const userStore = useUserStore();
 const {pushNotification, getSetupStep, lockWallets, createWallet, deleteWallet, queueWallet, setSetup} = useWalletsStore()
 
 const {user} = storeToRefs(userStore)
-const {updateUser} = userStore;
+const {updateUser, userLogout} = userStore;
 
 let addresses = []
 
@@ -325,8 +325,7 @@ const onWalletCreated = async () => {
 }
 
 const logout = async () => {
-  updateUser(null)
-  lockWallets()
+  await userLogout();
 }
 
 </script>

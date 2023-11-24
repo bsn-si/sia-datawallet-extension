@@ -40,9 +40,11 @@ import {storeToRefs} from "pinia";
 import {loginOrRegisterUser} from "~/services/backend";
 
 const store = useWalletsStore()
+const userStore = useUserStore()
 const {unlockWallets, pushNotification} = store
 const {wallets, currentWallet, getCurrentWalletId} = storeToRefs(store)
-const {user} = storeToRefs(useUserStore())
+const {user} = storeToRefs(userStore)
+const {setWasLogout} = userStore
 const password = ref('')
 const unlocking = ref(false)
 const errors = ref()
@@ -61,8 +63,8 @@ const onUnlockWallets = async () => {
 
   try {
     await unlockWallets(password.value);
-
-    errors.value = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword, true);
+    setWasLogout(false);
+    errors.value = await loginOrRegisterUser(getCurrentWalletId.value, user?.value.unlockPassword);
 
     pushNotification({
       icon: 'unlock',

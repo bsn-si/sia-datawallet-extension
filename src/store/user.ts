@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 import {User} from "~/types/users";
 import setAuthorizationToken from "~/plugins/set-authorization-token";
 import {subscriptions, usage} from "~/services/backend";
-
+import {useWalletsStore} from "~/store/wallet";
 
 export const userStorage = new Storage<User>('user')
 
@@ -16,7 +16,7 @@ export const useUserStore = defineStore('user', () => {
   const isAuthorized = computed(() => user.value !== null)
   const userSubscriptions = ref(null);
   const userUsage = ref(null);
-
+  const wasLogout = ref(false);
 
   function updateUser (userData?: User | null) {
     if (userData === undefined || userData === null) {
@@ -30,6 +30,18 @@ export const useUserStore = defineStore('user', () => {
       user.value = userData
       setAuthorizationToken(user.value.token)
     }
+  }
+
+  function setWasLogout(val: boolean) {
+    wasLogout.value = val;
+  }
+
+  const userLogout = async () => {
+    setWasLogout( true);
+    const { lockWallets } = useWalletsStore()
+    updateUser(null)
+    await lockWallets()
+    console.log('Logout');
   }
 
   const loadSubscriptions = async (walletId) => {
@@ -57,6 +69,9 @@ export const useUserStore = defineStore('user', () => {
     activeSubscription,
     loadSubscriptions,
     userUsage,
-    loadUsage
+    loadUsage,
+    userLogout,
+    wasLogout,
+    setWasLogout
   }
 })
