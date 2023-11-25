@@ -10,12 +10,12 @@
         <div class="control">
           <label>{{ "Unlock Password" }}</label>
           <input type="password" v-model="form.unlockPassword" autocomplete="new-password" @input="onCheckPassword"
-                 @blur="onCheckPassword"/>
+                 @blur="onCheckPassword" class="!border-[#938F99]"/>
         </div>
-        <div class="control">
+        <div class="control mb-6">
           <label>{{ "Confirm Password" }}</label>
           <input type="password" v-model="form.confirmPassword" autocomplete="new-password" @input="onCheckPassword"
-                 @blur="onCheckPassword"/>
+                 @blur="onCheckPassword" class="!border-[#938F99]"/>
           <div class="text-error text-small" v-if="!form.passwordsMatch">
             {{ "Unlock password does not match. Check your passwords and try again." }}
           </div>
@@ -45,6 +45,12 @@
       </div>
     </div>
     <div class="setup-step" v-if="step ==='create'">
+      <div class="page-icon mx-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="61" height="60" viewBox="0 0 61 60" fill="none">
+          <path d="M55.5 55L48.1514 47.6514C52.6843 43.1295 55.5 36.8932 55.5 30C55.5 16.215 44.285 5 30.5 5C16.715 5 5.5 16.215 5.5 30C5.5 43.785 16.715 55 30.5 55V50C19.4725 50 10.5 41.0275 10.5 30C10.5 18.9725 19.4725 10 30.5 10C41.5275 10 50.5 18.9725 50.5 30C50.5 35.515 48.2488 40.5068 44.626 44.126L38 37.5V55H55.5Z" fill="#19CF86"/>
+        </svg>
+      </div>
+      <h2 class="text-center text-emerald-500 font-normal font-['Roboto'] leading-tight tracking-tight">{{ 'Recover' }}</h2>
       <div v-if="false" class="control">
         <label>{{ "Wallet Name" }}</label>
         <input type="text" placeholder="Wallet" v-model="walletName"/>
@@ -52,8 +58,8 @@
 
       <template v-if="createType === 'recover'">
         <div class="control">
-          <label>{{ "Recovery Seed" }}</label>
-          <textarea v-model="recoverySeed"/>
+          <label>{{ "Input your recovery Seed" }}</label>
+          <textarea class="!border-[#938F99]" v-model="recoverySeed"/>
         </div>
       </template>
       <div class="buttons">
@@ -63,6 +69,13 @@
       </div>
     </div>
     <div class="wallet-step"  v-if="step ==='review'">
+      <div class="page-icon mx-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="61" height="60" viewBox="0 0 61 60" fill="none">
+          <path d="M55.5 55L48.1514 47.6514C52.6843 43.1295 55.5 36.8932 55.5 30C55.5 16.215 44.285 5 30.5 5C16.715 5 5.5 16.215 5.5 30C5.5 43.785 16.715 55 30.5 55V50C19.4725 50 10.5 41.0275 10.5 30C10.5 18.9725 19.4725 10 30.5 10C41.5275 10 50.5 18.9725 50.5 30C50.5 35.515 48.2488 40.5068 44.626 44.126L38 37.5V55H55.5Z" fill="#19CF86"/>
+        </svg>
+      </div>
+      <h2 class="text-center text-emerald-500 font-normal font-['Roboto'] leading-tight tracking-tight pb-3">{{ 'Review' }}</h2>
+
       <p v-if="createType === 'recover'">Your wallet has been successfully recovered. The blockchain is now being
         scanned for balance and transactions. Backup your recovery seed to a safe location, without your seed your funds
         cannot be recovered.</p>
@@ -70,14 +83,24 @@
         This seed will be used to recover access to your wallet if you forget your password, delete browser data or a new device connection.
         If you loose your seed you will be unable to recover your wallet and all files stored in it.</p>
       <template v-if="walletType === 'default'">
-        <div class="control">
+        <div class="control relative">
           <label>{{ "Recovery Seed" }}</label>
           <textarea v-model="wallet.seed"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    class="bg-[#49454F] border border-[#938F99] text-[#F5F5F5] font-['Roboto'] leading-tight tracking-tight sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#49454F] dark:!border-[#938F99] dark:placeholder-gray-400 dark:!text-[#F5F5F5] dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     readonly/>
+            <div class="w-[18px] h-[18px] right-2 bottom-2 absolute cursor-pointer" @click="copyToClipboard">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19" fill="none">
+                <mask id="mask0_472_1590" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="18" height="19">
+                  <rect y="0.5" width="18" height="18" fill="#D9D9D9"/>
+                </mask>
+                <g mask="url(#mask0_472_1590)">
+                  <path d="M14.25 14.75H6C5.5875 14.75 5.23438 14.6031 4.94063 14.3094C4.64688 14.0156 4.5 13.6625 4.5 13.25V2.75C4.5 2.3375 4.64688 1.98438 4.94063 1.69063C5.23438 1.39688 5.5875 1.25 6 1.25H11.25L15.75 5.75V13.25C15.75 13.6625 15.6031 14.0156 15.3094 14.3094C15.0156 14.6031 14.6625 14.75 14.25 14.75ZM10.5 6.5V2.75H6V13.25H14.25V6.5H10.5ZM3 17.75C2.5875 17.75 2.23438 17.6031 1.94063 17.3094C1.64688 17.0156 1.5 16.6625 1.5 16.25V5.75H3V16.25H11.25V17.75H3Z" fill="#D0BCFF"/>
+                </g>
+              </svg>
+            </div>
         </div>
         <div class="control">
-          <input type="checkbox" id="chkSeedExported" v-model="exported"/>
+          <input type="checkbox" id="chkSeedExported" v-model="exported" class="purple"/>
           <label for="chkSeedExported">{{ "My recovery seed is saved in a secure location" }}</label>
         </div>
       </template>
@@ -113,12 +136,14 @@ import {encode as encodeUTF8} from '@stablelib/utf8';
 import {saveAddresses} from '~/store/db.js';
 import {storeToRefs} from "pinia";
 import {canCreateUser} from "~/services/backend";
+import useClipboard from "~/composables/useClipboard";
 interface LoginUser {
   confirmPassword: string;
   passwordsMatch: boolean;
   unlockPassword: string;
 }
 
+const {toClipboard} = useClipboard()
 
 const formRef = ref<HTMLFormElement | null>(null)
 const form: LoginUser = reactive({
@@ -369,6 +394,19 @@ const description = computed(() => {
 
 const logout = async () => {
   await userLogout();
+}
+
+const copyToClipboard = async () => {
+  try {
+    await toClipboard(wallet.seed)
+
+    pushNotification({
+      message: 'Recovery seed copied',
+      icon: 'wallet'
+    })
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 </script>

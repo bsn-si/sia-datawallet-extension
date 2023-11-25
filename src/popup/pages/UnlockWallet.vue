@@ -13,7 +13,7 @@
       <form @submit.prevent="onUnlockWallets">
         <div class="control mb-[23px]">
           <label>{{ 'Wallet Password' }}</label>
-          <input type="password" v-model="password" autocomplete="current-password"/>
+          <input type="password" v-model="password" autocomplete="current-password" class="!border-[#938F99]"/>
         </div>
 
         <div class="w-full text-center text-zinc-300 font-normal font-['Roboto'] underline leading-tight mb-[23px] cursor-pointer" @click="forgotPassword">Forgot password</div>

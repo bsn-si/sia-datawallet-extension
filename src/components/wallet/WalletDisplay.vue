@@ -466,8 +466,6 @@ const copyToClipboard = async () => {
       message: 'Wallet address copied',
       icon: 'wallet'
     })
-
-    console.log('Copied to clipboard')
   } catch (e) {
     console.error(e)
   }

@@ -172,6 +172,20 @@ body.dark {
 			&:checked + label:before {
 				border-color: primary;
 			}
+
+			&.purple {
+				+ label:before {
+					border-color: #938F99;
+				}
+
+				&:checked + label:before {
+					border-color: #D0BCFF;
+				}
+
+				&:checked + label:after {
+					background-color: #D0BCFF;
+				}
+			}
 		}
 	}
 }
