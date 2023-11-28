@@ -1,13 +1,15 @@
 <template>
   <div class="page page-unlock">
     <div class="page-content">
-      <div class="page-icon mx-auto">
+      <div>
+      <div class="mx-auto w-[60px] h-[60px]">
         <svg xmlns="http://www.w3.org/2000/svg" width="61" height="60" viewBox="0 0 61 60" fill="none">
           <path d="M55.5 55L48.1514 47.6514C52.6843 43.1295 55.5 36.8932 55.5 30C55.5 16.215 44.285 5 30.5 5C16.715 5 5.5 16.215 5.5 30C5.5 43.785 16.715 55 30.5 55V50C19.4725 50 10.5 41.0275 10.5 30C10.5 18.9725 19.4725 10 30.5 10C41.5275 10 50.5 18.9725 50.5 30C50.5 35.515 48.2488 40.5068 44.626 44.126L38 37.5V55H55.5Z" fill="#19CF86"/>
         </svg>
       </div>
-      <h2 class="text-center text-emerald-500 font-normal font-['Roboto'] leading-tight tracking-tight">{{ 'Unlock Wallet' }}</h2>
-      <p>{{
+      <h2 class="text-center text-[12px] text-emerald-500 font-normal font-['Roboto'] leading-[20px] tracking-tight pt-[5px]">{{ 'Unlock Wallet' }}</h2>
+      </div>
+      <p class="text-[14px] text-[#D9D9D9] font-[Roboto] leading-[20px]">{{
           'Your wallets are currently encrypted and locked. Enter your password to unlock your wallets and access your funds.'
         }}</p>
       <form @submit.prevent="onUnlockWallets">
@@ -16,14 +18,14 @@
           <input type="password" v-model="password" autocomplete="current-password" class="!border-[#938F99]"/>
         </div>
 
-        <div class="w-full text-center text-zinc-300 font-normal font-['Roboto'] underline leading-tight mb-[23px] cursor-pointer" @click="forgotPassword">Forgot password</div>
+        <div class="w-full text-center text-zinc-300 font-normal font-['Roboto'] underline leading-tight mb-[23px] cursor-pointer" @click="forgotPassword">Reset password</div>
 
         <div class="buttons">
-          <button class="btn btn-success btn-inline" :disabled="unlocking">{{ 'Unlock Wallet' }}</button>
-          <div class="btn btn-outline btn-inline" @click="createNewWallet">{{ 'Create new Wallet' }}</div>
+          <button class="btn btn-success btn-inline font-[Roboto]" :disabled="unlocking">{{ 'Unlock Wallet' }}</button>
+          <div class="btn btn-outline btn-inline font-[Roboto]" @click="createNewWallet">{{ 'Create new Wallet' }}</div>
         </div>
       </form>
-
+      <p class="text-[14px] text-[#D9D9D9] font-[Roboto] leading-[20px]">Tiri doesn't hold your password and can not change it. If you have forgotten your password, you can reset the Tiri vault settings and restore access to your data with your SIA wallet seed by pressing here. Before you continue make sure you remember your SIA wallet seed as once you have reset the Tiri vault, you won't be able to restore access with your old password (if you have remembered it), only your SIA wallet seed will unlock it. If you want to create a new SIA wallet with Tiri vault, press here.</p>
 
     </div>
 
@@ -133,7 +135,7 @@ h2, p {
   max-width: 700px;
   margin: auto;
   padding: 15px;
-  grid-gap: 30px;
+  grid-gap: 23px;
   align-content: safe center;
   overflow-x: hidden;
   overflow-y: auto;
