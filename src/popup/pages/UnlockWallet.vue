@@ -18,14 +18,18 @@
           <input type="password" v-model="password" autocomplete="current-password" class="!border-[#938F99]"/>
         </div>
 
-        <div class="w-full text-center text-zinc-300 font-normal font-['Roboto'] underline leading-tight mb-[23px] cursor-pointer" @click="forgotPassword">Reset password</div>
+        <div v-if="false" class="w-full text-center text-zinc-300 font-normal font-['Roboto'] underline leading-tight mb-[23px] cursor-pointer" @click="forgotPassword">Reset password</div>
 
         <div class="buttons">
           <button class="btn btn-success btn-inline font-[Roboto]" :disabled="unlocking">{{ 'Unlock Wallet' }}</button>
           <div class="btn btn-outline btn-inline font-[Roboto]" @click="createNewWallet">{{ 'Create new Wallet' }}</div>
         </div>
       </form>
-      <p class="text-[14px] text-[#D9D9D9] font-[Roboto] leading-[20px]">Tiri doesn't hold your password and can not change it. If you have forgotten your password, you can reset the Tiri vault settings and restore access to your data with your SIA wallet seed by pressing here. Before you continue make sure you remember your SIA wallet seed as once you have reset the Tiri vault, you won't be able to restore access with your old password (if you have remembered it), only your SIA wallet seed will unlock it. If you want to create a new SIA wallet with Tiri vault, press here.</p>
+      <p class="text-[14px] text-[#D9D9D9] font-[Roboto] leading-[20px]">Tiri doesn't hold your password and can not change it. If you have forgotten your password,
+        you can reset the Tiri vault settings and restore access to your data with your SIA wallet seed by <a @click.prevent="forgotPassword" class="text-[#BEA9EE] hover:text-[#77FF85] cursor-pointer underline">pressing here</a>.
+        Before you continue make sure you remember your SIA wallet seed as once you have reset the Tiri vault,
+        you won't be able to restore access with your old password (if you have remembered it), only your SIA wallet seed will unlock it.
+        If you want to create a new SIA wallet with Tiri vault, <a @click.prevent="createNewWallet" class="text-[#BEA9EE] hover:text-[#77FF85] cursor-pointer underline">press here</a>.</p>
 
     </div>
 
