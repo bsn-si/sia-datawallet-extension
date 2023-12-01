@@ -1,5 +1,10 @@
 <template>
   <div class="page page-setup">
+    <div v-if="setupMode === 'default' && (step === 'choose' || step === 'create' || step === 'review')" class="back-btn absolute left-[24px] top-[24px] cursor-pointer" @click.prevent="stepBackward">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M13 5.6875H3.11188L7.65375 1.14562L6.5 0L0 6.5L6.5 13L7.64563 11.8544L3.11188 7.3125H13V5.6875Z" fill="#49454F"/>
+      </svg>
+    </div>
     <div class="setup-step" v-if="step === 'password'">
       <div v-if="setupMode === 'forgot-password'" class="setup-icon w-[60px] h-[60px]">
         <svg xmlns="http://www.w3.org/2000/svg" width="61" height="61" viewBox="0 0 61 61" fill="none">
@@ -467,6 +472,23 @@ const description = computed(() => {
       return '';
   }
 })
+
+const stepBackward = async ()  => {
+  switch (step.value) {
+    case 'choose':
+      step.value = 'password';
+      break;
+    case 'create':
+      step.value = 'choose';
+      break;
+    case 'review':
+      if (wallet.id) {
+        await deleteWallet(wallet.id);
+      }
+      step.value = 'choose';
+      break;
+  }
+}
 
 const logout = async () => {
   await userLogout();
