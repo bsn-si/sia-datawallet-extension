@@ -7,7 +7,7 @@
     <div>Options</div>
 
     <div class="mt-4">
-      Powered by SIA Data Wallet WebExt <pixelarticons-zap class="align-middle inline-block" />
+      Powered by Tiri vault dApp (SIA testnet) <pixelarticons-zap class="align-middle inline-block" />
     </div>
   </main>
 </template>

@@ -14,7 +14,7 @@ const [show, toggle] = useToggle(false)
       :class="show ? 'opacity-100' : 'opacity-0'"
     >
       <h1 class="text-lg">
-        SIA Data Wallet WebExt
+        Tiri vault dApp (SIA testnet)
       </h1>
       <SharedSubtitle />
     </div>
