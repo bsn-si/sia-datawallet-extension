@@ -76,7 +76,7 @@
     </div>
 
     <template  v-slot:buttons>
-      <div :class="[!queue.length ? 'h-0' : 'py-3']">
+      <div class="flex" :class="[!queue.length ? 'h-0' : 'py-3']">
         <div ref="pickFiles2" :class="[notEnoughFunds ? 'bg-rose-400' : 'bg-button1-100']" class="w-[143px] h-10 rounded-[100px] flex-col justify-center items-center inline-flex mr-4 cursor-pointer" >
           <div class="self-stretch pl-3 pr-4 py-2.5  bg-opacity-10 justify-center items-center gap-2 inline-flex">
             <div :class="[notEnoughFunds ? 'w-0' : 'w-[18px]']" class="h-[18px] relative">
@@ -95,14 +95,16 @@
         <div @click.prevent="handleUpload"
             class="w-[143px] h-10 bg-purple-300 rounded-[100px] flex-col justify-center items-center inline-flex cursor-pointer">
           <div class="pl-5 pr-7 py-2.5 justify-start items-center gap-2 inline-flex">
-            <div class="w-6 h-6 relative">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <mask id="mask0_73_6018" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
-                  <rect width="24" height="24" fill="#D9D9D9"/>
-                </mask>
-                <g mask="url(#mask0_73_6018)">
-                  <path d="M12 16L7 11L8.4 9.55L11 12.15V4H13V12.15L15.6 9.55L17 11L12 16ZM6 20C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V15H6V18H18V15H20V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20H6Z" fill="#381E72"/>
+            <div class="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25" >
+                <g clip-path="url(#clip0_530_1794)">
+                  <path d="M19.35 10.54C18.67 7.09 15.64 4.5 12 4.5C9.11 4.5 6.6 6.14 5.35 8.54C2.34 8.86 0 11.41 0 14.5C0 17.81 2.69 20.5 6 20.5H19C21.76 20.5 24 18.26 24 15.5C24 12.86 21.95 10.72 19.35 10.54ZM14 13.5V17.5H10V13.5H7L12 8.5L17 13.5H14Z" fill="currentFill"/>
                 </g>
+                <defs>
+                  <clipPath id="clip0_530_1794">
+                    <rect width="24" height="24" fill="white" transform="translate(0 0.5)"/>
+                  </clipPath>
+                </defs>
               </svg>
             </div>
             <div class="text-center text-violet-950 text-sm font-medium font-['Roboto'] leading-tight tracking-tight">
@@ -246,12 +248,12 @@ onMounted(() => {
         notEnoughFunds.value = false;
         const planCode = activeSubscription.value.plan_code;
         console.log('planCode', planCode)
-        if ((planCode.startsWith('SMALL')
+        if (!planCode || ((planCode.startsWith('SMALL')
                 && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.SMALL_PLAN_LIMIT) * 1024 * 1024) ||
             (planCode.startsWith('MEDIUM')
                 && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.MEDIUM_PLAN_LIMIT) * 1024 * 1024) ||
             (planCode.startsWith('LARGE')
-                && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.LARGE_PLAN_LIMIT) * 1024 * 1024)
+                && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.LARGE_PLAN_LIMIT) * 1024 * 1024))
         ) {
           notEnoughFunds.value = true;
         }
