@@ -2,7 +2,7 @@
   <div class="page page-setup">
     <div v-if="setupMode === 'default' && (step === 'choose' || step === 'create' || step === 'review')" class="back-btn absolute left-[24px] top-[24px] cursor-pointer" @click.prevent="stepBackward">
       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M13 5.6875H3.11188L7.65375 1.14562L6.5 0L0 6.5L6.5 13L7.64563 11.8544L3.11188 7.3125H13V5.6875Z" fill="#49454F"/>
+        <path d="M13 5.6875H3.11188L7.65375 1.14562L6.5 0L0 6.5L6.5 13L7.64563 11.8544L3.11188 7.3125H13V5.6875Z" fill="#19CF86"/>
       </svg>
     </div>
     <div class="setup-step" v-if="step === 'password'">
@@ -100,7 +100,7 @@
           </svg>
         </div>
         <div class="button-title text-[16px] font-[Roboto]">{{ "New Wallet" }}</div>
-        <p class="text-[14px] text-[#D9D9D9] font-[Roboto] text-center">{{ "Generates a new wallet seed in the browser. Transactions can be sent and received." }}</p>
+        <p class="text-[14px] text-[#D9D9D9] font-[Roboto] text-center">{{ "Make a new SIA wallet for your Tiri vault." }}</p>
       </div>
       <div class="create-wallet-button fill-[#D0BCFF] hover:fill-[#77FF85] text-[#D0BCFF] hover:text-[#77FF85]" @click="onClickWalletType('recover')">
         <div class="button-icon flex justify-center">
@@ -109,7 +109,7 @@
           </svg>
         </div>
         <div class="button-title text-[16px] font-[Roboto]">{{ "Recover Wallet" }}</div>
-        <p class="text-[14px] text-[#D9D9D9] font-[Roboto] text-center">{{ "Recovers an existing wallet from a 29 seed. Transactions can be sent and received." }}</p>
+        <p class="text-[14px] text-[#D9D9D9] font-[Roboto] text-center">{{ "Recover an existing SIA wallet to use with your Tiri vault." }}</p>
       </div>
     </div>
     <div class="setup-step" v-if="step ==='create'">
@@ -152,7 +152,7 @@
         scanned for balance and transactions. Backup your recovery seed to a safe location, without your seed your funds
         cannot be recovered.</p>
       <p v-else class="text-[14px] text-[#D9D9D9] font-[Roboto] leading-[20px]">A new wallet has been created. Backup your recovery seed to a safe location.
-        This seed will be used to recover access to your wallet if you forget your password, delete browser data or a new device connection.
+        This seed will be used to recover access to your SIA wallet and Tiri vault if you forget your password, delete browser data or a new device connection.
         If you loose your seed you will be unable to recover your wallet and all files stored in it.</p>
       <template v-if="walletType === 'default'">
         <div class="control relative">
@@ -465,7 +465,7 @@ const description = computed(() => {
   switch (setupMode.value) {
     case 'default':
     case 'create-new':
-      return 'Set a secure password to encrypt your wallets with. This password will be required to unlock, create, and recover your wallets. All wallet seeds are encrypted, stored locally and never leave the device.';
+      return 'Set a secure password that will be used to provide access to your Tiri vault. Tiri doesn\'t hold your password, it is stored locally in the extension and could be reset by clearing browser data. In this case you will need to use your SIA wallet seed to set a new password and restore access to your Tiri vault.';
     case 'forgot-password':
       return 'Please, enter your new password. On the next step you will need your wallet seed to restore access to your Tiri data wallet';
     default:

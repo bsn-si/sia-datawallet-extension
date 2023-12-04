@@ -10,7 +10,7 @@
       <h2 class="text-center text-[12px] text-emerald-500 font-normal font-['Roboto'] leading-[20px] tracking-tight pt-[5px]">{{ 'Unlock Wallet' }}</h2>
       </div>
       <p class="text-[14px] text-[#D9D9D9] font-[Roboto] leading-[20px]">{{
-          'Your wallets are currently encrypted and locked. Enter your password to unlock your wallets and access your funds.'
+          'Your Tiri vault is currently locked. Enter your password to unlock it.'
         }}</p>
       <form @submit.prevent="onUnlockWallets">
         <div class="control mb-[23px]">
@@ -22,7 +22,7 @@
 
         <div class="buttons">
           <button class="btn btn-success btn-inline font-[Roboto]" :disabled="unlocking">{{ 'Unlock Wallet' }}</button>
-          <div class="btn btn-outline btn-inline font-[Roboto]" @click="createNewWallet">{{ 'Create new Wallet' }}</div>
+          <div v-if="false" class="btn btn-outline btn-inline font-[Roboto]" @click="createNewWallet">{{ 'Create new Wallet' }}</div>
         </div>
       </form>
       <p class="text-[14px] text-[#D9D9D9] font-[Roboto] leading-[20px]">Tiri doesn't hold your password and can not change it. If you have forgotten your password,
@@ -81,7 +81,7 @@ const onUnlockWallets = async () => {
 
       pushNotification({
         icon: 'unlock',
-        message: 'Wallets decrypted. Welcome back!'
+        message: 'Welcome back to your Tiri vault!'
       });
     }
   } catch (ex) {
