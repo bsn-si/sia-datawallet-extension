@@ -2,7 +2,7 @@
   <primary-nav />
   <div class="page-wrapper">
       <unavailable-page v-if="typeof unavailable === 'string'" />
-      <router-view v-if="setup && unlocked" />
+      <router-view v-if="setup && unlocked && !getWasLogout()" />
       <setup-page v-else-if="!setup" />
       <unlock-wallet v-else-if="!unlocked && !isAuthorized" />
   </div>
@@ -23,6 +23,7 @@
   import { onMessage, sendMessage } from "webext-bridge/popup";
 
   const userStore = useUserStore()
+  const { getWasLogout } = userStore;
   const { user, isAuthorized } = storeToRefs(userStore)
 
   const walletsStore = useWalletsStore()
@@ -32,8 +33,11 @@
 
   const autoLockTimeout = ref(null)
 
-  const unlocked = computed(() => Array.isArray(wallets.value) && wallets.value.length !== 0)
-  console.log('unlocked', unlocked)
+  const unlocked = computed(() => {
+    const res = Array.isArray(wallets.value) && wallets.value.length !== 0;
+    console.log('unlocked', res)
+    return res;
+  })
 
   onMounted(async () => {
     window.addEventListener('mousemove', resetAutoLock);
