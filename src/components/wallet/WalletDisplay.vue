@@ -77,7 +77,7 @@
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('SMALL')}">
-              {{ getPriceByCode('SMALL') }}
+              {{ getPriceByCode('SMALL').value }}
             </div>
             <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('SMALL')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('SMALL') ? 'Renew' : 'Get started now'}}</div>
@@ -102,7 +102,7 @@
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('MEDIUM')}">
-              {{ getPriceByCode('MEDIUM') }}
+              {{ getPriceByCode('MEDIUM').value }}
             </div>
             <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('MEDIUM')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('MEDIUM') ? 'Renew' : 'Get started now'}}</div>
@@ -128,7 +128,7 @@
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('LARGE')}">
-              {{ getPriceByCode('LARGE') }}
+              {{ getPriceByCode('LARGE').value }}
             </div>
             <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('LARGE')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('LARGE') ? 'Renew' : 'Get started now'}}</div>
@@ -226,7 +226,8 @@ const {loadSubscriptions, loadUsage} = userStore;
 
 const {toClipboard} = useClipboard()
 
-const {exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet, pushNotification} = useWalletsStore()
+const walletsStore = useWalletsStore();
+const {exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet, pushNotification} = walletsStore;
 
 onBeforeMount(async () => {
   const loadedAddresses = await loadWalletAddresses(0);
@@ -301,6 +302,25 @@ const name = computed(() => {
 
   return props.wallet.title;
 });
+
+
+const getPriceByCode = (planCode: string) => computed(() => {
+  let val = 0;
+  switch (planCode) {
+    case 'SMALL':
+    case 'SMALL-2':
+      return CONFIG.SMALL_PRICE;
+    case 'MEDIUM':
+    case 'MEDIUM-2':
+      val = parseFloat(CONFIG.MEDIUM_PRICE)/walletsStore.exchangeRateSC[settings?.currency];
+      return isNaN(val) ? '' : val.toFixed(2)  + ' sc';
+    case 'LARGE':
+    case 'LARGE-2':
+      val = parseFloat(CONFIG.LARGE_PRICE)/walletsStore.exchangeRateSC[settings?.currency];
+      return isNaN(val) ? '' : val.toFixed(2)  + ' sc';
+  }
+  return '';
+})
 
 
 const formatSiacoinString = (val) => {
@@ -382,21 +402,6 @@ const getVolByCode = (planCode) => {
     case 'LARGE':
     case 'LARGE-2':
       return CONFIG.LARGE_VOL_LABEL;
-  }
-  return '';
-}
-
-const getPriceByCode = (planCode) => {
-  switch (planCode) {
-    case 'SMALL':
-    case 'SMALL-2':
-      return CONFIG.SMALL_PRICE_LABEL;
-    case 'MEDIUM':
-    case 'MEDIUM-2':
-      return CONFIG.MEDIUM_PRICE_LABEL;
-    case 'LARGE':
-    case 'LARGE-2':
-      return CONFIG.LARGE_PRICE_LABEL;
   }
   return '';
 }
@@ -832,7 +837,7 @@ const copyToClipboard = async () => {
   top: 150px;
   position: absolute;
   color: #F5F5F5;
-  font-size: 45px;
+  font-size: 32px;
   font-family: Roboto;
   font-weight: 400;
   line-height: 52px;
