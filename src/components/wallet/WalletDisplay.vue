@@ -309,7 +309,8 @@ const getPriceByCode = (planCode: string) => computed(() => {
   switch (planCode) {
     case 'SMALL':
     case 'SMALL-2':
-      return CONFIG.SMALL_PRICE;
+      val = parseFloat(CONFIG.SMALL_PRICE)/walletsStore.exchangeRateSC[settings?.currency];
+      return isNaN(val) ? '' : val.toFixed(2)  + ' sc';
     case 'MEDIUM':
     case 'MEDIUM-2':
       val = parseFloat(CONFIG.MEDIUM_PRICE)/walletsStore.exchangeRateSC[settings?.currency];

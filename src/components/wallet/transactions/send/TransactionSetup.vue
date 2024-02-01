@@ -79,7 +79,8 @@ export default {
   }
   const emit = defineEmits<Emits>()
 
-  const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees} = storeToRefs(useWalletsStore())
+  const walletsStore = useWalletsStore();
+  const { exchangeRateSC, exchangeRateSF, settings, siaNetworkFees} = storeToRefs(walletsStore)
   const { pushNotification } = useWalletsStore()
 
   const recipientAddress = ref(''),
@@ -107,11 +108,11 @@ export default {
 
       if (typeof props.subscription === 'string' && props.subscription.length > 0) {
         if (props.subscription === 'SMALL') {
-          txtSiacoin.value.value = subscriptionSettings.data.small_plan_price;
+          txtSiacoin.value.value = parseFloat(subscriptionSettings.data.small_plan_price)/walletsStore.exchangeRateSC[settings?.value.currency];
         } else if (props.subscription === 'MEDIUM') {
-          txtSiacoin.value.value = subscriptionSettings.data.medium_plan_price;
+          txtSiacoin.value.value = parseFloat(subscriptionSettings.data.medium_plan_price)/walletsStore.exchangeRateSC[settings?.value.currency];
         } else {
-          txtSiacoin.value.value = subscriptionSettings.data.large_plan_price;
+          txtSiacoin.value.value = parseFloat(subscriptionSettings.data.large_plan_price)/walletsStore.exchangeRateSC[settings?.value.currency];
         }
         onChangeSiacoin();
       }
@@ -446,8 +447,7 @@ export default {
       const fullSubscriptionPrice = txtSiacoin.value.value;
 
       console.log('subscribeResult', subscribeResult, 'fullSubscriptionPrice', fullSubscriptionPrice)
-      // const parsed = parseSiacoinString(''+subscribeResult.data.user.total_to_pay, props.wallet.precision());
-      txtSiacoin.value.value = ''+subscribeResult.data.user.total_to_pay;
+      txtSiacoin.value.value = ''+subscribeResult.data.user.total_to_pay/walletsStore.exchangeRateSC[settings?.value.currency];
 
       onChangeSiacoin();
 
@@ -532,11 +532,11 @@ export default {
     console.log(props.subscription, newSubscription)
     if (typeof newSubscription === 'string' && newSubscription.length > 0 && subscriptionSettings) {
       if (newSubscription === 'SMALL') {
-        txtSiacoin.value.value =  subscriptionSettings.data.small_plan_price;
+        txtSiacoin.value.value =  parseFloat(subscriptionSettings.data.small_plan_price)/walletsStore.exchangeRateSC[settings?.currency];
       } else if (newSubscription === 'MEDIUM') {
-        txtSiacoin.value.value = subscriptionSettings.data.medium_plan_price;
+        txtSiacoin.value.value = parseFloat(subscriptionSettings.data.medium_plan_price)/walletsStore.exchangeRateSC[settings?.currency];
       } else {
-        txtSiacoin.value.value = subscriptionSettings.data.large_plan_price;
+        txtSiacoin.value.value = parseFloat(subscriptionSettings.data.large_plan_price)/walletsStore.exchangeRateSC[settings?.currency];
       }
       onChangeSiacoin();
     }
