@@ -248,8 +248,8 @@ onMounted(() => {
         notEnoughFunds.value = false;
         const planCode = activeSubscription.value.plan_code;
         console.log('planCode', planCode)
-        if (!planCode || ((planCode.startsWith('SMALL')
-                && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.SMALL_PLAN_LIMIT) * 1024 * 1024) ||
+        if (!planCode || ((planCode.startsWith('TRIAL')
+                && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.TRIAL_PLAN_LIMIT) * 1024 * 1024) ||
             (planCode.startsWith('MEDIUM')
                 && totalFileSize + parseInt(userUsage.value.customer_usage.charges_usage[0].units) > parseFloat(CONFIG.MEDIUM_PLAN_LIMIT) * 1024 * 1024) ||
             (planCode.startsWith('LARGE')

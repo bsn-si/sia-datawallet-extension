@@ -170,8 +170,8 @@ const currentUserUsage = computed(() => {
 const currentUserUsagePercentageToPaggingRight = computed(() => {
   const planCode = activeSubscription.value.plan_code;
   if (userUsage && userUsage.value && userUsage.value.customer_usage) {
-    if (planCode.startsWith('SMALL'))
-      return 100 - parseInt(userUsage.value.customer_usage.charges_usage[0].units) / (parseFloat(CONFIG.SMALL_PLAN_LIMIT) * 1024 * 1024) * 100;
+    if (planCode.startsWith('TRIAL'))
+      return 100 - parseInt(userUsage.value.customer_usage.charges_usage[0].units) / (parseFloat(CONFIG.TRIAL_PLAN_LIMIT) * 1024 * 1024) * 100;
     if (planCode.startsWith('MEDIUM'))
       return 100 - parseInt(userUsage.value.customer_usage.charges_usage[0].units) / (parseFloat(CONFIG.MEDIUM_PLAN_LIMIT) * 1024 * 1024) * 100;
     if (planCode.startsWith('LARGE'))
@@ -192,8 +192,8 @@ const stageColor = computed(() => {
 
 const planLimit = computed(() => {
   const planCode = activeSubscription.value.plan_code;
-  if (planCode.startsWith('SMALL')) {
-    return filesize(CONFIG.SMALL_PLAN_LIMIT * 1024 * 1024);
+  if (planCode.startsWith('TRIAL')) {
+    return filesize(CONFIG.TRIAL_PLAN_LIMIT * 1024 * 1024);
   } else if (planCode.startsWith('MEDIUM')) {
     return filesize(CONFIG.MEDIUM_PLAN_LIMIT * 1024 * 1024);
   } else if (planCode.startsWith('LARGE')) {

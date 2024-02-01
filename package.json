@@ -1,7 +1,7 @@
 {
   "name": "sia-data-wallet-webext",
   "displayName": "Tiri vault dApp (SIA testnet)",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "private": true,
   "packageManager": "pnpm@8.3.1",
   "description": "[description]",
