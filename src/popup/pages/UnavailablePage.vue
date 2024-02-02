@@ -24,7 +24,7 @@
 
       </template>
       <div class="text-center">
-        <button class="btn btn-success btn-inline btn-warning" @click="setUnavailable(null)">{{ translate('confirm') }}</button>
+        <button class="btn btn-success btn-inline btn-warning" @click="setUnavailable(null)">{{ 'Confirm' }}</button>
       </div>
     </div>
   </div>

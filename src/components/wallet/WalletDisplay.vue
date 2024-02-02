@@ -72,15 +72,15 @@
       <div class="flex justify-center mt-4">
         <div class="plan-c">
 
-          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code.startsWith('SMALL')}">
-            <div class="plan-title">{{ getNameByCode('SMALL') }}</div>
+          <div class="plan-col-c" :class="{'active':activeSubscription.plan_code.startsWith('TRIAL')}">
+            <div class="plan-title">{{ getNameByCode('TRIAL') }}</div>
             <div class="plan-period">/month</div>
-            <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
-            <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('SMALL')}">
-              {{ getPriceByCode('SMALL') }}
+            <div class="plan-descr">Start your free trial today</div>
+            <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('TRIAL')}">
+              {{ getPriceByCode('TRIAL').value }}
             </div>
-            <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('SMALL')">
-              <div class="btn">{{activeSubscription.plan_code.startsWith('SMALL') ? 'Renew' : 'Get started now'}}</div>
+            <div v-if="!activeSubscription.plan_code" class="plan-btn-c" @click="paySubscription('TRIAL')">
+              <div class="btn">{{'Get started now'}}</div>
             </div>
             <div
                 style="left: 32px; top: 230px; position: absolute; justify-content: flex-start; align-items: center; gap: 8px; display: inline-flex">
@@ -93,7 +93,7 @@
                   </svg>
                 </div>
               </div>
-              <div class="plan-vol">{{ getVolByCode('SMALL') }}</div>
+              <div class="plan-vol">{{ getVolByCode('TRIAL') }}</div>
             </div>
           </div>
 
@@ -102,7 +102,7 @@
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('MEDIUM')}">
-              {{ getPriceByCode('MEDIUM') }}
+              {{ getPriceByCode('MEDIUM').value }}
             </div>
             <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('MEDIUM')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('MEDIUM') ? 'Renew' : 'Get started now'}}</div>
@@ -128,7 +128,7 @@
             <div class="plan-period">/month</div>
             <div class="plan-descr">Ideal for individuals who need small <br/>to store small amount <br/>of data.</div>
             <div class="plan-price" :class="{'active':activeSubscription.plan_code.startsWith('LARGE')}">
-              {{ getPriceByCode('LARGE') }}
+              {{ getPriceByCode('LARGE').value }}
             </div>
             <div v-if="!downgradeDate" class="plan-btn-c" @click="paySubscription('LARGE')">
               <div class="btn">{{activeSubscription.plan_code.startsWith('LARGE') ? 'Renew' : 'Get started now'}}</div>
@@ -226,7 +226,8 @@ const {loadSubscriptions, loadUsage} = userStore;
 
 const {toClipboard} = useClipboard()
 
-const {exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet, pushNotification} = useWalletsStore()
+const walletsStore = useWalletsStore();
+const {exchangeRateSC, exchangeRateSF, settings, scanQueue, queueWallet, pushNotification} = walletsStore;
 
 onBeforeMount(async () => {
   const loadedAddresses = await loadWalletAddresses(0);
@@ -303,6 +304,24 @@ const name = computed(() => {
 });
 
 
+const getPriceByCode = (planCode: string) => computed(() => {
+  let val = 0;
+  switch (planCode) {
+    case 'TRIAL':
+      return 'Free'
+    case 'MEDIUM':
+    case 'MEDIUM-2':
+      val = parseFloat(CONFIG.MEDIUM_PRICE)/walletsStore.exchangeRateSC[settings?.currency];
+      return isNaN(val) ? '' : val.toFixed(2)  + ' sc';
+    case 'LARGE':
+    case 'LARGE-2':
+      val = parseFloat(CONFIG.LARGE_PRICE)/walletsStore.exchangeRateSC[settings?.currency];
+      return isNaN(val) ? '' : val.toFixed(2)  + ' sc';
+  }
+  return '';
+})
+
+
 const formatSiacoinString = (val) => {
   const format = formatPriceString(val, 2, props.wallet.currency, 1, props.wallet.precision());
 
@@ -354,9 +373,8 @@ const paySubscription = (subscription) => {
 
 const getNameByCode = (planCode) => {
   switch (planCode) {
-    case 'SMALL':
-    case 'SMALL-2':
-      return 'Small';
+    case 'TRIAL':
+      return 'Trial';
     case 'MEDIUM':
     case 'MEDIUM-2':
       return 'Medium';
@@ -373,30 +391,14 @@ const subscriptionNameByCode = computed(() => {
 
 const getVolByCode = (planCode) => {
   switch (planCode) {
-    case 'SMALL':
-    case 'SMALL-2':
-      return CONFIG.SMALL_VOL_LABEL;
+    case 'TRIAL':
+      return CONFIG.TRIAL_VOL_LABEL;
     case 'MEDIUM':
     case 'MEDIUM-2':
       return CONFIG.MEDIUM_VOL_LABEL;
     case 'LARGE':
     case 'LARGE-2':
       return CONFIG.LARGE_VOL_LABEL;
-  }
-  return '';
-}
-
-const getPriceByCode = (planCode) => {
-  switch (planCode) {
-    case 'SMALL':
-    case 'SMALL-2':
-      return CONFIG.SMALL_PRICE_LABEL;
-    case 'MEDIUM':
-    case 'MEDIUM-2':
-      return CONFIG.MEDIUM_PRICE_LABEL;
-    case 'LARGE':
-    case 'LARGE-2':
-      return CONFIG.LARGE_PRICE_LABEL;
   }
   return '';
 }
@@ -832,7 +834,7 @@ const copyToClipboard = async () => {
   top: 150px;
   position: absolute;
   color: #F5F5F5;
-  font-size: 45px;
+  font-size: 32px;
   font-family: Roboto;
   font-weight: 400;
   line-height: 52px;
