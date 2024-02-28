@@ -187,6 +187,24 @@ export async function subscriptions(walletId) {
     return errors;
 }
 
+export async function lastVersion() {
+    let errors = {}
+    try {
+        return api.service.last_version()
+
+    } catch (e) {
+        if (isFetchError(e)) {
+            const status = (e as Response).status
+
+            errors = {
+                error: ['Error, something went wrong'],
+            }
+            console.error(e)
+        }
+    }
+    return errors;
+}
+
 export async function usage(walletId) {
     walletId = walletId.replace(/\//g, '$');
     let errors = {}

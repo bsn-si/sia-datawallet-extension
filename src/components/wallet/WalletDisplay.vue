@@ -210,6 +210,7 @@ import {CONFIG} from "~/env";
 import {useUserStore} from "~/store/user";
 import {storeToRefs} from "pinia";
 import useClipboard from "~/composables/useClipboard";
+import {api} from "~/services";
 
 const props = defineProps<{
   wallets: Wallet[],
@@ -250,7 +251,26 @@ onMounted(async () => {
   loadSubscriptions(props.wallet.id)
 
   console.log('Current address', currentAddress)
+
+  const lastVersion = loadLastVersion();
+  const currentVersion = chrome.runtime.getManifest().version;
+  console.log('Last version', lastVersion.last_version, 'Current version', currentVersion)
+  if (lastVersion.last_version && lastVersion.last_version !== currentVersion) {
+    pushNotification({
+      icon: 'arrow-rotate-right',
+      message: 'New version available! Please update <a href="https://chromewebstore.google.com/detail/tiri-vault-dapp/iibdfaigedfehhikegcfalpebeihcakd" target="_blank" style="text-decoration: underline">here</a>.',
+      html: true,
+      timeout: 35000
+    });
+
+  }
 })
+
+const loadLastVersion = async () => {
+  const {data} = await api.service.last_version()
+  return data;
+}
+
 
 const currentAddress = computed(() => {
   if (!Array.isArray(addresses.value) || addresses.value.length <= current.value || !addresses.value[current.value])

@@ -2,7 +2,8 @@
   <transition name="fade" appear>
     <div @mouseenter="cancelTimeout" @mouseleave="startTimeout" :class="classes" v-if="notification">
       <div class="notification-icon"><font-awesome-icon :icon="icon" /></div>
-      <div class="notification-content">{{ notification.message }}</div>
+      <div v-if="!notification.html" class="notification-content">{{ notification.message }}</div>
+      <div v-if="notification.html" class="notification-content" v-html="notification.message"></div>
     </div>
   </transition>
 </template>
@@ -54,7 +55,7 @@ export default {
       setTimeout(() => {
         clearNotification();
       }, 300);
-    }, 3500);
+    }, notification.value && notification.value.timeout ? notification.value.timeout : 3500);
   }
 
   const cancelTimeout = () => {
