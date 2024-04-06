@@ -341,6 +341,10 @@ emitter.on('vf-fetch', ({params, onSuccess = null, onError = null}) => {
         onSuccess(data);
         emitter.emit('vf-modal-close');
         emitter.emit('vf-fetch', {params:{q: 'index', adapter: adapter, path: params.path}});
+
+        setTimeout(() => {
+          loadUsage(getCurrentWalletId.value);
+        }, 3000);
       }
     })
     .catch((e) => {
