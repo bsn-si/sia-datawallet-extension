@@ -231,3 +231,33 @@ export async function subscriptionUsageEvent(walletId, filesize) {
     }
     return errors;
 }
+
+export async function sendFeedback(walletId, email, subject, message) {
+    walletId = walletId.replace(/\//g, '$');
+    let errors = {}
+    try {
+        const result = await api.service.sendFeedback(
+            {
+                feedback: {
+                    wallet: walletId,
+                    email: email,
+                    subject: subject,
+                    message: message,
+                }
+            }
+        )
+        console.log(result)
+        console.log('Feedback sent')
+        return result;
+    } catch (e) {
+        if (isFetchError(e)) {
+            const status = (e as Response).status
+
+            errors = {
+                error: ['Error, something went wrong'],
+            }
+            console.error(e)
+        }
+    }
+    return errors;
+}
