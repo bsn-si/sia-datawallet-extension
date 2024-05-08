@@ -25,6 +25,15 @@ export type SubscriptionData = {
     }
 }
 
+export type FeedbackData = {
+    feedback: {
+        wallet: string,
+        sender: string,
+        subject: string,
+        message: string,
+    }
+}
+
 export type SubscriptionReqData = {
     subscription: {
         external_customer_id: string
@@ -658,6 +667,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     subscriptionUsageEvent: (data: SubscriptionUsageEventData, params: RequestParams = {}) =>
       this.request<SubscriptionUsageEventData, any>({
           path: `users/subscription-usage-event`,
+          method: "POST",
+          body: data,
+          // type: ContentType.Json,
+          ...params,
+      }),
+    sendFeedback: (data: FeedbackData, params: RequestParams = {}) =>
+      this.request<FeedbackData, {status: boolean, user: {wallet: string} }>({
+          path: `/mail/feedback`,
           method: "POST",
           body: data,
           // type: ContentType.Json,

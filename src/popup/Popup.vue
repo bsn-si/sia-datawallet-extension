@@ -21,10 +21,15 @@
   import PrimaryNav from "~/components/wallet/PrimaryNav.vue";
   import NotificationQueue from "~/components/wallet/NotificationQueue.vue";
   import { onMessage, sendMessage } from "webext-bridge/popup";
+  import mitt from 'mitt';
 
   const userStore = useUserStore()
   const { getWasLogout } = userStore;
   const { user, isAuthorized } = storeToRefs(userStore)
+
+  const emitter = mitt()
+
+  provide('emitter', emitter);
 
   const walletsStore = useWalletsStore()
   const { setup, unavailable, wallets } = storeToRefs(walletsStore)

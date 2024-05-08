@@ -28,7 +28,6 @@ export default {
 <script setup>
 import {computed, defineProps, onMounted, provide, reactive, ref, watch} from 'vue';
 import ajax from '../utils/ajax.js';
-import mitt from 'mitt';
 import {useStorage} from '../composables/useStorage.js';
 import {useApiUrl} from '../composables/useApiUrl.js';
 import VFToolbar from '../components/Toolbar.vue';
@@ -90,11 +89,12 @@ const props = defineProps({
     default: {}
   }
 });
-const emitter = mitt();
+
 const {setStore, getStore} = useStorage(props.id);
 const adapter =ref(getStore('adapter'));
 
-provide('emitter', emitter);
+const emitter = inject('emitter');
+
 provide('storage', useStorage(props.id));
 provide('postData', props.postData);
 provide('adapter', adapter);

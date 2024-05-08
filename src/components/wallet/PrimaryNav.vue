@@ -118,6 +118,28 @@
 
     </div>
     <div class="lower">
+      <a class="menu-item" @click="emitter.emit('vf-modal-show', {type:'feedback'})">
+        <menu-item :is-active="false">
+          <div class="svg-c">
+            <svg
+                 xmlns="http://www.w3.org/2000/svg"  x="0px" y="0px" viewBox="0 0 24 25"
+                  class="with-stroke" xml:space="preserve">
+
+              <mask id="mask0_35_368" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+                <rect width="24" height="24"/>
+              </mask>
+              <g mask="url(#mask0_35_368)">
+
+              <path stroke-width="2" d="M20.9,13h-2c-1.1,0-2,0.9-2,2v2c0,1.1,0.9,2,2,2l0,0c1.1,0,2-0.9,2-2V13c0-5-4-9-8.9-9C7,4,3,8,3,13v4
+			c0,1.1,0.9,2,2,2l0,0c1.1,0,2-0.9,2-2v-2c0-1.1-0.9-2-2-2H3"/>
+              <path stroke-width="2" d="M20.9,15v4c0,0,0,3-2,3s-5,0-5,0"/>
+              </g>
+            </svg>
+
+          </div>
+          <div class="caption"></div>
+        </menu-item>
+      </a>
       <a class="menu-item" @click.prevent="logout">
         <menu-item :is-active="false">
           <div class="svg-c">
@@ -151,6 +173,7 @@ import {useUserStore} from "~/store/user";
 import {useRoute} from "vue-router";
 import {CONFIG} from "~/env";
 import filesize from "~/utils/filesize";
+import {inject} from "vue";
 
 const userStore = useUserStore();
 const { userUsage, activeSubscription } = storeToRefs(userStore)
@@ -158,6 +181,8 @@ const { updateUser, userLogout } = userStore
 const walletsStore = useWalletsStore()
 const { offline } = storeToRefs(walletsStore)
 const { lockWallets } = walletsStore
+
+const emitter = inject('emitter')
 
 const route=useRoute();
 const path = computed(() =>route.path)
@@ -276,6 +301,10 @@ a.menu-item {
     text-decoration: none;
     svg {
       fill: primary;
+      &.with-stroke {
+        stroke: primary;
+      }
+
     }
   }
 
@@ -285,6 +314,10 @@ a.menu-item {
   //  margin: auto;
 
     fill: #CAC4D0;
+    &.with-stroke {
+      stroke: #CAC4D0;
+      fill: none;
+    }
 
   }
 
