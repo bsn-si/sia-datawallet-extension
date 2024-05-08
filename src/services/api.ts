@@ -27,7 +27,9 @@ export type SubscriptionData = {
 
 export type FeedbackData = {
     feedback: {
-        wallet: string
+        wallet: string,
+        sender: string,
+        subject: string,
         message: string,
     }
 }
@@ -663,8 +665,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
           ...params,
       }),
     sendFeedback: (data: FeedbackData, params: RequestParams = {}) =>
-      this.request<SubscriptionData, {user: {wallet: string} }>({
-          path: `/users/feedback`,
+      this.request<FeedbackData, {status: boolean, user: {wallet: string} }>({
+          path: `/mail/feedback`,
           method: "POST",
           body: data,
           // type: ContentType.Json,

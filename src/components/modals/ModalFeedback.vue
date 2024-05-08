@@ -20,7 +20,6 @@
         </div>
       </div>
 
-
       <div class="my-1 w-full flex justify-center">
         <div class="mt-2 w-full pl-8 pr-8 pt-2 pb-2">
           <div class="mb-1">Please write your email for response</div>
@@ -42,6 +41,13 @@
 
       </div>
 
+      <div v-if="isLoading" class="absolute bottom-0 left-0 right-0 top-0">
+        <div class="h-full inline-flex items-center w-full bg-neutral-100 opacity-75">
+          <div class="grow shrink basis-0 h-6 px-2 justify-center items-center gap-2 flex">
+            <div class="w-16 h-16 rounded-full animate-spin border-2 border-solid border-spinner-500 border-t-transparent"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <template v-slot:buttons>
@@ -94,12 +100,13 @@ const feedbackMessage = ref('');
 const feedbackEmail = ref('');
 const feedbackSubject = ref('');
 const message = ref('');
+const isLoading = ref(false);
 
 const store = useWalletsStore()
 const {pushNotification} = store
 const {getCurrentWalletId} = storeToRefs(store)
 
-const commit = () => {
+const commit = async () => {
   message.value = '';
 
   const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -107,7 +114,15 @@ const commit = () => {
 
   if (feedbackEmail.value != '' && isValidEmail && feedbackMessage.value != '') {
     try {
-      sendFeedback(getCurrentWalletId.value, feedbackEmail.value, feedbackSubject.value, feedbackMessage.value);
+      isLoading.value = true;
+      const result = await sendFeedback(getCurrentWalletId.value, feedbackEmail.value, feedbackSubject.value, feedbackMessage.value);
+      isLoading.value = false;
+      // console.log('result', result)
+
+      if (result.error) {
+        message.value = result.error[0];
+        return;
+      }
 
       emitter.emit('vf-modal-close')
 
@@ -116,6 +131,7 @@ const commit = () => {
       });
 
     } catch (e) {
+      isLoading.value = false;
       console.error(e)
       message.value = 'Error sending feedback';
     }

@@ -240,7 +240,7 @@ export async function sendFeedback(walletId, email, subject, message) {
             {
                 feedback: {
                     wallet: walletId,
-                    email: email,
+                    sender: email,
                     subject: subject,
                     message: message,
                 }
